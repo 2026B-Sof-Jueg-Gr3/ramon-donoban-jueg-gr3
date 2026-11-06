@@ -1,4 +1,4 @@
-import Nivel from '../modelo/Nivel.js';
+import Nivel, { CONFIGURACION_NIVELES } from '../modelo/Nivel.js';
 import Direccion from '../modelo/Direccion.js';
 import Boton, { FUENTE } from '../ui/Boton.js';
 import Progreso from '../ui/Progreso.js';
@@ -6,10 +6,18 @@ import { alRedimensionar, crearLienzoCentrado, crearVelo } from './utilidades.js
 
 const TILE = 60;
 const DURACION_MOVIMIENTO = 110;
-const ALTO_HUD = 40;
+const PUNTOS_POR_MOVIMIENTO_RESTANTE = 100;
+const ALTO_HUD = 64;
 const ALTO_AYUDA = 28;
 const MARGEN = 16;
 const ESCALA_MAXIMA_TABLERO = 1.6;
+const INFORMES = [
+    "INFORME DEL INSPECTOR: El pasillo está despejado. Las 'sombras' eran solo corrientes de aire moviendo las cortinas viejas. Escucho ruidos extraños viniendo de la cocina... debo investigar. [Presiona ESPACIO]",
+    "INFORME DEL INSPECTOR: El 'fantasma de la cocina' resultó ser un mecanismo oculto en la alacena. Alguien quiere asustar a los intrusos a propósito. La puerta hacia el ala oeste está cerrada... busquemos la llave. [Presiona ESPACIO]",
+    'INFORME DEL INSPECTOR: Candado abierto. Esta sección de la casa está llena de polvo, pero hay huellas humanas recientes en el suelo. Conducen hacia el cuarto de los niños... [Presiona ESPACIO]',
+    'INFORME DEL INSPECTOR: Los juguetes no cobraban vida por magia; estaban conectados a hilos invisibles desde el techo. Alguien nos observa. Una silueta acaba de pasar frente a la ventana exterior... [Presiona ESPACIO]',
+    'INFORME DEL INSPECTOR: ¡Atrapado! La sombra de la ventana era el cómplice del culpable intentando borrar las evidencias físicas. Solo queda una habitación, el despacho principal... es hora de resolver el caso. [Presiona ESPACIO]'
+];
 
 export default class VentanaDeJuego extends Phaser.Scene {
     constructor() { super('VentanaDeJuego'); }
@@ -20,6 +28,7 @@ export default class VentanaDeJuego extends Phaser.Scene {
 
     create() {
         this.nivel = new Nivel(this.numeroDeNivel, this.cache.text.get('nivel' + this.numeroDeNivel));
+        this.energiaMaxima = CONFIGURACION_NIVELES[this.numeroDeNivel].energiaMaxima;
         this.moviendo = false;
         this.ganado = false;
 
@@ -47,9 +56,11 @@ export default class VentanaDeJuego extends Phaser.Scene {
             ALTO_HUD + (h - ALTO_HUD - ALTO_AYUDA - altoTablero * escala) / 2
         );
 
-        this.textoNivel.setPosition(MARGEN, 10);
-        this.textoCajas.setPosition(w / 2, 10);
-        this.textoMovimientos.setPosition(w - MARGEN, 10);
+        this.textoNivel.setPosition(MARGEN, 6);
+        this.textoCajas.setPosition(w / 2, 6);
+        this.textoEnergia.setPosition(MARGEN, 34);
+        this.textoSeparador.setPosition(w / 2, 34);
+        this.textoPuntaje.setPosition(w - MARGEN, 34);
         this.textoAyuda.setPosition(w / 2, h - 6);
     }
 
@@ -94,10 +105,12 @@ export default class VentanaDeJuego extends Phaser.Scene {
     }
 
     crearHud() {
-        const estilo = { fontFamily: FUENTE, fontSize: '18px', color: '#ffffff', resolution: 2 };
+        const estilo = { fontFamily: FUENTE, fontSize: '16px', color: '#ffffff', resolution: 2 };
         this.textoNivel = this.add.text(0, 0, 'Nivel ' + this.numeroDeNivel, estilo);
         this.textoCajas = this.add.text(0, 0, '', { ...estilo, color: '#9be59b' }).setOrigin(0.5, 0);
-        this.textoMovimientos = this.add.text(0, 0, '', estilo).setOrigin(1, 0);
+        this.textoEnergia = this.add.text(0, 0, '', { ...estilo, fontSize: '14px' });
+        this.textoSeparador = this.add.text(0, 0, '|', { ...estilo, fontSize: '14px' }).setOrigin(0.5, 0);
+        this.textoPuntaje = this.add.text(0, 0, '', { ...estilo, fontSize: '14px' }).setOrigin(1, 0);
 
         this.textoAyuda = this.add.text(0, 0, 'Flechas/WASD: mover   Z: deshacer   R: reiniciar   ESC: niveles', {
             fontFamily: 'Arial, sans-serif', fontSize: '14px', color: '#cccccc', resolution: 2
@@ -107,8 +120,18 @@ export default class VentanaDeJuego extends Phaser.Scene {
 
     actualizarHud() {
         const escenario = this.nivel.getEscenario();
+        const movimientosRestantes = this.movimientosRestantes();
         this.textoCajas.setText(`Cajas ${escenario.puntosDeLlegadaFinalizados()}/${escenario.totalPuntoDeLlegada()}`);
-        this.textoMovimientos.setText('Mov: ' + this.nivel.getMovimientos());
+        this.textoEnergia.setText(`🔦 ENERGÍA DE LINTERNA: ${movimientosRestantes}/${this.energiaMaxima}`);
+        this.textoPuntaje.setText(`🏆 PUNTAJE: ${movimientosRestantes * PUNTOS_POR_MOVIMIENTO_RESTANTE}`);
+    }
+
+    movimientosRestantes() {
+        return Math.max(0, this.energiaMaxima - this.nivel.getMovimientos());
+    }
+
+    puntuacionActual() {
+        return this.movimientosRestantes() * PUNTOS_POR_MOVIMIENTO_RESTANTE;
     }
 
     registrarControles() {
@@ -128,7 +151,7 @@ export default class VentanaDeJuego extends Phaser.Scene {
     }
 
     mover(direccion) {
-        if (this.moviendo || this.ganado) return;
+        if (this.moviendo || this.ganado || this.movimientosRestantes() === 0) return;
         const resultado = this.nivel.mover(direccion);
         if (!resultado) return;
 
@@ -140,6 +163,7 @@ export default class VentanaDeJuego extends Phaser.Scene {
             if (resultado.caja) this.pintarCaja(resultado.caja);
             this.actualizarHud();
             if (this.nivel.estaCompletado()) this.mostrarVictoria();
+            else if (this.movimientosRestantes() === 0) this.mostrarFinEnergia();
         });
     }
 
@@ -168,30 +192,33 @@ export default class VentanaDeJuego extends Phaser.Scene {
         this.ganado = true;
         Progreso.marcarCompletado(this.numeroDeNivel);
 
-        crearVelo(this, 0.65);
-        const panel = crearLienzoCentrado(this);
-        panel.add([
-            this.add.rectangle(250, 300, 460, 260, 0x1b1b1b).setStrokeStyle(3, 0xffffff),
-            this.add.text(250, 230, '¡Felicidades!\nHas completado el nivel.', {
-                fontFamily: FUENTE, fontSize: '24px', color: '#ffffff', align: 'center', resolution: 2
-            }).setOrigin(0.5),
-            this.add.text(250, 285, 'Movimientos: ' + this.nivel.getMovimientos(), {
-                fontFamily: FUENTE, fontSize: '18px', color: '#9be59b', resolution: 2
-            }).setOrigin(0.5)
-        ]);
-
-        const irANiveles = () => this.scene.start('MenuNiveles');
-        const irASiguiente = () => this.scene.restart({ numeroDeNivel: this.numeroDeNivel + 1 });
+        const puntuaciones = { ...(this.registry.get('puntuacionesPorNivel') || {}) };
+        puntuaciones[this.numeroDeNivel] = Math.max(puntuaciones[this.numeroDeNivel] || 0, this.puntuacionActual());
+        this.registry.set('puntuacionesPorNivel', puntuaciones);
+        const puntuacionTotal = Object.values(puntuaciones).reduce((total, puntuacion) => total + puntuacion, 0);
 
         if (this.nivel.esUltimoNivel()) {
-            panel.add(new Boton(this, 250, 350, 'Niveles', irANiveles, 200, 44));
-            this.input.keyboard.once('keydown-ENTER', irANiveles);
-        } else {
-            panel.add([
-                new Boton(this, 155, 350, 'Siguiente', irASiguiente, 170, 44),
-                new Boton(this, 345, 350, 'Niveles', irANiveles, 170, 44)
-            ]);
-            this.input.keyboard.once('keydown-ENTER', irASiguiente);
+            const texto = `¡CASO CERRADO! Has ordenado todas las pistas. El culpable ha sido descubierto y la mentira de la mansión embrujada se ha desmoronado gracias a tu deducción. ¡Lógica pura! Score Total: ${puntuacionTotal}`;
+            this.scene.start('Interludio', { texto, siguiente: 'MenuNiveles' });
+            return;
         }
+
+        this.scene.start('Interludio', {
+            texto: INFORMES[this.numeroDeNivel - 1],
+            siguiente: 'VentanaDeJuego',
+            datosSiguiente: { numeroDeNivel: this.numeroDeNivel + 1 }
+        });
+    }
+
+    mostrarFinEnergia() {
+        this.ganado = true;
+        crearVelo(this, 0.7);
+        const panel = crearLienzoCentrado(this);
+        panel.add([
+            this.add.rectangle(250, 300, 440, 250, 0x1b1b1b).setStrokeStyle(3, 0xffffff),
+            this.add.text(250, 285, '¡La linterna se apagó y la oscuridad te atrapó!\n\nPresiona R para reiniciar la habitación.', {
+                fontFamily: FUENTE, fontSize: '21px', color: '#ffffff', align: 'center', wordWrap: { width: 380 }, lineSpacing: 8, resolution: 2
+            }).setOrigin(0.5)
+        ]);
     }
 }

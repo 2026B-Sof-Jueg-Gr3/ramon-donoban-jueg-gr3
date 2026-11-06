@@ -2,6 +2,14 @@ import Escenario from './Escenario.js';
 import Personaje from './Personaje.js';
 
 export const TOTAL_NIVELES = 6;
+export const CONFIGURACION_NIVELES = {
+    1: { movimientosMinimos: 20, margenError: 7, energiaMaxima: 27 },
+    2: { movimientosMinimos: 15, margenError: 7, energiaMaxima: 22 },
+    3: { movimientosMinimos: 22, margenError: 7, energiaMaxima: 29 },
+    4: { movimientosMinimos: 23, margenError: 7, energiaMaxima: 30 },
+    5: { movimientosMinimos: 28, margenError: 7, energiaMaxima: 35 },
+    6: { movimientosMinimos: 22, margenError: 7, energiaMaxima: 29 }
+};
 
 export default class Nivel {
     constructor(numeroDeNivel, textoDeNivel) {
