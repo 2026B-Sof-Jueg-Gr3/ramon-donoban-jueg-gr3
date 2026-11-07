@@ -1,0 +1,13 @@
+{
+  "obstaculos": [
+    { "id": "n5-mueble-velas", "tipo": "mueble", "en": [1, 9] },
+    { "id": "n5-mueble-cuadro", "tipo": "mueble", "en": [3, 11] },
+    { "id": "n5-mueble-sofa", "tipo": "mueble", "en": [7, 9] }
+  ],
+  "objetos": [
+    { "id": "n5-pista-planos", "tipo": "pista", "en": [1, 11], "recoger": "pisar" },
+    { "id": "n5-bateria-1", "tipo": "bateria", "en": [5, 9], "recoger": "pisar" },
+    { "id": "n5-pista-abrigo", "tipo": "pista", "en": [6, 1], "recoger": "pisar" }
+  ],
+  "evidencias": []
+}

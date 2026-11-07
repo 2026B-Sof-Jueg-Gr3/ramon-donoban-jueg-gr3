@@ -1,0 +1,34 @@
+{
+  "intro": "Una silueta cruzó la ventana. Esta vez no voy a dejar que escape.",
+  "empujar": [
+    "Pisadas mojadas: la sombra entró desde la lluvia hace muy poco.",
+    "Huele a humo. Están quemando papeles.",
+    "Alguien atrancó esta habitación para ganar tiempo."
+  ],
+  "cajas": [
+    "Salida al jardín bloqueada. La sombra ya no puede huir por aquí.",
+    "La chimenea, apagada a tiempo. Parte de los papeles se salvó."
+  ],
+  "cierre": "¡Atrapado! La sombra era un cómplice, empapado y con las manos manchadas de hollín. No dice para quién trabaja... todavía.",
+  "retirar": "Calma. Si me precipito, se escapa.",
+  "bateria": "Pilas en el bolsillo de un abrigo ajeno. Ya no las va a necesitar.",
+  "pistas": [
+    {
+      "id": "n5-pista-planos",
+      "titulo": "PLANOS DE LA MANSIÓN",
+      "texto": "El despacho está marcado en rojo, con una nota: «bajo el reloj»."
+    },
+    {
+      "id": "n5-pista-abrigo",
+      "titulo": "ABRIGO NEGRO",
+      "texto": "Empapado, escondido tras la cortina. En el bolsillo: «Quema los planos. —V.»"
+    }
+  ],
+  "muebles": [
+    { "id": "n5-mueble-velas", "emoji": "🕯️", "texto": "Velas apagadas junto a la ventana. Todavía están tibias." },
+    { "id": "n5-mueble-cuadro", "emoji": "🖼️", "texto": "Un cuadro torcido. Detrás hay un agujero para espiar el pasillo." },
+    { "id": "n5-mueble-sofa", "emoji": "🛋️", "texto": "Un sofá con la tela hundida. Alguien vigiló desde aquí durante horas." }
+  ],
+  "marcas": [],
+  "informe": "INFORME DEL INSPECTOR: ¡Atrapado! La sombra de la ventana era un cómplice que intentaba borrar las evidencias físicas. Solo queda una habitación, el despacho principal... es hora de resolver el caso."
+}

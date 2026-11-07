@@ -1,0 +1,43 @@
+{
+  "intro": "Primera regla del método: las cajas solo se empujan, nunca se jalan. Segunda regla: los fantasmas no existen. Empecemos por este pasillo.",
+  "empujar": [
+    "Pesa más de lo que parece. Aquí dentro hay algo más que polvo.",
+    "Estas marcas en el suelo... alguien arrastró esto antes que yo.",
+    "Las cortinas se mueven solas. Bueno, «solas»: hay una ventana rota al fondo."
+  ],
+  "cajas": [
+    "Primera en su sitio. Las marcas del suelo coinciden: alguien la sacó de aquí a propósito.",
+    "Segunda. Detrás estaba la ventana rota; por ahí entra el viento que mueve las cortinas."
+  ],
+  "cierre": "Listo. Sin cajas tapando la corriente, las cortinas dejan de «caminar». El pasillo no estaba embrujado: alguien lo desordenó para que lo pareciera.",
+  "retirar": "No, ahí no iba. Corregir un error también es parte del método.",
+  "bateria": "Pilas nuevas, todavía en su empaque. Alguien piensa pasar muchas noches aquí.",
+  "pistas": [
+    {
+      "id": "n1-pista-periodico",
+      "titulo": "RECORTE DE PERIÓDICO",
+      "texto": "«Muere el señor Flieder. El albacea de la familia, Gerhard Voss, administrará la mansión hasta que aparezca un comprador.»"
+    },
+    {
+      "id": "n1-pista-huella",
+      "titulo": "HUELLA DE BOTA",
+      "texto": "Huella de bota en el barro seco, talla 44. Los fantasmas no usan botas."
+    }
+  ],
+  "muebles": [],
+  "marcas": [
+    {
+      "id": "n1-marca-polvo",
+      "icono": "👣",
+      "borrador": true,
+      "texto": "El polvo parece removido... alguien estuvo aquí hace poco."
+    },
+    {
+      "id": "n1-marca-arrastre",
+      "icono": "🔍",
+      "borrador": true,
+      "texto": "Marcas de arrastre junto a la pared. Algo pesado se movió hace poco."
+    }
+  ],
+  "informe": "INFORME DEL INSPECTOR: El pasillo está despejado. Las «sombras» eran cortinas movidas por el viento de una ventana rota, y alguien había colocado las cajas justo para tapar la corriente y que pareciera cosa de fantasmas. Desde la cocina llegan ruidos metálicos... debo investigar."
+}

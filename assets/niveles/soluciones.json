@@ -1,0 +1,80 @@
+{
+  "1": {
+    "recordPasos": {
+      "pasos": 16,
+      "empujones": 6,
+      "solucion": "lluRRdlldRRlldRR"
+    },
+    "recordEmpujones": {
+      "pasos": 16,
+      "empujones": 6,
+      "solucion": "lluRRdlldRRlldRR"
+    },
+    "recogerTodo": 30
+  },
+  "2": {
+    "recordPasos": {
+      "pasos": 45,
+      "empujones": 17,
+      "solucion": "lluurRlluurRRRurDDulldDldRRlullllUluRRRRRRurD"
+    },
+    "recordEmpujones": {
+      "pasos": 45,
+      "empujones": 17,
+      "solucion": "lluurRlluurRRRurDDulldDldRRlullllUluRRRRRRurD"
+    },
+    "recogerTodo": 48
+  },
+  "3": {
+    "recordPasos": {
+      "pasos": 49,
+      "empujones": 21,
+      "solucion": "uUULLLLLrrrrrruulDrdLLLLLdlUrrrruruulDDrdLLLLdllU"
+    },
+    "recordEmpujones": {
+      "pasos": 51,
+      "empujones": 19,
+      "solucion": "uruulLLLLLrrrdddrruUruLLLLLdlUrrrruruulDDrdLLLLdllU"
+    },
+    "recogerTodo": 57
+  },
+  "4": {
+    "recordPasos": {
+      "pasos": 30,
+      "empujones": 12,
+      "solucion": "ururrruRRDrdrddLLdlUUURuulDDrR"
+    },
+    "recordEmpujones": {
+      "pasos": 32,
+      "empujones": 8,
+      "solucion": "ururrruRRDrdrddLLdlUrrruuullldRR"
+    },
+    "recogerTodo": 42
+  },
+  "5": {
+    "recordPasos": {
+      "pasos": 31,
+      "empujones": 8,
+      "solucion": "uullllDDuullullDuluurDDldRRlldR"
+    },
+    "recordEmpujones": {
+      "pasos": 31,
+      "empujones": 8,
+      "solucion": "uullllDDuullullDuluurDDldRRlldR"
+    },
+    "recogerTodo": 44
+  },
+  "6": {
+    "recordPasos": {
+      "pasos": 33,
+      "empujones": 10,
+      "solucion": "ullllluulLuuuurDDldRRRuLdlluurDDD"
+    },
+    "recordEmpujones": {
+      "pasos": 33,
+      "empujones": 10,
+      "solucion": "ullllluulLuuuurDDldRRRuLdlluurDDD"
+    },
+    "recogerTodo": 48
+  }
+}

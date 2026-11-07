@@ -19,6 +19,8 @@ export default class Carga extends Phaser.Scene {
         this.load.image('fondoNiveles', 'assets/img/fondoNiveles.png');
         for (let i = 1; i <= TOTAL_NIVELES; i++) {
             this.load.text('nivel' + i, Nivel.buscarArchivoDeNivel(i));
+            this.load.json('entidades' + i, Nivel.buscarArchivoDeEntidades(i));
+            this.load.json('narrativa' + i, `assets/narrativa/nivel${i}.json`);
         }
     }
 

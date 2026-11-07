@@ -1,0 +1,35 @@
+{
+  "intro": "Un candado nuevo en una puerta vieja. ¿Quién cierra con llave una casa abandonada?",
+  "empujar": [
+    "Estas cajas bloqueaban el paso desde dentro. Alguien no quería visitas.",
+    "Polvo por todas partes... menos en el camino que alguien recorre a diario.",
+    "La madera cruje, pero aguanta. Igual que mi paciencia."
+  ],
+  "cajas": [
+    "El polvo de esta zona está intacto, pero el del camino no. Alguien pasa por aquí seguido.",
+    "Bajo la caja hay huellas recientes. Botas de hombre, talla grande."
+  ],
+  "cierre": "Paso despejado. Las huellas siguen hasta el cuarto de los niños... y nadie entra ahí sin una razón.",
+  "retirar": "Me adelanté. Volvamos a pensarlo.",
+  "bateria": "Pilas escondidas detrás de un ladrillo suelto. Un escondite muy humano.",
+  "pistas": [
+    {
+      "id": "n3-pista-carta",
+      "titulo": "CARTA SIN ENVIAR",
+      "texto": "«Mientras crean que la casa está maldita, ningún comprador se acercará.»"
+    },
+    {
+      "id": "n3-pista-llave",
+      "titulo": "LLAVE DE LATÓN",
+      "texto": "Lleva una etiqueta: «Ala oeste — copia». Quien la tiene entra y sale cuando quiere."
+    }
+  ],
+  "muebles": [
+    { "id": "n3-mueble-llavero", "emoji": "🗝️", "texto": "Un llavero vacío. Falta justo la llave del ala oeste." },
+    { "id": "n3-mueble-puerta", "emoji": "🚪", "texto": "Una puerta tapiada con tablones nuevos. Los clavos todavía brillan." },
+    { "id": "n3-mueble-herramientas", "emoji": "🧰", "borrador": true, "texto": "Una caja de herramientas de cerrajero. Las ganzúas están gastadas por el uso." },
+    { "id": "n3-mueble-barril", "emoji": "🛢️", "borrador": true, "texto": "Un barril de aceite para bisagras, casi vacío. Esta puerta se abre más de lo que parece." }
+  ],
+  "marcas": [],
+  "informe": "INFORME DEL INSPECTOR: El candado no protegía un secreto antiguo, sino uno reciente. Hay huellas humanas frescas entre el polvo y conducen al cuarto de los niños... allí, dicen, los juguetes se mueven solos."
+}

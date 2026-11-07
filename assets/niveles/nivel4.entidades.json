@@ -1,0 +1,13 @@
+{
+  "obstaculos": [
+    { "id": "n4-mueble-oso", "tipo": "mueble", "en": [1, 1] },
+    { "id": "n4-mueble-caballito", "tipo": "mueble", "en": [3, 2] },
+    { "id": "n4-mueble-munecas", "tipo": "mueble", "en": [7, 1] }
+  ],
+  "objetos": [
+    { "id": "n4-pista-hilo", "tipo": "pista", "en": [1, 3], "recoger": "pisar" },
+    { "id": "n4-bateria-1", "tipo": "bateria", "en": [5, 1], "recoger": "pisar" },
+    { "id": "n4-pista-diario", "tipo": "pista", "en": [8, 3], "recoger": "pisar" }
+  ],
+  "evidencias": []
+}

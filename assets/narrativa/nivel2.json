@@ -1,0 +1,34 @@
+{
+  "intro": "Ruidos metálicos en la cocina. Los fantasmas no suelen necesitar sartenes.",
+  "empujar": [
+    "Esta alacena tiene ruedas. ¿Desde cuándo los muebles de cocina tienen ruedas?",
+    "Huele a aceite de máquina, no a comida.",
+    "Algo tintinea dentro... suena a poleas."
+  ],
+  "cajas": [
+    "Detrás había una cuerda que sube hasta el techo. Primer hilo del «fantasma».",
+    "Un fuelle escondido. Con esto las velas se apagan «solas» desde la otra habitación."
+  ],
+  "cierre": "Ahí está el mecanismo completo: poleas, cuerda y fuelle. Y dos tazas en el fregadero... el fantasma de la cocina es un aparato, y quien lo construyó no trabaja solo.",
+  "retirar": "Mmm, no. Ese no era su lugar.",
+  "bateria": "Otra batería. Quien sea, compra al por mayor.",
+  "pistas": [
+    {
+      "id": "n2-pista-recibo",
+      "titulo": "RECIBO DE FERRETERÍA",
+      "texto": "Poleas, cuerda de piano y un fuelle. Firmado con una sola letra: «V»."
+    },
+    {
+      "id": "n2-pista-taza",
+      "titulo": "TAZA DE CAFÉ",
+      "texto": "Todavía está tibia. Alguien estuvo aquí hace menos de una hora."
+    }
+  ],
+  "muebles": [
+    { "id": "n2-mueble-copas", "emoji": "🍷", "texto": "Copas de vino limpias en una casa «abandonada». Interesante." },
+    { "id": "n2-mueble-platos", "emoji": "🍽️", "texto": "Platos apilados... para dos personas." },
+    { "id": "n2-mueble-sarten", "emoji": "🍳", "texto": "Restos de aceite en la sartén. Cocinaron aquí esta misma semana." }
+  ],
+  "marcas": [],
+  "informe": "INFORME DEL INSPECTOR: El «fantasma de la cocina» era un mecanismo de poleas oculto en la alacena. Alguien quiere asustar a los intrusos a propósito, y tiene un cómplice. La puerta del ala oeste está cerrada con un candado nuevo... busquemos la manera de entrar."
+}

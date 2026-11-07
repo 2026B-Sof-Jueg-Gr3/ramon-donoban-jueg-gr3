@@ -1,10 +1,32 @@
-9
-1 1 1 1 1 1 1 1 1
-1 1 0 0 0 1 0 1 1
-1 1 0 2 1 0 0 1 1
-1 1 0 0 0 0 1 0 1
-1 1 0 2 0 3 0 0 1
-1 1 0 0 3 0 1 2 1
-1 0 0 0 0 1 1 0 1
-1 0 0 1 1 0 0 3 1
-1 1 1 1 1 1 1 1 1
+; Inspector Lógica · nivel 5 · formato por capas
+; [terreno]     # pared · (espacio) suelo · . destino
+; [obstaculos]  m mueble (su ID está en nivel5.entidades.json)
+; [sokoban]     A-Z caja (la letra es su ID) · @ inicio del inspector
+; Las entidades que no forman parte de la matriz (pistas, baterías, marcas) están en nivel5.entidades.json
+[terreno]
+##############
+##   # ##    #
+##  #  ##    #
+##    # #    #
+##   .       #
+##  . # #    #
+#    ## #    #
+#  ##  .#    #
+##############
+[obstaculos]
+
+         m
+
+           m
+
+
+
+         m
+[sokoban]
+
+
+   A
+
+   B
+       C
+           @
