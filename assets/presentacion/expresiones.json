@@ -1,0 +1,11 @@
+{
+  "comentario": "PROPUESTA por aprobar. La expresión del inspector en cada línea importante. Claves: 'intro', el id de la regla, 'cierre' y 'error'. Valores: neutral, pensativo, sonrisa_ironica, sorprendido, serio, satisfecho. No lleva texto.",
+  "niveles": {
+    "1": { "intro": "serio", "revelacion:0": "pensativo", "revelacion:1": "sorprendido", "cierre": "satisfecho", "error": "sonrisa_ironica" },
+    "2": { "intro": "sonrisa_ironica", "revelacion:0": "pensativo", "revelacion:1": "sorprendido", "cierre": "serio", "error": "pensativo" },
+    "3": { "intro": "pensativo", "revelacion:0": "serio", "revelacion:1": "sorprendido", "cierre": "serio", "error": "pensativo" },
+    "4": { "intro": "serio", "revelacion:0": "sorprendido", "revelacion:1": "pensativo", "cierre": "sorprendido", "error": "neutral" },
+    "5": { "intro": "serio", "revelacion:0": "satisfecho", "revelacion:1": "neutral", "pista:n5-pista-planos": "pensativo", "cierre": "satisfecho", "error": "serio" },
+    "6": { "intro": "serio", "revelacion:0": "pensativo", "revelacion:1": "serio", "cierre": "sorprendido", "error": "serio" }
+  }
+}

@@ -1,16 +1,16 @@
 {
   "intro": "Una silueta cruzó la ventana. Esta vez no voy a dejar que escape.",
-  "empujar": [
+  "comentarios": [
     "Pisadas mojadas: la sombra entró desde la lluvia hace muy poco.",
     "Huele a humo. Están quemando papeles.",
     "Alguien atrancó esta habitación para ganar tiempo."
   ],
-  "cajas": [
+  "revelaciones": [
     "Salida al jardín bloqueada. La sombra ya no puede huir por aquí.",
     "La chimenea, apagada a tiempo. Parte de los papeles se salvó."
   ],
   "cierre": "¡Atrapado! La sombra era un cómplice, empapado y con las manos manchadas de hollín. No dice para quién trabaja... todavía.",
-  "retirar": "Calma. Si me precipito, se escapa.",
+  "error": "Calma. Si me precipito, se escapa.",
   "bateria": "Pilas en el bolsillo de un abrigo ajeno. Ya no las va a necesitar.",
   "pistas": [
     {

@@ -1,16 +1,16 @@
 {
-  "intro": "Primera regla del método: las cajas solo se empujan, nunca se jalan. Segunda regla: los fantasmas no existen. Empecemos por este pasillo.",
-  "empujar": [
-    "Pesa más de lo que parece. Aquí dentro hay algo más que polvo.",
+  "intro": "Primera regla del método: todo deja rastro. Segunda regla: los fantasmas no existen. Empecemos por este pasillo.",
+  "comentarios": [
+    "Esta caja pesa más de lo que parece. Aquí dentro hay algo más que polvo.",
     "Estas marcas en el suelo... alguien arrastró esto antes que yo.",
     "Las cortinas se mueven solas. Bueno, «solas»: hay una ventana rota al fondo."
   ],
-  "cajas": [
-    "Primera en su sitio. Las marcas del suelo coinciden: alguien la sacó de aquí a propósito.",
-    "Segunda. Detrás estaba la ventana rota; por ahí entra el viento que mueve las cortinas."
+  "revelaciones": [
+    "Las marcas del suelo coinciden: alguien sacó estas cajas de aquí a propósito.",
+    "Detrás de las cajas está la ventana rota; por ahí entra el viento que mueve las cortinas."
   ],
-  "cierre": "Listo. Sin cajas tapando la corriente, las cortinas dejan de «caminar». El pasillo no estaba embrujado: alguien lo desordenó para que lo pareciera.",
-  "retirar": "No, ahí no iba. Corregir un error también es parte del método.",
+  "cierre": "Listo. Las cortinas no «caminan»: es la corriente de la ventana rota. El pasillo no estaba embrujado: alguien lo desordenó para que lo pareciera.",
+  "error": "No, eso no encaja. Corregir un error también es parte del método.",
   "bateria": "Pilas nuevas, todavía en su empaque. Alguien piensa pasar muchas noches aquí.",
   "pistas": [
     {
@@ -39,5 +39,33 @@
       "texto": "Marcas de arrastre junto a la pared. Algo pesado se movió hace poco."
     }
   ],
-  "informe": "INFORME DEL INSPECTOR: El pasillo está despejado. Las «sombras» eran cortinas movidas por el viento de una ventana rota, y alguien había colocado las cajas justo para tapar la corriente y que pareciera cosa de fantasmas. Desde la cocina llegan ruidos metálicos... debo investigar."
+  "informe": "INFORME DEL INSPECTOR: El pasillo está despejado. Las «sombras» eran cortinas movidas por el viento de una ventana rota, y alguien había colocado las cajas justo para tapar la corriente y que pareciera cosa de fantasmas. Desde la cocina llegan ruidos metálicos... debo investigar.",
+  "deduccion": {
+    "pruebas": {
+      "ventana-rota": "Ventana rota",
+      "cajas-movidas": "Cajas movidas",
+      "marcas-de-arrastre": "Marcas de arrastre",
+      "polvo-removido": "Polvo removido"
+    },
+    "preguntas": [
+      {
+        "id": "cortinas",
+        "texto": "¿Qué mueve las cortinas?",
+        "opciones": [
+          { "id": "corriente", "texto": "La corriente que entra por la ventana rota" },
+          { "id": "alguien-detras", "texto": "Alguien las mueve desde detrás" },
+          { "id": "sombras-malditas", "texto": "Las sombras malditas de la mansión" }
+        ]
+      },
+      {
+        "id": "embrujado",
+        "texto": "¿Por qué parecía embrujado?",
+        "opciones": [
+          { "id": "a-proposito", "texto": "Alguien desordenó el pasillo a propósito" },
+          { "id": "con-el-tiempo", "texto": "Las cajas se cayeron con el tiempo" },
+          { "id": "rechaza-visitantes", "texto": "La casa rechaza a los visitantes" }
+        ]
+      }
+    ]
+  }
 }

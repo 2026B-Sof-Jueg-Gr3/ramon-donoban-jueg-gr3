@@ -1,16 +1,16 @@
 {
   "intro": "El despacho del viejo Flieder. Aquí termina la mentira.",
-  "empujar": [
+  "comentarios": [
     "Estos archivos fueron movidos hace poco: las marcas están frescas.",
     "El suelo junto al reloj suena hueco.",
     "Todo en esta habitación apunta al mismo lugar."
   ],
-  "cajas": [
+  "revelaciones": [
     "Archivos en orden. Las cuentas de la herencia no cuadran desde hace años.",
     "Siete ofertas de compra, siete rechazos. Ninguno por fantasmas."
   ],
   "cierre": "Y la última pieza: bajo el reloj detenido, el escondite del tesoro... vacío, con unas herramientas al lado. Alguien llegó antes que yo.",
-  "retirar": "No. A estas alturas, cada detalle importa.",
+  "error": "No. A estas alturas, cada detalle importa.",
   "bateria": "Últimas pilas. Suficiente luz para ver la verdad.",
   "pistas": [
     {
@@ -25,11 +25,74 @@
     }
   ],
   "muebles": [
-    { "id": "n6-mueble-reloj", "emoji": "🕰️", "texto": "El gran reloj del despacho, detenido. Sus agujas no se mueven... y el suelo bajo él suena hueco." },
-    { "id": "n6-mueble-libros", "emoji": "📚", "texto": "Libros de contabilidad de la herencia. Las cifras no cuadran desde hace años." },
-    { "id": "n6-mueble-archivador", "emoji": "🗄️", "texto": "Un archivador forzado. Faltan las escrituras de la mansión." },
-    { "id": "n6-mueble-pluma", "emoji": "🖋️", "texto": "Una pluma estilográfica grabada: «G. V.»" }
+    {
+      "id": "n6-mueble-reloj",
+      "emoji": "🕰️",
+      "texto": "El gran reloj del despacho, detenido. Sus agujas no se mueven... y el suelo bajo él suena hueco."
+    },
+    {
+      "id": "n6-mueble-libros",
+      "emoji": "📚",
+      "texto": "Libros de contabilidad de la herencia. Las cifras no cuadran desde hace años."
+    },
+    {
+      "id": "n6-mueble-archivador",
+      "emoji": "🗄️",
+      "texto": "Un archivador forzado. Faltan las escrituras de la mansión."
+    },
+    {
+      "id": "n6-mueble-pluma",
+      "emoji": "🖋️",
+      "texto": "Una pluma estilográfica grabada: «G. V.»"
+    }
   ],
   "marcas": [],
-  "informe": "¡CASO CERRADO! Has ordenado todas las pistas. La mentira de la mansión embrujada se ha desmoronado gracias a tu deducción... aunque no todas las preguntas tienen respuesta. ¡Lógica pura!"
+  "informe": "¡CASO CERRADO! Has ordenado todas las pistas. La mentira de la mansión embrujada se ha desmoronado gracias a tu deducción... aunque no todas las preguntas tienen respuesta. ¡Lógica pura!",
+  "deduccion": {
+    "pruebas": {
+      "cuentas-que-no-cuadran": "Cuentas que no cuadran",
+      "siete-rechazos": "Siete rechazos",
+      "pluma-gv": "Pluma «G. V.»",
+      "archivador-forzado": "Archivador forzado",
+      "reloj-detenido": "Reloj detenido"
+    },
+    "preguntas": [
+      {
+        "id": "detras",
+        "texto": "¿Quién está detrás de la «maldición»?",
+        "opciones": [
+          {
+            "id": "voss",
+            "texto": "Gerhard Voss, el albacea"
+          },
+          {
+            "id": "complice",
+            "texto": "El cómplice de la ventana"
+          },
+          {
+            "id": "maldicion",
+            "texto": "La propia maldición de los Flieder"
+          }
+        ]
+      },
+      {
+        "id": "espantaba",
+        "texto": "¿Por qué espantaba a los compradores?",
+        "opciones": [
+          {
+            "id": "buscar-tesoro",
+            "texto": "Para buscar el tesoro sin que nadie se quedara con la casa"
+          },
+          {
+            "id": "memoria",
+            "texto": "Para proteger la memoria del señor Flieder"
+          },
+          {
+            "id": "creia",
+            "texto": "Porque creía en la maldición"
+          }
+        ]
+      }
+    ]
+  }
 }

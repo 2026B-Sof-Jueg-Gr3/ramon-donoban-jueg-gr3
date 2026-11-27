@@ -1,5 +1,6 @@
 // Guarda en el navegador qué niveles ya se completaron
-const CLAVE = 'sokoban-completados';
+// Clave propia de la v2: el progreso guardado por la v1.1 (Sokoban) no debe desbloquear habitaciones
+const CLAVE = 'inspector-logica-v2-completados';
 
 export default class Progreso {
     static leerCompletados() {

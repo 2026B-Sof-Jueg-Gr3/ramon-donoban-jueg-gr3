@@ -1,0 +1,11 @@
+{
+  "comentario": "Los PNG de arte final que hay en esta carpeta. Se escribe con: node herramientas/listar_retratos.mjs (ver README.md). Vacía = se usa el retrato dibujado por código.",
+  "archivos": [
+    "neutral.png",
+    "pensativo.png",
+    "sonrisa_ironica.png",
+    "sorprendido.png",
+    "serio.png",
+    "satisfecho.png"
+  ]
+}

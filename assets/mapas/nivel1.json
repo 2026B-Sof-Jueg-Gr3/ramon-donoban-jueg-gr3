@@ -1,0 +1,890 @@
+{
+ "compressionlevel": -1,
+ "height": 13,
+ "infinite": false,
+ "layers": [
+  {
+   "data": [
+   0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+   0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+   0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+   0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+   0,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,0,
+   0,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,0,
+   0,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,0,
+   0,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,0,
+   0,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,0,
+   0,0,0,0,0,0,2,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+   0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+   0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+   0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+  ],
+   "height": 13,
+   "id": 1,
+   "name": "suelo",
+   "opacity": 1,
+   "type": "tilelayer",
+   "visible": true,
+   "width": 36,
+   "x": 0,
+   "y": 0
+  },
+  {
+   "data": [
+   0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+   0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+   4,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,4,
+   4,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,4,
+   4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4,
+   4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4,
+   4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4,
+   4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4,
+   4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4,
+   4,4,4,4,4,4,0,0,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,
+   0,0,0,0,0,4,4,4,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+   0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+   0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+  ],
+   "height": 13,
+   "id": 2,
+   "name": "paredes",
+   "opacity": 1,
+   "type": "tilelayer",
+   "visible": true,
+   "width": 36,
+   "x": 0,
+   "y": 0
+  },
+  {
+   "draworder": "topdown",
+   "id": 3,
+   "name": "objetos",
+   "objects": [
+    {
+     "class": "inicio",
+     "height": 0,
+     "id": 1,
+     "name": "inicio",
+     "rotation": 0,
+     "type": "inicio",
+     "visible": true,
+     "width": 0,
+     "x": 170,
+     "y": 440,
+     "point": true
+    },
+    {
+     "class": "mueble",
+     "height": 64,
+     "id": 2,
+     "name": "pila-de-cajas",
+     "rotation": 0,
+     "type": "mueble",
+     "visible": true,
+     "width": 128,
+     "x": 1920,
+     "y": 384,
+     "properties": [
+      {
+       "name": "alto",
+       "type": "int",
+       "value": 80
+      },
+      {
+       "name": "estilo",
+       "type": "string",
+       "value": "cajas"
+      }
+     ]
+    },
+    {
+     "class": "mueble",
+     "height": 64,
+     "id": 3,
+     "name": "armario",
+     "rotation": 0,
+     "type": "mueble",
+     "visible": true,
+     "width": 128,
+     "x": 800,
+     "y": 512,
+     "properties": [
+      {
+       "name": "alto",
+       "type": "int",
+       "value": 150
+      },
+      {
+       "name": "estilo",
+       "type": "string",
+       "value": "armario"
+      }
+     ]
+    },
+    {
+     "class": "mueble",
+     "height": 48,
+     "id": 4,
+     "name": "consola",
+     "rotation": 0,
+     "type": "mueble",
+     "visible": true,
+     "width": 192,
+     "x": 1152,
+     "y": 272,
+     "properties": [
+      {
+       "name": "alto",
+       "type": "int",
+       "value": 44
+      },
+      {
+       "name": "estilo",
+       "type": "string",
+       "value": "consola"
+      }
+     ]
+    },
+    {
+     "class": "mueble",
+     "height": 40,
+     "id": 5,
+     "name": "banco",
+     "rotation": 0,
+     "type": "mueble",
+     "visible": true,
+     "width": 128,
+     "x": 1600,
+     "y": 536,
+     "properties": [
+      {
+       "name": "alto",
+       "type": "int",
+       "value": 36
+      },
+      {
+       "name": "estilo",
+       "type": "string",
+       "value": "banco"
+      }
+     ]
+    },
+    {
+     "class": "bloqueaLuz",
+     "height": 64,
+     "id": 6,
+     "name": "pila-luz",
+     "rotation": 0,
+     "type": "bloqueaLuz",
+     "visible": true,
+     "width": 128,
+     "x": 1920,
+     "y": 384,
+     "properties": [
+      {
+       "name": "alturaCara",
+       "type": "int",
+       "value": 80
+      }
+     ]
+    },
+    {
+     "class": "bloqueaLuz",
+     "height": 64,
+     "id": 7,
+     "name": "armario-luz",
+     "rotation": 0,
+     "type": "bloqueaLuz",
+     "visible": true,
+     "width": 128,
+     "x": 800,
+     "y": 512,
+     "properties": [
+      {
+       "name": "alturaCara",
+       "type": "int",
+       "value": 150
+      }
+     ]
+    },
+    {
+     "class": "ventana",
+     "height": 76,
+     "id": 8,
+     "name": "ventana-1",
+     "rotation": 0,
+     "type": "ventana",
+     "visible": true,
+     "width": 64,
+     "x": 480,
+     "y": 162,
+     "properties": [
+      {
+       "name": "rota",
+       "type": "bool",
+       "value": false
+      }
+     ]
+    },
+    {
+     "class": "cortina",
+     "height": 108,
+     "id": 9,
+     "name": "cortina-1-izq",
+     "rotation": 0,
+     "type": "cortina",
+     "visible": true,
+     "width": 30,
+     "x": 450,
+     "y": 150,
+     "properties": [
+      {
+       "name": "lado",
+       "type": "string",
+       "value": "izq"
+      },
+      {
+       "name": "fuerza",
+       "type": "string",
+       "value": 1.0
+      },
+      {
+       "name": "rota",
+       "type": "bool",
+       "value": false
+      }
+     ]
+    },
+    {
+     "class": "cortina",
+     "height": 108,
+     "id": 10,
+     "name": "cortina-1-der",
+     "rotation": 0,
+     "type": "cortina",
+     "visible": true,
+     "width": 30,
+     "x": 544,
+     "y": 150,
+     "properties": [
+      {
+       "name": "lado",
+       "type": "string",
+       "value": "der"
+      },
+      {
+       "name": "fuerza",
+       "type": "string",
+       "value": 1.0
+      },
+      {
+       "name": "rota",
+       "type": "bool",
+       "value": false
+      }
+     ]
+    },
+    {
+     "class": "ventana",
+     "height": 76,
+     "id": 11,
+     "name": "ventana-2",
+     "rotation": 0,
+     "type": "ventana",
+     "visible": true,
+     "width": 64,
+     "x": 992,
+     "y": 162,
+     "properties": [
+      {
+       "name": "rota",
+       "type": "bool",
+       "value": false
+      }
+     ]
+    },
+    {
+     "class": "cortina",
+     "height": 108,
+     "id": 12,
+     "name": "cortina-2-izq",
+     "rotation": 0,
+     "type": "cortina",
+     "visible": true,
+     "width": 30,
+     "x": 962,
+     "y": 150,
+     "properties": [
+      {
+       "name": "lado",
+       "type": "string",
+       "value": "izq"
+      },
+      {
+       "name": "fuerza",
+       "type": "string",
+       "value": 1.0
+      },
+      {
+       "name": "rota",
+       "type": "bool",
+       "value": false
+      }
+     ]
+    },
+    {
+     "class": "cortina",
+     "height": 108,
+     "id": 13,
+     "name": "cortina-2-der",
+     "rotation": 0,
+     "type": "cortina",
+     "visible": true,
+     "width": 30,
+     "x": 1056,
+     "y": 150,
+     "properties": [
+      {
+       "name": "lado",
+       "type": "string",
+       "value": "der"
+      },
+      {
+       "name": "fuerza",
+       "type": "string",
+       "value": 1.0
+      },
+      {
+       "name": "rota",
+       "type": "bool",
+       "value": false
+      }
+     ]
+    },
+    {
+     "class": "ventana",
+     "height": 76,
+     "id": 14,
+     "name": "ventana-3",
+     "rotation": 0,
+     "type": "ventana",
+     "visible": true,
+     "width": 64,
+     "x": 1504,
+     "y": 162,
+     "properties": [
+      {
+       "name": "rota",
+       "type": "bool",
+       "value": false
+      }
+     ]
+    },
+    {
+     "class": "cortina",
+     "height": 108,
+     "id": 15,
+     "name": "cortina-3-izq",
+     "rotation": 0,
+     "type": "cortina",
+     "visible": true,
+     "width": 30,
+     "x": 1474,
+     "y": 150,
+     "properties": [
+      {
+       "name": "lado",
+       "type": "string",
+       "value": "izq"
+      },
+      {
+       "name": "fuerza",
+       "type": "string",
+       "value": 1.0
+      },
+      {
+       "name": "rota",
+       "type": "bool",
+       "value": false
+      }
+     ]
+    },
+    {
+     "class": "cortina",
+     "height": 108,
+     "id": 16,
+     "name": "cortina-3-der",
+     "rotation": 0,
+     "type": "cortina",
+     "visible": true,
+     "width": 30,
+     "x": 1568,
+     "y": 150,
+     "properties": [
+      {
+       "name": "lado",
+       "type": "string",
+       "value": "der"
+      },
+      {
+       "name": "fuerza",
+       "type": "string",
+       "value": 1.0
+      },
+      {
+       "name": "rota",
+       "type": "bool",
+       "value": false
+      }
+     ]
+    },
+    {
+     "class": "ventana",
+     "height": 76,
+     "id": 17,
+     "name": "ventana-4",
+     "rotation": 0,
+     "type": "ventana",
+     "visible": true,
+     "width": 64,
+     "x": 1952,
+     "y": 162,
+     "properties": [
+      {
+       "name": "rota",
+       "type": "bool",
+       "value": true
+      }
+     ]
+    },
+    {
+     "class": "cortina",
+     "height": 108,
+     "id": 18,
+     "name": "cortina-4-izq",
+     "rotation": 0,
+     "type": "cortina",
+     "visible": true,
+     "width": 30,
+     "x": 1922,
+     "y": 150,
+     "properties": [
+      {
+       "name": "lado",
+       "type": "string",
+       "value": "izq"
+      },
+      {
+       "name": "fuerza",
+       "type": "string",
+       "value": 1.8
+      },
+      {
+       "name": "rota",
+       "type": "bool",
+       "value": false
+      }
+     ]
+    },
+    {
+     "class": "cortina",
+     "height": 108,
+     "id": 19,
+     "name": "cortina-4-der",
+     "rotation": 0,
+     "type": "cortina",
+     "visible": true,
+     "width": 30,
+     "x": 2016,
+     "y": 150,
+     "properties": [
+      {
+       "name": "lado",
+       "type": "string",
+       "value": "der"
+      },
+      {
+       "name": "fuerza",
+       "type": "string",
+       "value": 1.8
+      },
+      {
+       "name": "rota",
+       "type": "bool",
+       "value": true
+      }
+     ]
+    },
+    {
+     "class": "fenomeno",
+     "height": 20,
+     "id": 20,
+     "name": "corriente",
+     "rotation": 0,
+     "type": "fenomeno",
+     "visible": true,
+     "width": 64,
+     "x": 1952,
+     "y": 236,
+     "properties": [
+      {
+       "name": "efecto",
+       "type": "string",
+       "value": "corriente"
+      }
+     ]
+    },
+    {
+     "class": "revelable",
+     "height": 44,
+     "id": 21,
+     "name": "polvo",
+     "rotation": 0,
+     "type": "revelable",
+     "visible": true,
+     "width": 96,
+     "x": 700,
+     "y": 440,
+     "properties": [
+      {
+       "name": "ref",
+       "type": "string",
+       "value": "n1-marca-polvo"
+      },
+      {
+       "name": "dibujo",
+       "type": "string",
+       "value": "polvo"
+      }
+     ]
+    },
+    {
+     "class": "revelable",
+     "height": 60,
+     "id": 22,
+     "name": "arrastre",
+     "rotation": 0,
+     "type": "revelable",
+     "visible": true,
+     "width": 190,
+     "x": 1690,
+     "y": 276,
+     "properties": [
+      {
+       "name": "ref",
+       "type": "string",
+       "value": "n1-marca-arrastre"
+      },
+      {
+       "name": "dibujo",
+       "type": "string",
+       "value": "arrastre"
+      },
+      {
+       "name": "accion",
+       "type": "string",
+       "value": "examinar"
+      }
+     ]
+    },
+    {
+     "class": "interactuable",
+     "height": 64,
+     "id": 23,
+     "name": "examinar-pila",
+     "rotation": 0,
+     "type": "interactuable",
+     "visible": true,
+     "width": 128,
+     "x": 1920,
+     "y": 384,
+     "properties": [
+      {
+       "name": "ref",
+       "type": "string",
+       "value": "pila-de-cajas"
+      },
+      {
+       "name": "accion",
+       "type": "string",
+       "value": "examinar"
+      },
+      {
+       "name": "luz",
+       "type": "string",
+       "value": "1936,449,96,8"
+      }
+     ]
+    },
+    {
+     "class": "interactuable",
+     "height": 40,
+     "id": 24,
+     "name": "mirar-detras",
+     "rotation": 0,
+     "type": "interactuable",
+     "visible": true,
+     "width": 96,
+     "x": 1936,
+     "y": 256,
+     "properties": [
+      {
+       "name": "ref",
+       "type": "string",
+       "value": "pila-de-cajas"
+      },
+      {
+       "name": "accion",
+       "type": "string",
+       "value": "mirar-detras"
+      },
+      {
+       "name": "lado",
+       "type": "string",
+       "value": "ventana"
+      },
+      {
+       "name": "distancia",
+       "type": "int",
+       "value": 0
+      },
+      {
+       "name": "mira",
+       "type": "string",
+       "value": "1984,200"
+      },
+      {
+       "name": "luz",
+       "type": "string",
+       "value": "1952,257,64,8"
+      }
+     ]
+    },
+    {
+     "class": "interactuable",
+     "height": 108,
+     "id": 25,
+     "name": "cortinas-1",
+     "rotation": 0,
+     "type": "interactuable",
+     "visible": true,
+     "width": 128,
+     "x": 448,
+     "y": 150,
+     "properties": [
+      {
+       "name": "ref",
+       "type": "string",
+       "value": "cortinas"
+      },
+      {
+       "name": "accion",
+       "type": "string",
+       "value": "examinar"
+      },
+      {
+       "name": "enPared",
+       "type": "bool",
+       "value": true
+      },
+      {
+       "name": "luz",
+       "type": "string",
+       "value": "448,257,128,8"
+      }
+     ]
+    },
+    {
+     "class": "interactuable",
+     "height": 108,
+     "id": 26,
+     "name": "cortinas-2",
+     "rotation": 0,
+     "type": "interactuable",
+     "visible": true,
+     "width": 128,
+     "x": 960,
+     "y": 150,
+     "properties": [
+      {
+       "name": "ref",
+       "type": "string",
+       "value": "cortinas"
+      },
+      {
+       "name": "accion",
+       "type": "string",
+       "value": "examinar"
+      },
+      {
+       "name": "enPared",
+       "type": "bool",
+       "value": true
+      },
+      {
+       "name": "luz",
+       "type": "string",
+       "value": "960,257,128,8"
+      }
+     ]
+    },
+    {
+     "class": "interactuable",
+     "height": 108,
+     "id": 27,
+     "name": "cortinas-3",
+     "rotation": 0,
+     "type": "interactuable",
+     "visible": true,
+     "width": 128,
+     "x": 1472,
+     "y": 150,
+     "properties": [
+      {
+       "name": "ref",
+       "type": "string",
+       "value": "cortinas"
+      },
+      {
+       "name": "accion",
+       "type": "string",
+       "value": "examinar"
+      },
+      {
+       "name": "enPared",
+       "type": "bool",
+       "value": true
+      },
+      {
+       "name": "luz",
+       "type": "string",
+       "value": "1472,257,128,8"
+      }
+     ]
+    },
+    {
+     "class": "interactuable",
+     "height": 40,
+     "id": 28,
+     "name": "huella-bota",
+     "rotation": 0,
+     "type": "interactuable",
+     "visible": true,
+     "width": 48,
+     "x": 300,
+     "y": 500,
+     "properties": [
+      {
+       "name": "ref",
+       "type": "string",
+       "value": "n1-pista-huella"
+      },
+      {
+       "name": "accion",
+       "type": "string",
+       "value": "recoger"
+      },
+      {
+       "name": "dibujo",
+       "type": "string",
+       "value": "huella-bota"
+      }
+     ]
+    },
+    {
+     "class": "interactuable",
+     "height": 30,
+     "id": 29,
+     "name": "recorte",
+     "rotation": 0,
+     "type": "interactuable",
+     "visible": true,
+     "width": 48,
+     "x": 1228,
+     "y": 238,
+     "properties": [
+      {
+       "name": "ref",
+       "type": "string",
+       "value": "n1-pista-periodico"
+      },
+      {
+       "name": "accion",
+       "type": "string",
+       "value": "recoger"
+      },
+      {
+       "name": "dibujo",
+       "type": "string",
+       "value": "recorte"
+      },
+      {
+       "name": "sobre",
+       "type": "string",
+       "value": "consola"
+      }
+     ]
+    },
+    {
+     "class": "interactuable",
+     "height": 36,
+     "id": 30,
+     "name": "pilas",
+     "rotation": 0,
+     "type": "interactuable",
+     "visible": true,
+     "width": 48,
+     "x": 424,
+     "y": 596,
+     "properties": [
+      {
+       "name": "ref",
+       "type": "string",
+       "value": "bateria"
+      },
+      {
+       "name": "accion",
+       "type": "string",
+       "value": "recoger"
+      },
+      {
+       "name": "dibujo",
+       "type": "string",
+       "value": "pilas"
+      }
+     ]
+    }
+   ],
+   "opacity": 1,
+   "type": "objectgroup",
+   "visible": true,
+   "x": 0,
+   "y": 0
+  }
+ ],
+ "nextlayerid": 4,
+ "nextobjectid": 31,
+ "orientation": "orthogonal",
+ "renderorder": "right-down",
+ "tiledversion": "1.10.2",
+ "tileheight": 64,
+ "tilesets": [
+  {
+   "columns": 5,
+   "firstgid": 1,
+   "image": "../tilesets/provisional.png",
+   "imageheight": 64,
+   "imagewidth": 320,
+   "margin": 0,
+   "name": "provisional",
+   "spacing": 0,
+   "tilecount": 5,
+   "tileheight": 64,
+   "tilewidth": 64
+  }
+ ],
+ "tilewidth": 64,
+ "type": "map",
+ "version": "1.10",
+ "width": 36
+}

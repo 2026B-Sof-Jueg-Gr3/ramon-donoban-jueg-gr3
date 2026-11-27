@@ -1,0 +1,65 @@
+{
+  "nivel": 1,
+  "comentario": "Reglas del Pasillo Oscuro. No lleva texto: cada regla apunta a una línea de assets/narrativa/nivel1.json. 'cuando' es la lista de hechos que tienen que haber ocurrido (en cualquier orden); la regla sale una sola vez, al ocurrir el último. 'deduccion' dice qué prueba sale de qué regla y qué combinaciones respaldan cada conclusión; los nombres y las preguntas están en la narrativa.",
+  "objetos": {
+    "pila-de-cajas": {
+      "acciones": {
+        "examinar": {},
+        "mirar-detras": { "lados": ["ventana"] }
+      }
+    },
+    "cortinas": {
+      "acciones": { "examinar": {} }
+    },
+    "n1-marca-polvo": { "descubre": "luz" },
+    "n1-marca-arrastre": {
+      "descubre": "luz",
+      "acciones": { "examinar": { "requiere": ["ilumino:n1-marca-arrastre"] } }
+    },
+    "n1-pista-huella": { "acciones": { "recoger": {} } },
+    "n1-pista-periodico": { "acciones": { "recoger": {} } },
+    "bateria": { "acciones": { "recoger": {} } }
+  },
+  "reglas": [
+    { "id": "intro", "cuando": ["entro"], "clase": "importante", "texto": "intro" },
+
+    { "id": "marca:n1-marca-polvo", "cuando": ["ilumino:n1-marca-polvo"], "clase": "ambiental", "texto": "marcas:n1-marca-polvo" },
+    { "id": "marca:n1-marca-arrastre", "cuando": ["ilumino:n1-marca-arrastre"], "clase": "ambiental", "texto": "marcas:n1-marca-arrastre" },
+
+    { "id": "comentario:0", "cuando": ["examino:pila-de-cajas"], "clase": "secundaria", "texto": "comentarios:0" },
+    { "id": "comentario:1", "cuando": ["examino:n1-marca-arrastre"], "clase": "secundaria", "texto": "comentarios:1" },
+    { "id": "comentario:2", "cuando": ["examino:cortinas"], "clase": "secundaria", "texto": "comentarios:2" },
+
+    { "id": "revelacion:0", "cuando": ["ilumino:n1-marca-arrastre", "examino:pila-de-cajas"], "clase": "importante", "texto": "revelaciones:0" },
+    { "id": "revelacion:1", "cuando": ["miro-detras:pila-de-cajas:ventana"], "clase": "importante", "texto": "revelaciones:1" },
+
+    { "id": "pista:n1-pista-huella", "cuando": ["recogio:n1-pista-huella"], "clase": "secundaria", "texto": "pistas:n1-pista-huella" },
+    { "id": "pista:n1-pista-periodico", "cuando": ["recogio:n1-pista-periodico"], "clase": "secundaria", "texto": "pistas:n1-pista-periodico" },
+    { "id": "bateria", "cuando": ["recogio:bateria"], "clase": "secundaria", "texto": "bateria" }
+  ],
+  "ayuda": {
+    "espera": 45,
+    "refuerzos": [
+      { "efecto": "libreta", "mientras": { "deduccion": "disponible" } },
+      { "efecto": "marcas", "mientras": { "sinContar": ["marca:n1-marca-arrastre"] } },
+      { "efecto": "pila", "mientras": { "sinContar": ["comentario:0"] } },
+      { "efecto": "corriente", "mientras": { "sinContar": ["revelacion:1"] } }
+    ]
+  },
+  "deduccion": {
+    "maximoDePruebas": 2,
+    "pilas": "bateria",
+    "pruebas": {
+      "ventana-rota": { "sale": "revelacion:1" },
+      "cajas-movidas": { "sale": "revelacion:0" },
+      "marcas-de-arrastre": { "sale": "marca:n1-marca-arrastre" },
+      "polvo-removido": { "sale": "marca:n1-marca-polvo" },
+      "n1-pista-huella": { "sale": "pista:n1-pista-huella" },
+      "n1-pista-periodico": { "sale": "pista:n1-pista-periodico" }
+    },
+    "preguntas": [
+      { "id": "cortinas", "correcta": "corriente", "validas": [["ventana-rota"]] },
+      { "id": "embrujado", "correcta": "a-proposito", "validas": [["cajas-movidas"]] }
+    ]
+  }
+}

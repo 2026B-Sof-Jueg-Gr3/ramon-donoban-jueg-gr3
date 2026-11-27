@@ -1,0 +1,634 @@
+{
+ "compressionlevel": -1,
+ "height": 12,
+ "infinite": false,
+ "layers": [
+  {
+   "data": [
+   0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+   0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+   0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+   0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+   0,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,0,0,
+   0,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,0,0,
+   0,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,0,0,
+   0,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,0,0,
+   0,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,0,0,
+   0,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,0,0,
+   0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+   0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+  ],
+   "height": 12,
+   "id": 1,
+   "name": "suelo",
+   "opacity": 1,
+   "type": "tilelayer",
+   "visible": true,
+   "width": 23,
+   "x": 0,
+   "y": 0
+  },
+  {
+   "data": [
+   0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+   0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+   4,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,4,4,
+   4,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,4,0,
+   4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4,0,
+   4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4,0,
+   4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4,0,
+   4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4,0,
+   4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4,0,
+   4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4,0,
+   4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,0,
+   0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+  ],
+   "height": 12,
+   "id": 2,
+   "name": "paredes",
+   "opacity": 1,
+   "type": "tilelayer",
+   "visible": true,
+   "width": 23,
+   "x": 0,
+   "y": 0
+  },
+  {
+   "draworder": "topdown",
+   "id": 3,
+   "name": "objetos",
+   "objects": [
+    {
+     "class": "inicio",
+     "height": 0,
+     "id": 1,
+     "name": "inicio",
+     "rotation": 0,
+     "type": "inicio",
+     "visible": true,
+     "width": 0,
+     "x": 150,
+     "y": 600,
+     "point": true
+    },
+    {
+     "class": "mueble",
+     "height": 64,
+     "id": 2,
+     "name": "caja-juguetes",
+     "rotation": 0,
+     "type": "mueble",
+     "visible": true,
+     "width": 128,
+     "x": 200,
+     "y": 256,
+     "properties": [
+      {
+       "name": "alto",
+       "type": "int",
+       "value": 70
+      },
+      {
+       "name": "estilo",
+       "type": "string",
+       "value": "juguetero"
+      }
+     ]
+    },
+    {
+     "class": "mueble",
+     "height": 56,
+     "id": 3,
+     "name": "oso",
+     "rotation": 0,
+     "type": "mueble",
+     "visible": true,
+     "width": 96,
+     "x": 800,
+     "y": 256,
+     "properties": [
+      {
+       "name": "alto",
+       "type": "int",
+       "value": 70
+      },
+      {
+       "name": "estilo",
+       "type": "string",
+       "value": "oso"
+      }
+     ]
+    },
+    {
+     "class": "mueble",
+     "height": 64,
+     "id": 4,
+     "name": "caballito",
+     "rotation": 0,
+     "type": "mueble",
+     "visible": true,
+     "width": 96,
+     "x": 940,
+     "y": 420,
+     "properties": [
+      {
+       "name": "alto",
+       "type": "int",
+       "value": 80
+      },
+      {
+       "name": "estilo",
+       "type": "string",
+       "value": "caballito"
+      }
+     ]
+    },
+    {
+     "class": "mueble",
+     "height": 48,
+     "id": 5,
+     "name": "munecas",
+     "rotation": 0,
+     "type": "mueble",
+     "visible": true,
+     "width": 192,
+     "x": 420,
+     "y": 500,
+     "properties": [
+      {
+       "name": "alto",
+       "type": "int",
+       "value": 50
+      },
+      {
+       "name": "estilo",
+       "type": "string",
+       "value": "munecas"
+      }
+     ]
+    },
+    {
+     "class": "mueble",
+     "height": 40,
+     "id": 6,
+     "name": "tren",
+     "rotation": 0,
+     "type": "mueble",
+     "visible": true,
+     "width": 96,
+     "x": 1100,
+     "y": 500,
+     "properties": [
+      {
+       "name": "alto",
+       "type": "int",
+       "value": 36
+      },
+      {
+       "name": "estilo",
+       "type": "string",
+       "value": "tren"
+      }
+     ]
+    },
+    {
+     "class": "ventana",
+     "height": 76,
+     "id": 7,
+     "name": "ventana",
+     "rotation": 0,
+     "type": "ventana",
+     "visible": true,
+     "width": 64,
+     "x": 1120,
+     "y": 162,
+     "properties": [
+      {
+       "name": "rota",
+       "type": "bool",
+       "value": false
+      }
+     ]
+    },
+    {
+     "class": "revelable",
+     "height": 18,
+     "id": 8,
+     "name": "hilo-caja",
+     "rotation": 0,
+     "type": "revelable",
+     "visible": true,
+     "width": 80,
+     "x": 338,
+     "y": 292,
+     "properties": [
+      {
+       "name": "ref",
+       "type": "string",
+       "value": "n4-hilo-caja"
+      },
+      {
+       "name": "dibujo",
+       "type": "string",
+       "value": "hilo"
+      }
+     ]
+    },
+    {
+     "class": "revelable",
+     "height": 18,
+     "id": 9,
+     "name": "hilo-caballito",
+     "rotation": 0,
+     "type": "revelable",
+     "visible": true,
+     "width": 80,
+     "x": 850,
+     "y": 450,
+     "properties": [
+      {
+       "name": "ref",
+       "type": "string",
+       "value": "hilo-caballito"
+      },
+      {
+       "name": "dibujo",
+       "type": "string",
+       "value": "hilo"
+      },
+      {
+       "name": "accion",
+       "type": "string",
+       "value": "tirar"
+      }
+     ]
+    },
+    {
+     "class": "revelable",
+     "height": 18,
+     "id": 10,
+     "name": "hilo-munecas",
+     "rotation": 0,
+     "type": "revelable",
+     "visible": true,
+     "width": 80,
+     "x": 330,
+     "y": 520,
+     "properties": [
+      {
+       "name": "ref",
+       "type": "string",
+       "value": "hilo-munecas"
+      },
+      {
+       "name": "dibujo",
+       "type": "string",
+       "value": "hilo"
+      },
+      {
+       "name": "accion",
+       "type": "string",
+       "value": "cortar"
+      }
+     ]
+    },
+    {
+     "class": "revelable",
+     "height": 18,
+     "id": 11,
+     "name": "hilo-oso",
+     "rotation": 0,
+     "type": "revelable",
+     "visible": true,
+     "width": 80,
+     "x": 712,
+     "y": 285,
+     "properties": [
+      {
+       "name": "ref",
+       "type": "string",
+       "value": "hilo-oso"
+      },
+      {
+       "name": "dibujo",
+       "type": "string",
+       "value": "hilo"
+      },
+      {
+       "name": "accion",
+       "type": "string",
+       "value": "cortar"
+      }
+     ]
+    },
+    {
+     "class": "interactuable",
+     "height": 108,
+     "id": 12,
+     "name": "trampilla",
+     "rotation": 0,
+     "type": "interactuable",
+     "visible": true,
+     "width": 96,
+     "x": 640,
+     "y": 150,
+     "properties": [
+      {
+       "name": "ref",
+       "type": "string",
+       "value": "trampilla"
+      },
+      {
+       "name": "accion",
+       "type": "string",
+       "value": "examinar"
+      },
+      {
+       "name": "dibujo",
+       "type": "string",
+       "value": "trampilla"
+      },
+      {
+       "name": "enPared",
+       "type": "bool",
+       "value": true
+      },
+      {
+       "name": "luz",
+       "type": "string",
+       "value": "640,257,96,8"
+      }
+     ]
+    },
+    {
+     "class": "interactuable",
+     "height": 64,
+     "id": 13,
+     "name": "examinar-caja",
+     "rotation": 0,
+     "type": "interactuable",
+     "visible": true,
+     "width": 128,
+     "x": 200,
+     "y": 256,
+     "properties": [
+      {
+       "name": "ref",
+       "type": "string",
+       "value": "caja-juguetes"
+      },
+      {
+       "name": "accion",
+       "type": "string",
+       "value": "examinar"
+      },
+      {
+       "name": "sobre",
+       "type": "string",
+       "value": "caja-juguetes"
+      },
+      {
+       "name": "luz",
+       "type": "string",
+       "value": "200,321,128,8"
+      }
+     ]
+    },
+    {
+     "class": "interactuable",
+     "height": 56,
+     "id": 14,
+     "name": "examinar-oso",
+     "rotation": 0,
+     "type": "interactuable",
+     "visible": true,
+     "width": 96,
+     "x": 800,
+     "y": 256,
+     "properties": [
+      {
+       "name": "ref",
+       "type": "string",
+       "value": "n4-mueble-oso"
+      },
+      {
+       "name": "accion",
+       "type": "string",
+       "value": "examinar"
+      },
+      {
+       "name": "sobre",
+       "type": "string",
+       "value": "oso"
+      },
+      {
+       "name": "luz",
+       "type": "string",
+       "value": "800,313,96,8"
+      }
+     ]
+    },
+    {
+     "class": "interactuable",
+     "height": 64,
+     "id": 15,
+     "name": "examinar-caballito",
+     "rotation": 0,
+     "type": "interactuable",
+     "visible": true,
+     "width": 96,
+     "x": 940,
+     "y": 420,
+     "properties": [
+      {
+       "name": "ref",
+       "type": "string",
+       "value": "n4-mueble-caballito"
+      },
+      {
+       "name": "accion",
+       "type": "string",
+       "value": "examinar"
+      },
+      {
+       "name": "sobre",
+       "type": "string",
+       "value": "caballito"
+      },
+      {
+       "name": "luz",
+       "type": "string",
+       "value": "940,485,96,8"
+      }
+     ]
+    },
+    {
+     "class": "interactuable",
+     "height": 48,
+     "id": 16,
+     "name": "examinar-munecas",
+     "rotation": 0,
+     "type": "interactuable",
+     "visible": true,
+     "width": 192,
+     "x": 420,
+     "y": 500,
+     "properties": [
+      {
+       "name": "ref",
+       "type": "string",
+       "value": "n4-mueble-munecas"
+      },
+      {
+       "name": "accion",
+       "type": "string",
+       "value": "examinar"
+      },
+      {
+       "name": "sobre",
+       "type": "string",
+       "value": "munecas"
+      },
+      {
+       "name": "luz",
+       "type": "string",
+       "value": "420,549,192,8"
+      }
+     ]
+    },
+    {
+     "class": "interactuable",
+     "height": 36,
+     "id": 17,
+     "name": "pilas",
+     "rotation": 0,
+     "type": "interactuable",
+     "visible": true,
+     "width": 48,
+     "x": 1124,
+     "y": 466,
+     "properties": [
+      {
+       "name": "ref",
+       "type": "string",
+       "value": "bateria"
+      },
+      {
+       "name": "accion",
+       "type": "string",
+       "value": "recoger"
+      },
+      {
+       "name": "dibujo",
+       "type": "string",
+       "value": "pilas"
+      },
+      {
+       "name": "sobre",
+       "type": "string",
+       "value": "tren"
+      },
+      {
+       "name": "mira",
+       "type": "string",
+       "value": "1148,484"
+      },
+      {
+       "name": "luz",
+       "type": "string",
+       "value": "1100,541,96,8"
+      }
+     ]
+    },
+    {
+     "class": "interactuable",
+     "height": 44,
+     "id": 18,
+     "name": "bobina",
+     "rotation": 0,
+     "type": "interactuable",
+     "visible": true,
+     "width": 44,
+     "x": 300,
+     "y": 580,
+     "properties": [
+      {
+       "name": "ref",
+       "type": "string",
+       "value": "n4-pista-hilo"
+      },
+      {
+       "name": "accion",
+       "type": "string",
+       "value": "recoger"
+      },
+      {
+       "name": "dibujo",
+       "type": "string",
+       "value": "bobina"
+      }
+     ]
+    },
+    {
+     "class": "interactuable",
+     "height": 38,
+     "id": 19,
+     "name": "diario",
+     "rotation": 0,
+     "type": "interactuable",
+     "visible": true,
+     "width": 52,
+     "x": 1250,
+     "y": 570,
+     "properties": [
+      {
+       "name": "ref",
+       "type": "string",
+       "value": "n4-pista-diario"
+      },
+      {
+       "name": "accion",
+       "type": "string",
+       "value": "recoger"
+      },
+      {
+       "name": "dibujo",
+       "type": "string",
+       "value": "diario"
+      }
+     ]
+    }
+   ],
+   "opacity": 1,
+   "type": "objectgroup",
+   "visible": true,
+   "x": 0,
+   "y": 0
+  }
+ ],
+ "nextlayerid": 4,
+ "nextobjectid": 20,
+ "orientation": "orthogonal",
+ "renderorder": "right-down",
+ "tiledversion": "1.10.2",
+ "tileheight": 64,
+ "tilesets": [
+  {
+   "columns": 5,
+   "firstgid": 1,
+   "image": "../tilesets/provisional.png",
+   "imageheight": 64,
+   "imagewidth": 320,
+   "margin": 0,
+   "spacing": 0,
+   "name": "provisional",
+   "tilecount": 5,
+   "tileheight": 64,
+   "tilewidth": 64
+  }
+ ],
+ "tilewidth": 64,
+ "type": "map",
+ "version": "1.10",
+ "width": 23
+}

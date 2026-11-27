@@ -1,183 +1,131 @@
 # Inspector Lógica: El Misterio de la Mansión
 
-Sokoban narrativo para el navegador, hecho con Phaser 3. Nació como adaptación a JavaScript del juego de escritorio
-[Sokoban_In_JAVA](https://github.com/DonobanR/Sokoban_In_JAVA) (conserva sus recursos gráficos y su diseño orientado a
-objetos) y evolucionó hacia un Sokoban que cuenta una historia: el Inspector Lógica recorre seis habitaciones de la
-Mansión Flieder demostrando que los "fantasmas" tienen explicaciones físicas. Las acciones del jugador (colocar cajas,
-recoger pistas, descubrir marcas, examinar muebles) hacen avanzar la investigación.
+Un juego de investigación en 2.5D para el navegador, hecho con Phaser 3: caminas con una linterna, descubres lo que la oscuridad esconde y
+resuelves cada habitación con una deducción apoyada en pruebas.
 
-## Alcance de esta versión
+**La historia:** la Mansión Flieder lleva años abandonada y dicen que sombras malditas mueven los objetos. El Inspector Lógica entra bajo la
+tormenta, habitación por habitación, a demostrar con pruebas físicas que la «magia» es solo una fachada.
 
-Esta versión se conserva como **proyecto Sokoban narrativo cerrado**. Incluye solo lo descrito en este documento.
-**No forman parte de esta entrega** (se diseñaron pero no se implementaron):
+Autor: **DonobanR**.
 
-- Guardado y reconstrucción de intentos ni partidas (al salir de un nivel, el intento se pierde).
-- Expediente de conocimiento persistente (hechos, interpretaciones): solo se guardan las pistas recogidas.
-- Motor narrativo con reglas y "Director Visual" (personajes, reconstrucciones, ilustraciones).
-- Linterna con cargas y destello: las baterías siguen en los niveles y en el modelo, pero ocultas y sin efecto.
-- Preguntas, deducciones y enfrentamientos finales.
-- El rediseño posterior de niveles que se planificó (mapas más grandes y con más habitaciones). Los seis niveles
-  incluidos ya no son los mapas de 9×9 del juego original: los niveles 1 a 3 se rediseñaron durante el proyecto y los
-  niveles 4 a 6 se ampliaron con zonas nuevas.
+## Cómo jugar
 
-Algunos textos del guion están marcados `"borrador": true` (el validador los lista).
+- **Camina** por la habitación y **alumbra** con la linterna: muchas cosas solo existen para ti cuando la luz las toca.
+- Cuando algo se puede usar (estás cerca, lo miras de frente y la luz lo toca) aparece el ícono **E**.
+- Lo que descubres queda en la **libreta**. Cuando tienes lo necesario, resuelves el caso: eliges una conclusión y la respaldas con una o dos
+  pruebas. Equivocarse no tiene castigo.
+- Si pasas un rato sin descubrir nada, la habitación te da una pista **sin palabras**: fíjate en lo que cambia.
 
-## Tecnologías
+### Controles
 
-- **Phaser 3.80.1**, cargado desde CDN (jsDelivr) en `index.html`. No hay dependencias que instalar.
-- **JavaScript** con módulos ES, sin empaquetador.
-- **Python 3** (biblioteca estándar; probado con 3.13): servidor local y validador de niveles.
-- **Node.js 22.7 o superior** (probado con 24.19; usa `node:test`, sin paquetes): pruebas automáticas. Hace falta una
-  versión que acepte patrones en `node --test` y que cargue como módulos ES los `.js` sin `package.json`.
+| Acción | Teclas |
+|---|---|
+| Caminar | **W A S D** o las **flechas** |
+| Apuntar la linterna | **ratón** (sin moverlo, la linterna apunta hacia donde caminas) |
+| Usar algo / continuar un texto | **E** |
+| Continuar un texto | **E**, **Espacio**, **Enter** o **clic** |
+| Libreta | **Tab** o **I** |
+| Pausa (continuar o salir al menú) | **Esc** |
+| Menús y deducción | flechas o WASD para moverse, **E** o Enter para elegir, Esc para volver; también con el ratón |
 
-## Requisitos e instalación
+Se juega con teclado y ratón, en una pantalla apaisada. El control táctil todavía no está hecho.
 
-1. Un navegador moderno con conexión a internet (Phaser se descarga del CDN).
-2. Python 3 para el servidor local y el validador; Node.js para las pruebas.
+## Las seis habitaciones
 
-No hay `npm install` ni pasos de compilación: basta con clonar el repositorio.
+| # | Habitación | De qué va |
+|---|---|---|
+| 1 | El Pasillo Oscuro | **Observar:** marcas en el suelo, cajas fuera de sitio y unas cortinas que parecen «caminar» |
+| 2 | El Fantasma de la Cocina | **Mecanismos:** golpes metálicos y velas que se apagan solas |
+| 3 | La Puerta con Candado | **Seguir el rastro:** lo que el polvo cuenta bajo la linterna, y una puerta que abrir |
+| 4 | El Cuarto de los Juguetes | **Experimentar:** juguetes que se mueven solos e hilos casi invisibles |
+| 5 | La Sombra en la Ventana | **Persecución en tiempo real:** alguien quema papeles y quiere escapar |
+| 6 | La Verdad Revelada | **Reconstruir:** el expediente de toda la mansión y la deducción final |
 
-## Ejecución
+Cada habitación resuelta desbloquea la siguiente. El progreso y las pistas encontradas se guardan en el navegador (`localStorage`); lo
+investigado a medias en una habitación no se guarda.
 
-El juego usa módulos ES, así que necesita un servidor HTTP: abrir `index.html` directamente no funciona.
+## Ejecutarlo
+
+Necesitas un navegador moderno y conexión a internet (Phaser 3.80.1 se carga desde jsDelivr). No hay nada que instalar ni que compilar.
+
+### En local
+
+El juego usa módulos ES, así que necesita un servidor HTTP: abrir `index.html` directamente no funciona. Con Python 3:
 
 ```
 python servidor.py
 ```
 
-y abrir http://localhost:8787. Este servidor indica al navegador que no guarde los archivos en caché (con
-`python -m http.server` el navegador puede seguir usando versiones viejas tras un cambio). Cualquier servidor estático
-sirve, incluido GitHub Pages (`.nojekyll` ya está en el repositorio).
+y abrir http://localhost:8787. Este servidor le dice al navegador que no guarde los archivos en caché, así cada recarga usa la versión actual.
 
-**Controles:** flechas o WASD para mover · Z deshacer · R reiniciar · Esc volver a niveles · Espacio, Enter o un toque
-para avanzar los textos importantes. En pantallas táctiles hay cruceta y botones.
+### En GitHub Pages
 
-## Estructura
+Es un sitio estático: en el repositorio, **Settings → Pages**, elegir la rama que se quiere publicar y la carpeta raíz (`/`). El archivo
+`.nojekyll` ya está. Lo que se publica es lo que esté **commiteado y subido** a esa rama.
 
-```
-├── index.html               Página de entrada; carga Phaser desde CDN
-├── servidor.py              Servidor local sin caché (puerto 8787)
-├── assets/
-│   ├── img/                 Imágenes del juego original
-│   ├── niveles/             nivelN.txt (capas físicas), nivelN.entidades.json y soluciones.json
-│   └── narrativa/           nivelN.json: guion de cada nivel
-├── herramientas/
-│   └── validar_niveles.py   Validador de niveles con solver
-├── pruebas/                 Pruebas automáticas (node --test)
-├── GUION_NARRATIVA.md       Borrador histórico del guion (ver la nota al inicio del archivo)
-└── src/
-    ├── main.js              Configura Phaser y registra las escenas
-    ├── modelo/              Lógica del Sokoban, sin dependencias de Phaser
-    │   ├── FormatoNivel.js  Lee las capas de nivelN.txt
-    │   ├── Escenario.js     Matriz de bloques y entidades fuera de la matriz; visibilidad de marcas
-    │   ├── Nivel.js         Tablero físico: pasos, empujones, deshacer, reiniciar, sucesos y consultas
-    │   ├── Personaje.js     Movimiento y empuje
-    │   ├── Bloque.js        Clase base de Pared, Suelo, PuntoDeLlegada, Caja y Mueble
-    │   ├── Caja.js · Mueble.js · Objeto.js · Marca.js   Entidades con ID
-    │   └── Direccion.js
-    ├── escenas/             Carga, MenuPrincipal, MenuNiveles, Interludio (informes) y VentanaDeJuego
-    ├── presentacion/        Aparición temporal de las marcas (configuracion.js, PresentacionTemporal,
-    │                        AparicionDeMarca, GestorDePresentaciones)
-    └── ui/
-        ├── Narrador.js            Categorías, colas, identidad de acontecimientos y pausa narrativa
-        ├── DialogoPrincipal.js    Presentación de los acontecimientos importantes
-        ├── PanelInvestigacion.js  Panel con la libreta (secundarios) y las tarjetas de las marcas
-        ├── Distribucion.js        Zonas de pantalla que no se superponen
-        ├── Entradas.js            Distribuidor de entradas (cada tecla llega a un solo componente)
-        ├── tiemposDeLectura.js    Tiempos de escritura y lectura
-        ├── ControlesTactiles.js · Boton.js
-        ├── Records.js             Récords por nivel (localStorage)
-        ├── Registro.js            Pistas recogidas (localStorage)
-        └── Progreso.js            Niveles completados (localStorage)
-```
+## Pruebas
 
-## Mecánicas
-
-- **Sokoban clásico:** las cajas se empujan, no se jalan; no se empujan dos cajas a la vez ni contra una pared o un mueble.
-  El nivel se completa cuando todos los destinos tienen una caja.
-- **Muebles:** obstáculos que bloquean el paso y la vista; al chocar con uno, el inspector lo examina.
-- **Pistas:** se recogen al pisarlas y quedan registradas (el HUD muestra cuántas se recogieron en el intento).
-- **Sin límite de pasos:** caminar no consume nada. El HUD muestra pasos y empujones del intento.
-- **Deshacer** revierte el último movimiento (y sus contadores); **reiniciar** devuelve el nivel a su estado inicial.
-- **Récords** (`src/ui/Records.js`): por nivel, dos récords globales e independientes que solo se actualizan al completar
-  un intento: menos pasos (desempate: menos empujones) y menos empujones (desempate: menos pasos). Se muestran en el
-  informe al terminar el nivel.
-- **Progresión:** completar un nivel desbloquea el siguiente (`Progreso`).
-- **Marcas** (evidencias): se descubren con la *visibilidad básica*, cuando el inspector está a 2 casillas o menos
-  (distancia euclídea), con línea de visión (paredes y muebles tapan; las cajas en medio no) y sin una caja encima.
-  Cada marca se descubre una vez por intento. Su icono aparece, permanece y desaparece (`TIEMPOS.marca` en
-  `src/presentacion/configuracion.js`: 450 / 4500 / 600 ms); la marca sigue existiendo en el escenario.
-
-## Niveles y entidades
-
-Cada nivel tiene dos archivos. La matriz describe solo el espacio y las reglas de movimiento; el resto de entidades vive
-fuera de ella, con su ID y su posición.
-
-**`assets/niveles/nivelN.txt`**: capas alineadas (las líneas con `;` son comentarios; el terreno fija el tamaño).
-
-| Capa | Símbolos |
-|---|---|
-| `[terreno]` | `#` pared · espacio suelo · `.` destino |
-| `[obstaculos]` | `m` mueble |
-| `[sokoban]` | `A`–`Z` caja (la letra es su ID) · `@` inicio del inspector |
-
-**`assets/niveles/nivelN.entidades.json`**: `obstaculos` (muebles con ID, uno por cada `m`), `objetos` (pistas y
-baterías, que se recogen al pisarlas) y `evidencias` (marcas, que se descubren por visibilidad).
-
-El tablero (`src/modelo/Nivel.js`) emite **sucesos** de solo lectura (`paso`, `empujon`, `casillaLiberada`,
-`casillaCubierta`, `cajaColocada`, `cajaRetirada`, `objetoRecogido`, `completado`, `deshacer`, `reinicio`) y responde
-consultas espaciales (`esTransitable`, `ocupante`, `entidadesEn`, `camino`, `estado()`).
-
-## Sistema narrativo
-
-El guion de cada nivel está en `assets/narrativa/nivelN.json`; pistas, muebles y marcas se enlazan con sus entidades
-por `id`. El narrador (`src/ui/Narrador.js`) clasifica cada acontecimiento:
-
-| Clase | Ejemplos | Comportamiento |
-|---|---|---|
-| **Importante** | intro, pistas, cada caja colocada | **Pausa narrativa:** el juego no acepta movimientos, empujones, deshacer ni reiniciar hasta que el jugador lee. Se presenta en la zona de los controles con un velo suave sobre el tablero. El primer Espacio/Enter/toque completa el texto; el siguiente avanza. Varios importantes de una misma acción se presentan en orden en la misma pausa. |
-| **Secundaria** | comentarios al empujar, retirar una caja, examinar un mueble | Libreta en el panel de investigación; el juego sigue. Escritura y tiempo de lectura propios; espera su turno en cola. |
-| **Ambiental** | textos de las marcas | Tarjetas en el panel (hasta 3 a la vez, cada una con su temporizador; el resto en cola). |
-
-- **Nada se pierde, se acorta ni se sobrescribe.** Durante una pausa, secundarios, ambientales y apariciones de marcas
-  quedan suspendidos con su estado exacto y siguen al reanudar.
-- **Identidad:** cada mensaje lleva la identidad de lo que ocurrió (p. ej. `pista:<id>:recogida`), distinta de la entidad
-  a la que se refiere; una emisión repetida de la misma ocurrencia se presenta una sola vez.
-- **Cierre del nivel:** tras guardar el récord se presentan, en orden, los importantes que generó la acción final, una
-  página "📒 Notas de la libreta" con el texto completo de los secundarios pendientes y el texto de cierre; después
-  aparece el informe del nivel.
-- **Distribución** (`src/ui/Distribucion.js`): HUD, panel de investigación, tablero y controles ocupan zonas que no se
-  superponen (en pantallas apaisadas anchas el panel es una columna a la derecha; en vertical, una franja de alto fijo
-  que se desliza si su contenido no cabe). La narrativa nunca tapa el tablero, y mostrar textos no lo mueve ni reescala.
-- **Tiempos** (`src/ui/tiemposDeLectura.js`): escritura de 16 ms por letra (22 en la presentación importante); lectura =
-  máx(2500 ms, 55 ms por letra), contada desde que el texto está completo.
-
-## Pruebas y validador
+Con Node.js 22.7 o superior (probado con 24.19), sin paquetes:
 
 ```
 node --test "pruebas/*.test.mjs"
 ```
 
-85 pruebas: reproducen las dos soluciones de referencia de cada nivel con sus contadores exactos y comprueban deshacer,
-reiniciar, las reglas de empuje, los récords, el formato por capas, las entidades e IDs, los sucesos, las consultas
-espaciales, la visibilidad de las marcas y su aparición temporal, el narrador (pausa, colas, identidad, cierre),
-el distribuidor de entradas, la distribución de pantalla y la escritura de textos del panel y de la presentación
-importante con cuadros lentos, cancelaciones y cierres. Para estas últimas, `pruebas/relojPhaser380.mjs` reproduce el
-reloj de Phaser 3.80.1 tal como es, incluida su recuperación de cuadros lentos.
+Cubren la lógica del juego (`src/motor/`), los datos de las seis habitaciones (cada línea de la historia sale una vez, cada pregunta tiene una
+sola respuesta, todo es alcanzable y usable en los mapas), el narrador y sus temporizadores, la maquetación de la interfaz y la presentación.
+Para ello, `pruebas/relojPhaser380.mjs` reproduce el reloj de Phaser 3.80.1 y `pruebas/escenaSimulada.mjs`, una escena sin dibujar.
+
+Herramientas para revisar en el navegador: **F3** (FPS y datos), **F4** (cuerpos de colisión), **F6** (revisor de maquetación) y
+`?carga=extrema` en la dirección (llena las pantallas con el contenido más grande).
+
+## Estructura
 
 ```
-python herramientas/validar_niveles.py            # todos los niveles (~1 minuto)
-python herramientas/validar_niveles.py 2 3        # solo algunos
-python herramientas/validar_niveles.py --rapido   # sin la complejidad espacial
+├── index.html            Página de entrada; carga Phaser desde CDN
+├── servidor.py           Servidor local sin caché (puerto 8787)
+├── assets/
+│   ├── narrativa/        nivelN.json: todo el texto de la historia
+│   ├── investigaciones/  nivelN.json: reglas de cada habitación (qué dispara cada línea, deducción, ayuda). Sin texto
+│   ├── mapas/            nivelN.json: mapas de Tiled
+│   ├── presentacion/     expresiones.json: la expresión del retrato en cada línea importante
+│   ├── retratos/         el arte final del retrato (cuando exista)
+│   ├── img/              imágenes de los menús
+│   ├── tilesets/ · sprites/   reservadas para el arte final
+├── src/
+│   ├── main.js           Configura Phaser y registra las escenas
+│   ├── motor/            Lógica del juego **sin Phaser**, probada con Node: investigación, deducción, libreta, ayuda, alcance,
+│   │                     visibilidad, persecución, maquetación, luz…
+│   ├── escenas/          Las pantallas de Phaser: carga, menús, interludio, la habitación y el informe
+│   ├── presentacion/     Lo que se dibuja: linterna, inspector, caja de novela visual, retrato, arte provisional
+│   │   └── habitaciones/ Lo propio de cada habitación (un módulo por habitación)
+│   └── ui/               Narrador, textos, libreta de guardado, entradas y maquetación en pantalla
+├── herramientas/         listar_retratos.mjs
+├── pruebas/              Pruebas automáticas (`node --test`)
+├── docs/                 Informes y capturas de cada fase; en docs/mapas/, los generadores de mapas (Python)
+├── DISENO_V2.md          El diseño de esta versión
+└── GUION_NARRATIVA.md    Borrador histórico del guion (ya no describe el juego)
 ```
 
-Comprueba formato, entidades, solubilidad, récords mínimos de pasos y de empujones (solver exacto), dependencia del orden,
-deadlocks, accesibilidad, posición inicial, complejidad espacial y enlaces de la narrativa. Los niveles aprobados guardan
-sus soluciones de referencia en `assets/niveles/soluciones.json` (`udlr` caminar, `UDLR` empujar). Las advertencias
-"REVISAR" son métricas de diseño, no errores.
+El texto de la historia vive **solo** en `assets/narrativa/`; las reglas apuntan a sus líneas sin copiarlas.
 
-## Problemas conocidos
+## Arte
 
-- En celular, a ciertas escalas puede verse una línea fina entre dos columnas de baldosas del suelo (artefacto de
-  muestreo de la textura; no afecta al juego).
-- Con el celular en horizontal, la zona de controles (226 px) deja poco espacio al tablero.
+El arte de las habitaciones es **provisional y se genera por código** (`src/presentacion/ArteProvisional.js`, `ArteNueva.js`). El
+**inspector** (en el mapa y en sus seis retratos) ya tiene arte final. Cualquier dibujo se puede reemplazar por un PNG sin tocar código:
+
+- **Retratos:** un PNG de **360 × 480** por expresión en `assets/retratos/inspector/` (`neutral.png`, `pensativo.png`,
+  `sonrisa_ironica.png`, `sorprendido.png`, `serio.png`, `satisfecho.png`) y `node herramientas/listar_retratos.mjs`. Detalles en
+  `assets/retratos/inspector/README.md`.
+- **El resto (inspector en el mapa, muebles, objetos, baldosas…):** un PNG con el nombre de la clave del dibujo y **su mismo tamaño** en
+  `assets/sprites/` (por ejemplo `inspector.png`, 36 × 58) y `node herramientas/listar_sprites.mjs`. Las claves y los tamaños están en
+  `docs/arte_actual/LEEME.md`, junto con todo el arte actual exportado.
+
+Lo que no tenga archivo se sigue dibujando por código.
+
+## Sin audio
+
+El juego **no lleva música ni sonido, por decisión del autor**. Lo que se contaría con el oído se cuenta con la vista.
+
+## Versiones anteriores
+
+La versión 1 era un Sokoban narrativo. Queda en el historial del repositorio; esta versión 2 la reemplaza por un juego de investigación.

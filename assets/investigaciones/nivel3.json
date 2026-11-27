@@ -1,0 +1,67 @@
+{
+  "nivel": 3,
+  "comentario": "Reglas de la Puerta con Candado (rastreo y acceso). No lleva texto: cada regla apunta a una línea de assets/narrativa/nivel3.json. Hechos: entro · ilumino:X · examino:X · miro-debajo:X · recogio:X · abrio:X · piso:X (el inspector camina sobre una zona) · resolvio (la deducción quedó resuelta). 'requiere' son dependencias físicas (todas); 'alguno' pide al menos una. La CARTA SIN ENVIAR es 'paraElFinal': hay que recogerla antes de poder deducir (la usa la deducción del nivel 6). Una pregunta, una sola respuesta.",
+  "objetos": {
+    "cajas": { "acciones": { "examinar": {} } },
+    "n3-camino": { "descubre": "luz", "acciones": { "examinar": { "requiere": ["ilumino:n3-camino"] } } },
+    "n3-intacto": { "descubre": "luz" },
+    "caja-puerta": { "acciones": { "mirar-debajo": { "requiere": ["examino:cajas"] } } },
+    "tablas": {},
+    "n3-mueble-llavero": { "acciones": { "examinar": {} } },
+    "n3-mueble-puerta": { "acciones": { "examinar": {} } },
+    "n3-mueble-herramientas": { "acciones": { "examinar": {} } },
+    "n3-mueble-barril": { "acciones": { "examinar": {} } },
+    "n3-pista-carta": { "acciones": { "recoger": {} } },
+    "n3-pista-llave": { "acciones": { "recoger": {} } },
+    "bateria": { "acciones": { "recoger": {} } },
+    "puerta-candado": { "acciones": { "abrir": { "requiere": ["resolvio"], "alguno": ["recogio:n3-pista-llave", "examino:n3-mueble-herramientas"] } } }
+  },
+  "reglas": [
+    { "id": "intro", "cuando": ["entro"], "clase": "importante", "texto": "intro" },
+
+    { "id": "comentario:0", "cuando": ["examino:cajas"], "clase": "secundaria", "texto": "comentarios:0" },
+    { "id": "comentario:1", "cuando": ["examino:n3-camino"], "clase": "secundaria", "texto": "comentarios:1" },
+    { "id": "comentario:2", "cuando": ["piso:tablas"], "clase": "secundaria", "texto": "comentarios:2" },
+
+    { "id": "revelacion:0", "cuando": ["ilumino:n3-intacto", "ilumino:n3-camino"], "clase": "importante", "texto": "revelaciones:0" },
+    { "id": "revelacion:1", "cuando": ["miro-debajo:caja-puerta"], "clase": "importante", "texto": "revelaciones:1" },
+
+    { "id": "mueble:n3-mueble-llavero", "cuando": ["examino:n3-mueble-llavero"], "clase": "secundaria", "texto": "muebles:n3-mueble-llavero" },
+    { "id": "mueble:n3-mueble-puerta", "cuando": ["examino:n3-mueble-puerta"], "clase": "secundaria", "texto": "muebles:n3-mueble-puerta" },
+    { "id": "mueble:n3-mueble-herramientas", "cuando": ["examino:n3-mueble-herramientas"], "clase": "secundaria", "texto": "muebles:n3-mueble-herramientas" },
+    { "id": "mueble:n3-mueble-barril", "cuando": ["examino:n3-mueble-barril"], "clase": "secundaria", "texto": "muebles:n3-mueble-barril" },
+
+    { "id": "pista:n3-pista-carta", "cuando": ["recogio:n3-pista-carta"], "clase": "secundaria", "texto": "pistas:n3-pista-carta", "paraElFinal": true },
+    { "id": "pista:n3-pista-llave", "cuando": ["recogio:n3-pista-llave"], "clase": "secundaria", "texto": "pistas:n3-pista-llave" },
+    { "id": "bateria", "cuando": ["recogio:bateria"], "clase": "secundaria", "texto": "bateria" }
+  ],
+  "ayuda": {
+    "espera": 45,
+    "refuerzos": [
+      { "efecto": "libreta", "mientras": { "deduccion": "disponible" } },
+      { "efecto": "polvo", "mientras": { "sinContar": ["revelacion:0"] } },
+      { "efecto": "caja", "mientras": { "sinContar": ["revelacion:1"] } },
+      { "efecto": "carta", "mientras": { "sinContar": ["pista:n3-pista-carta"] } },
+      { "efecto": "final", "mientras": { "deduccion": "resuelta" } }
+    ]
+  },
+  "final": { "objeto": "puerta-candado", "accion": "abrir" },
+  "deduccion": {
+    "maximoDePruebas": 2,
+    "pilas": "bateria",
+    "obligatorias": ["n3-pista-carta"],
+    "pruebas": {
+      "camino-sin-polvo": { "sale": "revelacion:0" },
+      "huellas-recientes": { "sale": "revelacion:1" },
+      "llavero-vacio": { "sale": "mueble:n3-mueble-llavero" },
+      "puerta-tapiada": { "sale": "mueble:n3-mueble-puerta" },
+      "herramientas-de-cerrajero": { "sale": "mueble:n3-mueble-herramientas" },
+      "aceite-para-bisagras": { "sale": "mueble:n3-mueble-barril" },
+      "n3-pista-carta": { "sale": "pista:n3-pista-carta" },
+      "n3-pista-llave": { "sale": "pista:n3-pista-llave" }
+    },
+    "preguntas": [
+      { "id": "candado", "correcta": "entra-a-diario", "validas": [["camino-sin-polvo", "huellas-recientes"]] }
+    ]
+  }
+}

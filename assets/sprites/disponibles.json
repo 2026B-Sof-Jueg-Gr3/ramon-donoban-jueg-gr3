@@ -1,0 +1,6 @@
+{
+  "comentario": "Los PNG de arte final que hay en esta carpeta y reemplazan a un dibujo hecho por código. Cada archivo se llama como la clave del dibujo (inspector.png, mueble-armario.png, item-taza.png…) y tiene su mismo tamaño. Se escribe con: node herramientas/listar_sprites.mjs (ver README.md). Vacía = todo se dibuja por código.",
+  "archivos": [
+    "inspector.png"
+  ]
+}

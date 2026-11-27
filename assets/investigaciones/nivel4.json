@@ -1,0 +1,63 @@
+{
+  "nivel": 4,
+  "comentario": "Reglas del Cuarto de los Juguetes (experimentación con hilos). No lleva texto: cada regla apunta a una línea de assets/narrativa/nivel4.json. Hechos: entro · ilumino:X · examino:X · tiro:X · corto:X · recogio:X · vio-cerca:juguete (un juguete se mueve solo con el inspector a menos de 120 px) · resolvio (la deducción quedó resuelta). 'requiere' son dependencias físicas. Una pregunta, una sola respuesta. La acción final es cortar el último hilo (el del oso) una vez resuelta la deducción.",
+  "objetos": {
+    "n4-hilo-caja": { "descubre": "luz" },
+    "caja-juguetes": { "acciones": { "examinar": { "requiere": ["ilumino:n4-hilo-caja"] } } },
+    "hilo-caballito": { "acciones": { "tirar": {} } },
+    "hilo-munecas": { "acciones": { "cortar": { "requiere": ["tiro:hilo-caballito"] } } },
+    "hilo-oso": { "acciones": { "cortar": { "requiere": ["resolvio"] } } },
+    "trampilla": { "acciones": { "examinar": { "requiere": ["corto:hilo-munecas"] } } },
+    "juguete": {},
+    "n4-mueble-oso": { "acciones": { "examinar": {} } },
+    "n4-mueble-caballito": { "acciones": { "examinar": {} } },
+    "n4-mueble-munecas": { "acciones": { "examinar": {} } },
+    "n4-pista-hilo": { "acciones": { "recoger": {} } },
+    "n4-pista-diario": { "acciones": { "recoger": {} } },
+    "bateria": { "acciones": { "recoger": {} } }
+  },
+  "reglas": [
+    { "id": "intro", "cuando": ["entro"], "clase": "importante", "texto": "intro" },
+
+    { "id": "comentario:0", "cuando": ["examino:caja-juguetes"], "clase": "secundaria", "texto": "comentarios:0" },
+    { "id": "comentario:1", "cuando": ["tiro:hilo-caballito"], "clase": "secundaria", "texto": "comentarios:1" },
+    { "id": "comentario:2", "cuando": ["vio-cerca:juguete"], "clase": "secundaria", "texto": "comentarios:2" },
+
+    { "id": "revelacion:0", "cuando": ["corto:hilo-munecas"], "clase": "importante", "texto": "revelaciones:0" },
+    { "id": "revelacion:1", "cuando": ["examino:trampilla"], "clase": "importante", "texto": "revelaciones:1" },
+
+    { "id": "mueble:n4-mueble-oso", "cuando": ["examino:n4-mueble-oso"], "clase": "secundaria", "texto": "muebles:n4-mueble-oso" },
+    { "id": "mueble:n4-mueble-caballito", "cuando": ["examino:n4-mueble-caballito"], "clase": "secundaria", "texto": "muebles:n4-mueble-caballito" },
+    { "id": "mueble:n4-mueble-munecas", "cuando": ["examino:n4-mueble-munecas"], "clase": "secundaria", "texto": "muebles:n4-mueble-munecas" },
+
+    { "id": "pista:n4-pista-hilo", "cuando": ["recogio:n4-pista-hilo"], "clase": "secundaria", "texto": "pistas:n4-pista-hilo" },
+    { "id": "pista:n4-pista-diario", "cuando": ["recogio:n4-pista-diario"], "clase": "secundaria", "texto": "pistas:n4-pista-diario" },
+    { "id": "bateria", "cuando": ["recogio:bateria"], "clase": "secundaria", "texto": "bateria" }
+  ],
+  "ayuda": {
+    "espera": 45,
+    "refuerzos": [
+      { "efecto": "libreta", "mientras": { "deduccion": "disponible" } },
+      { "efecto": "hilos", "mientras": { "sinContar": ["comentario:1"] } },
+      { "efecto": "polvo", "mientras": { "sinContar": ["revelacion:1"] } },
+      { "efecto": "oso", "mientras": { "sinContar": ["mueble:n4-mueble-oso"] } },
+      { "efecto": "final", "mientras": { "deduccion": "resuelta" } }
+    ]
+  },
+  "final": { "objeto": "hilo-oso", "accion": "cortar" },
+  "deduccion": {
+    "maximoDePruebas": 2,
+    "pilas": "bateria",
+    "pruebas": {
+      "trampilla-del-techo": { "sale": "revelacion:1" },
+      "oso-con-hilo-cosido": { "sale": "mueble:n4-mueble-oso" },
+      "caballito-engrasado": { "sale": "mueble:n4-mueble-caballito" },
+      "munecas-alineadas": { "sale": "mueble:n4-mueble-munecas" },
+      "n4-pista-hilo": { "sale": "pista:n4-pista-hilo" },
+      "n4-pista-diario": { "sale": "pista:n4-pista-diario" }
+    },
+    "preguntas": [
+      { "id": "juguetes", "correcta": "con-hilos", "validas": [["oso-con-hilo-cosido", "trampilla-del-techo"]] }
+    ]
+  }
+}

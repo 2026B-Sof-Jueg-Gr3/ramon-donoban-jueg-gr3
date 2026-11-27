@@ -1,16 +1,16 @@
 {
   "intro": "Ruidos metálicos en la cocina. Los fantasmas no suelen necesitar sartenes.",
-  "empujar": [
+  "comentarios": [
     "Esta alacena tiene ruedas. ¿Desde cuándo los muebles de cocina tienen ruedas?",
     "Huele a aceite de máquina, no a comida.",
     "Algo tintinea dentro... suena a poleas."
   ],
-  "cajas": [
+  "revelaciones": [
     "Detrás había una cuerda que sube hasta el techo. Primer hilo del «fantasma».",
     "Un fuelle escondido. Con esto las velas se apagan «solas» desde la otra habitación."
   ],
   "cierre": "Ahí está el mecanismo completo: poleas, cuerda y fuelle. Y dos tazas en el fregadero... el fantasma de la cocina es un aparato, y quien lo construyó no trabaja solo.",
-  "retirar": "Mmm, no. Ese no era su lugar.",
+  "error": "Mmm, no. Esa pieza no encaja.",
   "bateria": "Otra batería. Quien sea, compra al por mayor.",
   "pistas": [
     {
@@ -30,5 +30,44 @@
     { "id": "n2-mueble-sarten", "emoji": "🍳", "texto": "Restos de aceite en la sartén. Cocinaron aquí esta misma semana." }
   ],
   "marcas": [],
-  "informe": "INFORME DEL INSPECTOR: El «fantasma de la cocina» era un mecanismo de poleas oculto en la alacena. Alguien quiere asustar a los intrusos a propósito, y tiene un cómplice. La puerta del ala oeste está cerrada con un candado nuevo... busquemos la manera de entrar."
+  "informe": "INFORME DEL INSPECTOR: El «fantasma de la cocina» era un mecanismo de poleas oculto en la alacena. Alguien quiere asustar a los intrusos a propósito, y tiene un cómplice. La puerta del ala oeste está cerrada con un candado nuevo... busquemos la manera de entrar.",
+  "deduccion": {
+    "pruebas": {
+      "cuerda-al-techo": "Cuerda al techo",
+      "fuelle-escondido": "Fuelle escondido",
+      "alacena-con-ruedas": "Alacena con ruedas",
+      "platos-para-dos": "Platos para dos",
+      "copas-limpias": "Copas limpias",
+      "sarten-con-aceite": "Sartén con aceite"
+    },
+    "preguntas": [
+      {
+        "id": "mecanismo",
+        "texto": "¿Qué produce los golpes y apaga las velas?",
+        "opciones": [
+          { "id": "poleas-cuerda-fuelle", "texto": "Un mecanismo de poleas, cuerda y fuelle" },
+          { "id": "viento-chimenea", "texto": "El viento que baja por la chimenea" },
+          { "id": "fantasma-ollas", "texto": "Un fantasma que golpea las ollas" }
+        ]
+      },
+      {
+        "id": "responsable",
+        "texto": "¿Alguien sigue manejando el fantasma?",
+        "opciones": [
+          { "id": "sigue-viniendo", "texto": "Sí: lo preparó a propósito y sigue viniendo" },
+          { "id": "aparato-viejo", "texto": "No: es un aparato viejo que quedó funcionando" },
+          { "id": "casa-sola", "texto": "No: la casa lo hace sonar sola" }
+        ]
+      },
+      {
+        "id": "companero",
+        "texto": "¿Quién lo construyó trabaja solo?",
+        "opciones": [
+          { "id": "hay-alguien-mas", "texto": "No: hay alguien más con él" },
+          { "id": "vive-escondido", "texto": "Sí: vive aquí escondido" },
+          { "id": "nadie-lo-construyo", "texto": "Nadie lo construyó" }
+        ]
+      }
+    ]
+  }
 }

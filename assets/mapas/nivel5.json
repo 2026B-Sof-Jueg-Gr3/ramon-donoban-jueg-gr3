@@ -1,0 +1,707 @@
+{
+ "compressionlevel": -1,
+ "height": 12,
+ "infinite": false,
+ "layers": [
+  {
+   "data": [
+   0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+   0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+   0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+   0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+   0,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,0,0,
+   0,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,0,0,
+   0,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,0,0,
+   0,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,0,0,
+   0,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,0,0,
+   0,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,0,0,
+   0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+   0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+  ],
+   "height": 12,
+   "id": 1,
+   "name": "suelo",
+   "opacity": 1,
+   "type": "tilelayer",
+   "visible": true,
+   "width": 23,
+   "x": 0,
+   "y": 0
+  },
+  {
+   "data": [
+   0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+   0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+   4,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,4,4,
+   4,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,4,0,
+   4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4,0,
+   4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4,0,
+   4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4,0,
+   4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4,0,
+   4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4,0,
+   4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4,0,
+   4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,0,
+   0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+  ],
+   "height": 12,
+   "id": 2,
+   "name": "paredes",
+   "opacity": 1,
+   "type": "tilelayer",
+   "visible": true,
+   "width": 23,
+   "x": 0,
+   "y": 0
+  },
+  {
+   "draworder": "topdown",
+   "id": 3,
+   "name": "objetos",
+   "objects": [
+    {
+     "class": "inicio",
+     "height": 0,
+     "id": 1,
+     "name": "inicio",
+     "rotation": 0,
+     "type": "inicio",
+     "visible": true,
+     "width": 0,
+     "x": 170,
+     "y": 560,
+     "point": true
+    },
+    {
+     "class": "mueble",
+     "height": 48,
+     "id": 2,
+     "name": "chimenea",
+     "rotation": 0,
+     "type": "mueble",
+     "visible": true,
+     "width": 160,
+     "x": 576,
+     "y": 256,
+     "properties": [
+      {
+       "name": "alto",
+       "type": "int",
+       "value": 100
+      },
+      {
+       "name": "estilo",
+       "type": "string",
+       "value": "chimenea"
+      }
+     ]
+    },
+    {
+     "class": "bloqueaLuz",
+     "height": 48,
+     "id": 3,
+     "name": "chimenea-luz",
+     "rotation": 0,
+     "type": "bloqueaLuz",
+     "visible": true,
+     "width": 160,
+     "x": 576,
+     "y": 256,
+     "properties": [
+      {
+       "name": "alturaCara",
+       "type": "int",
+       "value": 100
+      }
+     ]
+    },
+    {
+     "class": "mueble",
+     "height": 32,
+     "id": 4,
+     "name": "velas",
+     "rotation": 0,
+     "type": "mueble",
+     "visible": true,
+     "width": 64,
+     "x": 300,
+     "y": 256,
+     "properties": [
+      {
+       "name": "alto",
+       "type": "int",
+       "value": 40
+      },
+      {
+       "name": "estilo",
+       "type": "string",
+       "value": "velas"
+      }
+     ]
+    },
+    {
+     "class": "mueble",
+     "height": 72,
+     "id": 5,
+     "name": "sofa",
+     "rotation": 0,
+     "type": "mueble",
+     "visible": true,
+     "width": 192,
+     "x": 860,
+     "y": 420,
+     "properties": [
+      {
+       "name": "alto",
+       "type": "int",
+       "value": 60
+      },
+      {
+       "name": "estilo",
+       "type": "string",
+       "value": "sofa"
+      }
+     ]
+    },
+    {
+     "class": "bloqueaLuz",
+     "height": 72,
+     "id": 6,
+     "name": "sofa-luz",
+     "rotation": 0,
+     "type": "bloqueaLuz",
+     "visible": true,
+     "width": 192,
+     "x": 860,
+     "y": 420,
+     "properties": [
+      {
+       "name": "alturaCara",
+       "type": "int",
+       "value": 60
+      }
+     ]
+    },
+    {
+     "class": "mueble",
+     "height": 20,
+     "id": 7,
+     "name": "cortina",
+     "rotation": 0,
+     "type": "mueble",
+     "visible": true,
+     "width": 112,
+     "x": 1040,
+     "y": 256,
+     "properties": [
+      {
+       "name": "alto",
+       "type": "int",
+       "value": 130
+      },
+      {
+       "name": "estilo",
+       "type": "string",
+       "value": "cortina"
+      }
+     ]
+    },
+    {
+     "class": "bloqueaLuz",
+     "height": 20,
+     "id": 8,
+     "name": "cortina-luz",
+     "rotation": 0,
+     "type": "bloqueaLuz",
+     "visible": true,
+     "width": 112,
+     "x": 1040,
+     "y": 256,
+     "properties": [
+      {
+       "name": "alturaCara",
+       "type": "int",
+       "value": 130
+      }
+     ]
+    },
+    {
+     "class": "fenomeno",
+     "height": 44,
+     "id": 9,
+     "name": "fuego",
+     "rotation": 0,
+     "type": "fenomeno",
+     "visible": true,
+     "width": 70,
+     "x": 620,
+     "y": 232,
+     "properties": [
+      {
+       "name": "efecto",
+       "type": "string",
+       "value": "fuego"
+      }
+     ]
+    },
+    {
+     "class": "piso",
+     "height": 120,
+     "id": 10,
+     "name": "cerca-chimenea",
+     "rotation": 0,
+     "type": "piso",
+     "visible": true,
+     "width": 400,
+     "x": 456,
+     "y": 304,
+     "properties": [
+      {
+       "name": "ref",
+       "type": "string",
+       "value": "cerca-chimenea"
+      }
+     ]
+    },
+    {
+     "class": "revelable",
+     "height": 60,
+     "id": 11,
+     "name": "pisadas",
+     "rotation": 0,
+     "type": "revelable",
+     "visible": true,
+     "width": 420,
+     "x": 130,
+     "y": 470,
+     "properties": [
+      {
+       "name": "ref",
+       "type": "string",
+       "value": "n5-pisadas"
+      },
+      {
+       "name": "dibujo",
+       "type": "string",
+       "value": "pisadas"
+      },
+      {
+       "name": "accion",
+       "type": "string",
+       "value": "examinar"
+      }
+     ]
+    },
+    {
+     "class": "interactuable",
+     "height": 128,
+     "id": 12,
+     "name": "puerta-atrancada",
+     "rotation": 0,
+     "type": "interactuable",
+     "visible": true,
+     "width": 40,
+     "x": 66,
+     "y": 400,
+     "properties": [
+      {
+       "name": "ref",
+       "type": "string",
+       "value": "puerta-atrancada"
+      },
+      {
+       "name": "accion",
+       "type": "string",
+       "value": "examinar"
+      },
+      {
+       "name": "dibujo",
+       "type": "string",
+       "value": "puerta-atrancada"
+      }
+     ]
+    },
+    {
+     "class": "interactuable",
+     "height": 128,
+     "id": 13,
+     "name": "salida-jardin",
+     "rotation": 0,
+     "type": "interactuable",
+     "visible": true,
+     "width": 56,
+     "x": 1288,
+     "y": 400,
+     "properties": [
+      {
+       "name": "ref",
+       "type": "string",
+       "value": "salida-jardin"
+      },
+      {
+       "name": "accion",
+       "type": "string",
+       "value": "cerrar"
+      },
+      {
+       "name": "dibujo",
+       "type": "string",
+       "value": "puerta-jardin"
+      }
+     ]
+    },
+    {
+     "class": "interactuable",
+     "height": 48,
+     "id": 14,
+     "name": "apagar-chimenea",
+     "rotation": 0,
+     "type": "interactuable",
+     "visible": true,
+     "width": 160,
+     "x": 576,
+     "y": 256,
+     "properties": [
+      {
+       "name": "ref",
+       "type": "string",
+       "value": "chimenea"
+      },
+      {
+       "name": "accion",
+       "type": "string",
+       "value": "apagar"
+      },
+      {
+       "name": "sobre",
+       "type": "string",
+       "value": "chimenea"
+      },
+      {
+       "name": "luz",
+       "type": "string",
+       "value": "576,305,160,8"
+      }
+     ]
+    },
+    {
+     "class": "interactuable",
+     "height": 32,
+     "id": 15,
+     "name": "velas-usable",
+     "rotation": 0,
+     "type": "interactuable",
+     "visible": true,
+     "width": 64,
+     "x": 300,
+     "y": 256,
+     "properties": [
+      {
+       "name": "ref",
+       "type": "string",
+       "value": "n5-mueble-velas"
+      },
+      {
+       "name": "accion",
+       "type": "string",
+       "value": "examinar"
+      },
+      {
+       "name": "sobre",
+       "type": "string",
+       "value": "velas"
+      },
+      {
+       "name": "luz",
+       "type": "string",
+       "value": "300,289,64,8"
+      }
+     ]
+    },
+    {
+     "class": "interactuable",
+     "height": 64,
+     "id": 16,
+     "name": "cuadro",
+     "rotation": 0,
+     "type": "interactuable",
+     "visible": true,
+     "width": 64,
+     "x": 420,
+     "y": 194,
+     "properties": [
+      {
+       "name": "ref",
+       "type": "string",
+       "value": "n5-mueble-cuadro"
+      },
+      {
+       "name": "accion",
+       "type": "string",
+       "value": "examinar"
+      },
+      {
+       "name": "dibujo",
+       "type": "string",
+       "value": "cuadro"
+      },
+      {
+       "name": "enPared",
+       "type": "bool",
+       "value": true
+      },
+      {
+       "name": "luz",
+       "type": "string",
+       "value": "420,257,64,8"
+      }
+     ]
+    },
+    {
+     "class": "interactuable",
+     "height": 72,
+     "id": 17,
+     "name": "sofa-usable",
+     "rotation": 0,
+     "type": "interactuable",
+     "visible": true,
+     "width": 192,
+     "x": 860,
+     "y": 420,
+     "properties": [
+      {
+       "name": "ref",
+       "type": "string",
+       "value": "n5-mueble-sofa"
+      },
+      {
+       "name": "accion",
+       "type": "string",
+       "value": "examinar"
+      },
+      {
+       "name": "sobre",
+       "type": "string",
+       "value": "sofa"
+      },
+      {
+       "name": "luz",
+       "type": "string",
+       "value": "860,493,192,8"
+      }
+     ]
+    },
+    {
+     "class": "interactuable",
+     "height": 108,
+     "id": 18,
+     "name": "puerta-despacho",
+     "rotation": 0,
+     "type": "interactuable",
+     "visible": true,
+     "width": 96,
+     "x": 1230,
+     "y": 150,
+     "properties": [
+      {
+       "name": "ref",
+       "type": "string",
+       "value": "puerta-despacho"
+      },
+      {
+       "name": "accion",
+       "type": "string",
+       "value": "abrir"
+      },
+      {
+       "name": "dibujo",
+       "type": "string",
+       "value": "puerta-despacho"
+      },
+      {
+       "name": "enPared",
+       "type": "bool",
+       "value": true
+      },
+      {
+       "name": "luz",
+       "type": "string",
+       "value": "1230,257,96,8"
+      }
+     ]
+    },
+    {
+     "class": "interactuable",
+     "height": 40,
+     "id": 19,
+     "name": "abrigo",
+     "rotation": 0,
+     "type": "interactuable",
+     "visible": true,
+     "width": 44,
+     "x": 1168,
+     "y": 262,
+     "properties": [
+      {
+       "name": "ref",
+       "type": "string",
+       "value": "n5-pista-abrigo"
+      },
+      {
+       "name": "accion",
+       "type": "string",
+       "value": "recoger"
+      },
+      {
+       "name": "dibujo",
+       "type": "string",
+       "value": "abrigo"
+      }
+     ]
+    },
+    {
+     "class": "interactuable",
+     "height": 36,
+     "id": 20,
+     "name": "pilas",
+     "rotation": 0,
+     "type": "interactuable",
+     "visible": true,
+     "width": 48,
+     "x": 1224,
+     "y": 304,
+     "properties": [
+      {
+       "name": "ref",
+       "type": "string",
+       "value": "bateria"
+      },
+      {
+       "name": "accion",
+       "type": "string",
+       "value": "recoger"
+      },
+      {
+       "name": "dibujo",
+       "type": "string",
+       "value": "pilas"
+      }
+     ]
+    },
+    {
+     "class": "ruta",
+     "height": 0,
+     "id": 21,
+     "name": "ruta-1",
+     "rotation": 0,
+     "type": "ruta",
+     "visible": true,
+     "width": 0,
+     "x": 700,
+     "y": 340
+    },
+    {
+     "class": "ruta",
+     "height": 0,
+     "id": 22,
+     "name": "ruta-2",
+     "rotation": 0,
+     "type": "ruta",
+     "visible": true,
+     "width": 0,
+     "x": 820,
+     "y": 360
+    },
+    {
+     "class": "ruta",
+     "height": 0,
+     "id": 23,
+     "name": "ruta-3",
+     "rotation": 0,
+     "type": "ruta",
+     "visible": true,
+     "width": 0,
+     "x": 760,
+     "y": 420
+    },
+    {
+     "class": "ruta",
+     "height": 0,
+     "id": 24,
+     "name": "ruta-4",
+     "rotation": 0,
+     "type": "ruta",
+     "visible": true,
+     "width": 0,
+     "x": 640,
+     "y": 380
+    },
+    {
+     "class": "escondite",
+     "height": 0,
+     "id": 25,
+     "name": "escondite-sofa",
+     "rotation": 0,
+     "type": "escondite",
+     "visible": true,
+     "width": 0,
+     "x": 960,
+     "y": 404
+    },
+    {
+     "class": "escondite",
+     "height": 0,
+     "id": 26,
+     "name": "escondite-cortina",
+     "rotation": 0,
+     "type": "escondite",
+     "visible": true,
+     "width": 0,
+     "x": 1096,
+     "y": 292
+    },
+    {
+     "class": "salida-sombra",
+     "height": 0,
+     "id": 27,
+     "name": "salida-sombra",
+     "rotation": 0,
+     "type": "salida-sombra",
+     "visible": true,
+     "width": 0,
+     "x": 1316,
+     "y": 464
+    }
+   ],
+   "opacity": 1,
+   "type": "objectgroup",
+   "visible": true,
+   "x": 0,
+   "y": 0
+  }
+ ],
+ "nextlayerid": 4,
+ "nextobjectid": 28,
+ "orientation": "orthogonal",
+ "renderorder": "right-down",
+ "tiledversion": "1.10.2",
+ "tileheight": 64,
+ "tilesets": [
+  {
+   "columns": 5,
+   "firstgid": 1,
+   "image": "../tilesets/provisional.png",
+   "imageheight": 64,
+   "imagewidth": 320,
+   "margin": 0,
+   "spacing": 0,
+   "name": "provisional",
+   "tilecount": 5,
+   "tileheight": 64,
+   "tilewidth": 64
+  }
+ ],
+ "tilewidth": 64,
+ "type": "map",
+ "version": "1.10",
+ "width": 23
+}

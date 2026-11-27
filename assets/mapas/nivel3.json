@@ -1,0 +1,687 @@
+{
+ "compressionlevel": -1,
+ "height": 12,
+ "infinite": false,
+ "layers": [
+  {
+   "data": [
+   0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+   0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+   0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+   0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+   0,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,0,
+   0,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,0,
+   0,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,0,
+   0,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,0,
+   0,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,0,
+   0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,2,1,0,0,
+   0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+   0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+  ],
+   "height": 12,
+   "id": 1,
+   "name": "suelo",
+   "opacity": 1,
+   "type": "tilelayer",
+   "visible": true,
+   "width": 24,
+   "x": 0,
+   "y": 0
+  },
+  {
+   "data": [
+   0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+   0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+   4,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,4,
+   4,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,4,
+   4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4,
+   4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4,
+   4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4,
+   4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4,
+   4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4,
+   4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,0,0,0,4,4,
+   0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4,4,4,4,4,0,
+   0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+  ],
+   "height": 12,
+   "id": 2,
+   "name": "paredes",
+   "opacity": 1,
+   "type": "tilelayer",
+   "visible": true,
+   "width": 24,
+   "x": 0,
+   "y": 0
+  },
+  {
+   "draworder": "topdown",
+   "id": 3,
+   "name": "objetos",
+   "objects": [
+    {
+     "class": "inicio",
+     "height": 0,
+     "id": 1,
+     "name": "inicio",
+     "rotation": 0,
+     "type": "inicio",
+     "visible": true,
+     "width": 0,
+     "x": 150,
+     "y": 540,
+     "point": true
+    },
+    {
+     "class": "mueble",
+     "height": 64,
+     "id": 2,
+     "name": "cajas",
+     "rotation": 0,
+     "type": "mueble",
+     "visible": true,
+     "width": 128,
+     "x": 560,
+     "y": 256,
+     "properties": [
+      {
+       "name": "alto",
+       "type": "int",
+       "value": 96
+      },
+      {
+       "name": "estilo",
+       "type": "string",
+       "value": "cajas"
+      }
+     ]
+    },
+    {
+     "class": "bloqueaLuz",
+     "height": 64,
+     "id": 3,
+     "name": "cajas-luz",
+     "rotation": 0,
+     "type": "bloqueaLuz",
+     "visible": true,
+     "width": 128,
+     "x": 560,
+     "y": 256,
+     "properties": [
+      {
+       "name": "alturaCara",
+       "type": "int",
+       "value": 96
+      }
+     ]
+    },
+    {
+     "class": "mueble",
+     "height": 48,
+     "id": 4,
+     "name": "banco",
+     "rotation": 0,
+     "type": "mueble",
+     "visible": true,
+     "width": 128,
+     "x": 960,
+     "y": 256,
+     "properties": [
+      {
+       "name": "alto",
+       "type": "int",
+       "value": 56
+      },
+      {
+       "name": "estilo",
+       "type": "string",
+       "value": "banco"
+      }
+     ]
+    },
+    {
+     "class": "mueble",
+     "height": 64,
+     "id": 5,
+     "name": "barril",
+     "rotation": 0,
+     "type": "mueble",
+     "visible": true,
+     "width": 64,
+     "x": 1130,
+     "y": 256,
+     "properties": [
+      {
+       "name": "alto",
+       "type": "int",
+       "value": 60
+      },
+      {
+       "name": "estilo",
+       "type": "string",
+       "value": "barril"
+      }
+     ]
+    },
+    {
+     "class": "mueble",
+     "height": 64,
+     "id": 6,
+     "name": "caja-puerta",
+     "rotation": 0,
+     "type": "mueble",
+     "visible": true,
+     "width": 96,
+     "x": 1230,
+     "y": 288,
+     "properties": [
+      {
+       "name": "alto",
+       "type": "int",
+       "value": 64
+      },
+      {
+       "name": "estilo",
+       "type": "string",
+       "value": "cajas"
+      }
+     ]
+    },
+    {
+     "class": "revelable",
+     "height": 90,
+     "id": 7,
+     "name": "intacto",
+     "rotation": 0,
+     "type": "revelable",
+     "visible": true,
+     "width": 240,
+     "x": 300,
+     "y": 440,
+     "properties": [
+      {
+       "name": "ref",
+       "type": "string",
+       "value": "n3-intacto"
+      },
+      {
+       "name": "dibujo",
+       "type": "string",
+       "value": "polvo-intacto"
+      }
+     ]
+    },
+    {
+     "class": "revelable",
+     "height": 56,
+     "id": 8,
+     "name": "camino",
+     "rotation": 0,
+     "type": "revelable",
+     "visible": true,
+     "width": 600,
+     "x": 860,
+     "y": 392,
+     "properties": [
+      {
+       "name": "ref",
+       "type": "string",
+       "value": "n3-camino"
+      },
+      {
+       "name": "dibujo",
+       "type": "string",
+       "value": "camino-limpio"
+      },
+      {
+       "name": "accion",
+       "type": "string",
+       "value": "examinar"
+      }
+     ]
+    },
+    {
+     "class": "revelable",
+     "height": 90,
+     "id": 9,
+     "name": "tablas-vista",
+     "rotation": 0,
+     "type": "revelable",
+     "visible": true,
+     "width": 200,
+     "x": 880,
+     "y": 470,
+     "properties": [
+      {
+       "name": "ref",
+       "type": "string",
+       "value": "n3-tablas"
+      },
+      {
+       "name": "dibujo",
+       "type": "string",
+       "value": "tablas"
+      }
+     ]
+    },
+    {
+     "class": "piso",
+     "height": 90,
+     "id": 10,
+     "name": "tablas",
+     "rotation": 0,
+     "type": "piso",
+     "visible": true,
+     "width": 200,
+     "x": 880,
+     "y": 470,
+     "properties": [
+      {
+       "name": "ref",
+       "type": "string",
+       "value": "tablas"
+      }
+     ]
+    },
+    {
+     "class": "fenomeno",
+     "height": 24,
+     "id": 11,
+     "name": "candado",
+     "rotation": 0,
+     "type": "fenomeno",
+     "visible": true,
+     "width": 24,
+     "x": 1380,
+     "y": 214,
+     "properties": [
+      {
+       "name": "efecto",
+       "type": "string",
+       "value": "candado"
+      }
+     ]
+    },
+    {
+     "class": "interactuable",
+     "height": 64,
+     "id": 12,
+     "name": "examinar-cajas",
+     "rotation": 0,
+     "type": "interactuable",
+     "visible": true,
+     "width": 128,
+     "x": 560,
+     "y": 256,
+     "properties": [
+      {
+       "name": "ref",
+       "type": "string",
+       "value": "cajas"
+      },
+      {
+       "name": "accion",
+       "type": "string",
+       "value": "examinar"
+      },
+      {
+       "name": "sobre",
+       "type": "string",
+       "value": "cajas"
+      },
+      {
+       "name": "luz",
+       "type": "string",
+       "value": "560,321,128,8"
+      }
+     ]
+    },
+    {
+     "class": "interactuable",
+     "height": 64,
+     "id": 13,
+     "name": "mirar-debajo-caja",
+     "rotation": 0,
+     "type": "interactuable",
+     "visible": true,
+     "width": 96,
+     "x": 1230,
+     "y": 288,
+     "properties": [
+      {
+       "name": "ref",
+       "type": "string",
+       "value": "caja-puerta"
+      },
+      {
+       "name": "accion",
+       "type": "string",
+       "value": "mirar-debajo"
+      },
+      {
+       "name": "sobre",
+       "type": "string",
+       "value": "caja-puerta"
+      },
+      {
+       "name": "luz",
+       "type": "string",
+       "value": "1230,353,96,8"
+      }
+     ]
+    },
+    {
+     "class": "interactuable",
+     "height": 108,
+     "id": 14,
+     "name": "tapiada",
+     "rotation": 0,
+     "type": "interactuable",
+     "visible": true,
+     "width": 96,
+     "x": 300,
+     "y": 150,
+     "properties": [
+      {
+       "name": "ref",
+       "type": "string",
+       "value": "n3-mueble-puerta"
+      },
+      {
+       "name": "accion",
+       "type": "string",
+       "value": "examinar"
+      },
+      {
+       "name": "dibujo",
+       "type": "string",
+       "value": "tapiada"
+      },
+      {
+       "name": "enPared",
+       "type": "bool",
+       "value": true
+      },
+      {
+       "name": "luz",
+       "type": "string",
+       "value": "300,257,96,8"
+      }
+     ]
+    },
+    {
+     "class": "interactuable",
+     "height": 70,
+     "id": 15,
+     "name": "llavero",
+     "rotation": 0,
+     "type": "interactuable",
+     "visible": true,
+     "width": 64,
+     "x": 800,
+     "y": 188,
+     "properties": [
+      {
+       "name": "ref",
+       "type": "string",
+       "value": "n3-mueble-llavero"
+      },
+      {
+       "name": "accion",
+       "type": "string",
+       "value": "examinar"
+      },
+      {
+       "name": "dibujo",
+       "type": "string",
+       "value": "llavero"
+      },
+      {
+       "name": "enPared",
+       "type": "bool",
+       "value": true
+      },
+      {
+       "name": "luz",
+       "type": "string",
+       "value": "800,257,64,8"
+      }
+     ]
+    },
+    {
+     "class": "interactuable",
+     "height": 40,
+     "id": 16,
+     "name": "herramientas",
+     "rotation": 0,
+     "type": "interactuable",
+     "visible": true,
+     "width": 64,
+     "x": 990,
+     "y": 214,
+     "properties": [
+      {
+       "name": "ref",
+       "type": "string",
+       "value": "n3-mueble-herramientas"
+      },
+      {
+       "name": "accion",
+       "type": "string",
+       "value": "examinar"
+      },
+      {
+       "name": "dibujo",
+       "type": "string",
+       "value": "herramientas"
+      },
+      {
+       "name": "sobre",
+       "type": "string",
+       "value": "banco"
+      },
+      {
+       "name": "mira",
+       "type": "string",
+       "value": "1022,234"
+      },
+      {
+       "name": "luz",
+       "type": "string",
+       "value": "960,305,128,8"
+      }
+     ]
+    },
+    {
+     "class": "interactuable",
+     "height": 64,
+     "id": 17,
+     "name": "barril-usable",
+     "rotation": 0,
+     "type": "interactuable",
+     "visible": true,
+     "width": 64,
+     "x": 1130,
+     "y": 256,
+     "properties": [
+      {
+       "name": "ref",
+       "type": "string",
+       "value": "n3-mueble-barril"
+      },
+      {
+       "name": "accion",
+       "type": "string",
+       "value": "examinar"
+      },
+      {
+       "name": "sobre",
+       "type": "string",
+       "value": "barril"
+      },
+      {
+       "name": "luz",
+       "type": "string",
+       "value": "1130,321,64,8"
+      }
+     ]
+    },
+    {
+     "class": "interactuable",
+     "height": 108,
+     "id": 18,
+     "name": "puerta-candado",
+     "rotation": 0,
+     "type": "interactuable",
+     "visible": true,
+     "width": 96,
+     "x": 1344,
+     "y": 150,
+     "properties": [
+      {
+       "name": "ref",
+       "type": "string",
+       "value": "puerta-candado"
+      },
+      {
+       "name": "accion",
+       "type": "string",
+       "value": "abrir"
+      },
+      {
+       "name": "dibujo",
+       "type": "string",
+       "value": "puerta-candado"
+      },
+      {
+       "name": "enPared",
+       "type": "bool",
+       "value": true
+      },
+      {
+       "name": "luz",
+       "type": "string",
+       "value": "1344,257,96,8"
+      }
+     ]
+    },
+    {
+     "class": "interactuable",
+     "height": 30,
+     "id": 19,
+     "name": "carta",
+     "rotation": 0,
+     "type": "interactuable",
+     "visible": true,
+     "width": 40,
+     "x": 1230,
+     "y": 590,
+     "properties": [
+      {
+       "name": "ref",
+       "type": "string",
+       "value": "n3-pista-carta"
+      },
+      {
+       "name": "accion",
+       "type": "string",
+       "value": "recoger"
+      },
+      {
+       "name": "dibujo",
+       "type": "string",
+       "value": "carta"
+      }
+     ]
+    },
+    {
+     "class": "interactuable",
+     "height": 30,
+     "id": 20,
+     "name": "llave",
+     "rotation": 0,
+     "type": "interactuable",
+     "visible": true,
+     "width": 40,
+     "x": 1290,
+     "y": 590,
+     "properties": [
+      {
+       "name": "ref",
+       "type": "string",
+       "value": "n3-pista-llave"
+      },
+      {
+       "name": "accion",
+       "type": "string",
+       "value": "recoger"
+      },
+      {
+       "name": "dibujo",
+       "type": "string",
+       "value": "llave"
+      }
+     ]
+    },
+    {
+     "class": "interactuable",
+     "height": 36,
+     "id": 21,
+     "name": "pilas",
+     "rotation": 0,
+     "type": "interactuable",
+     "visible": true,
+     "width": 48,
+     "x": 1340,
+     "y": 594,
+     "properties": [
+      {
+       "name": "ref",
+       "type": "string",
+       "value": "bateria"
+      },
+      {
+       "name": "accion",
+       "type": "string",
+       "value": "recoger"
+      },
+      {
+       "name": "dibujo",
+       "type": "string",
+       "value": "pilas"
+      }
+     ]
+    }
+   ],
+   "opacity": 1,
+   "type": "objectgroup",
+   "visible": true,
+   "x": 0,
+   "y": 0
+  }
+ ],
+ "nextlayerid": 4,
+ "nextobjectid": 22,
+ "orientation": "orthogonal",
+ "renderorder": "right-down",
+ "tiledversion": "1.10.2",
+ "tileheight": 64,
+ "tilesets": [
+  {
+   "columns": 5,
+   "firstgid": 1,
+   "image": "../tilesets/provisional.png",
+   "imageheight": 64,
+   "imagewidth": 320,
+   "margin": 0,
+   "spacing": 0,
+   "name": "provisional",
+   "tilecount": 5,
+   "tileheight": 64,
+   "tilewidth": 64
+  }
+ ],
+ "tilewidth": 64,
+ "type": "map",
+ "version": "1.10",
+ "width": 24
+}

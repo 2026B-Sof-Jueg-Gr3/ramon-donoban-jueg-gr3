@@ -3,9 +3,9 @@ import { TIEMPOS } from './configuracion.js';
 
 // Aparición temporal de una marca de investigación (huellas, lupa…) al descubrirse.
 // Aparece, permanece TIEMPOS.marca.permanencia y desaparece. La marca sigue existiendo en el escenario.
-// Deja de ser válida si una caja tapa la marca: entonces se retira antes de tiempo.
+// Solo termina por tiempo o porque se la retire de forma explícita (usa la validez por defecto de PresentacionTemporal).
 export default class AparicionDeMarca extends PresentacionTemporal {
-    // dibujo: { x, y, icono, crearIcono(x, y, icono) } — posición en píxeles del tablero y cómo dibujar el icono
+    // dibujo: { x, y, icono, crearIcono(x, y, icono) } — posición en píxeles de la escena y cómo dibujar el icono
     constructor(escena, contenedor, marca, dibujo) {
         super(escena, contenedor, `marca:${marca.id}`, TIEMPOS.marca);
         this.marca = marca;
@@ -27,10 +27,5 @@ export default class AparicionDeMarca extends PresentacionTemporal {
 
     animarSalida(duracion, alTerminar) {
         this.escena.tweens.add({ targets: this.vista, alpha: 0, scale: 0.6, duration: duracion, ease: 'Sine.easeIn', onComplete: alTerminar });
-    }
-
-    // contexto: el Nivel (solo se consulta)
-    esValida(nivel) {
-        return !nivel.getEscenario().cajaEn(this.marca.fila, this.marca.columna);
     }
 }

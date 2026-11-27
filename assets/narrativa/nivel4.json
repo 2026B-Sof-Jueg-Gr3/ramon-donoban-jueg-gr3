@@ -1,16 +1,16 @@
 {
   "intro": "El cuarto de los niños. Los juguetes me miran... o eso quieren que crea.",
-  "empujar": [
+  "comentarios": [
     "Hay un hilo transparente enganchado en esta caja.",
     "Si tiro de aquí, el caballito se mueve al otro lado. Qué conveniente.",
     "Un juguete que «se mueve solo» necesita a alguien que lo mueva."
   ],
-  "cajas": [
+  "revelaciones": [
     "Primer juguete desconectado. El hilo sube hasta una trampilla del techo.",
     "Desde esa trampilla se maneja todo el cuarto, como un teatro de marionetas."
   ],
   "cierre": "Último hilo cortado. Los juguetes no cobraban vida: alguien los manejaba desde arriba... ¡Una silueta acaba de pasar frente a la ventana!",
-  "retirar": "No. Desenredemos esto con calma.",
+  "error": "No. Desenredemos esto con calma.",
   "bateria": "Pilas dentro de un tren de juguete. Este no anda solo, eso seguro.",
   "pistas": [
     {
@@ -25,10 +25,50 @@
     }
   ],
   "muebles": [
-    { "id": "n4-mueble-oso", "emoji": "🧸", "texto": "Un oso de peluche con un hilo cosido en la espalda. Marioneta, no milagro." },
-    { "id": "n4-mueble-caballito", "emoji": "🎠", "texto": "Un caballito de carrusel. Sus engranajes están recién engrasados." },
-    { "id": "n4-mueble-munecas", "emoji": "🎎", "texto": "Muñecas alineadas mirando la puerta. Alguien las colocó así para impresionar." }
+    {
+      "id": "n4-mueble-oso",
+      "emoji": "🧸",
+      "texto": "Un oso de peluche con un hilo cosido en la espalda. Marioneta, no milagro."
+    },
+    {
+      "id": "n4-mueble-caballito",
+      "emoji": "🎠",
+      "texto": "Un caballito de carrusel. Sus engranajes están recién engrasados."
+    },
+    {
+      "id": "n4-mueble-munecas",
+      "emoji": "🎎",
+      "texto": "Muñecas alineadas mirando la puerta. Alguien las colocó así para impresionar."
+    }
   ],
   "marcas": [],
-  "informe": "INFORME DEL INSPECTOR: Los juguetes estaban atados con hilos invisibles a una trampilla del techo. Alguien manejaba el cuarto desde arriba y nos estaba observando. Una silueta acaba de cruzar frente a la ventana exterior... no la voy a dejar escapar."
+  "informe": "INFORME DEL INSPECTOR: Los juguetes estaban atados con hilos invisibles a una trampilla del techo. Alguien manejaba el cuarto desde arriba y nos estaba observando. Una silueta acaba de cruzar frente a la ventana exterior... no la voy a dejar escapar.",
+  "deduccion": {
+    "pruebas": {
+      "trampilla-del-techo": "Trampilla del techo",
+      "oso-con-hilo-cosido": "Oso con hilo cosido",
+      "caballito-engrasado": "Caballito engrasado",
+      "munecas-alineadas": "Muñecas alineadas"
+    },
+    "preguntas": [
+      {
+        "id": "juguetes",
+        "texto": "¿Cómo se mueven los juguetes?",
+        "opciones": [
+          {
+            "id": "con-hilos",
+            "texto": "Con hilos manejados desde una trampilla del techo"
+          },
+          {
+            "id": "engranajes",
+            "texto": "Con engranajes de cuerda que alguien engrasó"
+          },
+          {
+            "id": "cobran-vida",
+            "texto": "Cobran vida solos"
+          }
+        ]
+      }
+    ]
+  }
 }

@@ -17,11 +17,13 @@ function objetoBase(escena) {
     const o = {
         scene: escena, visible: true, alpha: 1, scale: 1, x: 0, y: 0, eventos: {},
         destroy() { if (o.hijos) o.hijos.forEach(h => h.destroy?.()); o.scene = null; o.destruido = true; },
-        setDepth() { return o; }, setOrigin() { return o; }, setScale(v) { o.scale = v; return o; },
+        setDepth() { return o; }, setScrollFactor() { return o; }, setOrigin() { return o; }, setScale(v) { o.scale = v; return o; },
         setAlpha(v) { o.alpha = v; return o; }, setVisible(v) { o.visible = v; return o; },
         setPosition(x, y) { o.x = x; o.y = y; return o; }, setSize() { return o; }, setMask() { return o; },
         setInteractive() { o.input = { enabled: true, hitArea: { setSize() { } } }; return o; },
-        disableInteractive() { return o; }, on(ev, fn) { o.eventos[ev] = fn; return o; }, setStrokeStyle() { return o; }
+        disableInteractive() { return o; }, on(ev, fn) { o.eventos[ev] = fn; return o; }, setStrokeStyle() { return o; },
+        // Las etiquetas del revisor de la interfaz (src/ui/etiquetas.js)
+        datos: {}, setData(clave, valor) { o.datos[clave] = valor; return o; }, getData(clave) { return o.datos[clave]; }
     };
     return o;
 }

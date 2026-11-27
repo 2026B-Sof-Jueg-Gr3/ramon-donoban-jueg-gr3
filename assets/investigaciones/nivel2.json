@@ -1,0 +1,77 @@
+{
+  "nivel": 2,
+  "comentario": "Reglas de la Cocina. No lleva texto: cada regla apunta a una línea de assets/narrativa/nivel2.json. 'cuando' es la lista de hechos que tienen que haber ocurrido (en cualquier orden); la regla sale una sola vez, al ocurrir el último. Una pregunta, una sola respuesta (DISENO_V2.md, sección 5): 'validas' tiene UNA combinación, con solo las pruebas que responden DIRECTAMENTE la pregunta. Cada pista de la cocina responde una pregunta: el recibo (quién compró las piezas) y la taza (quién estuvo aquí hace poco) responden juntos la pregunta 2 (¿alguien sigue manejando el fantasma?); no valen en las otras dos. Hechos: entro · ilumino:X · examino:X · recogio:X · rodo:X · tiro:X · oyo-cerca:X (un golpe del fenómeno mientras el inspector está cerca de X). 'requiere' son las dependencias físicas de una acción. 'deduccion' dice qué prueba sale de qué regla y qué combinaciones respaldan cada conclusión; los nombres y las preguntas están en la narrativa.",
+  "objetos": {
+    "alacena": {
+      "acciones": {
+        "examinar": {},
+        "rodar": { "requiere": ["examino:alacena"] }
+      }
+    },
+    "n2-mancha-aceite": {
+      "descubre": "luz",
+      "acciones": { "examinar": { "requiere": ["ilumino:n2-mancha-aceite"] } }
+    },
+    "fuelle": {
+      "acciones": { "examinar": { "requiere": ["rodo:alacena"] } }
+    },
+    "cuerda": {
+      "acciones": { "tirar": { "requiere": ["rodo:alacena", "examino:fuelle"], "repetible": true } }
+    },
+    "n2-mueble-copas": { "acciones": { "examinar": {} } },
+    "n2-mueble-platos": { "acciones": { "examinar": {} } },
+    "n2-mueble-sarten": { "acciones": { "examinar": {} } },
+    "n2-pista-recibo": { "acciones": { "recoger": {} } },
+    "n2-pista-taza": { "acciones": { "recoger": {} } },
+    "bateria": { "acciones": { "recoger": {} } }
+  },
+  "reglas": [
+    { "id": "intro", "cuando": ["entro"], "clase": "importante", "texto": "intro" },
+
+    { "id": "comentario:0", "cuando": ["examino:alacena"], "clase": "secundaria", "texto": "comentarios:0" },
+    { "id": "comentario:1", "cuando": ["examino:n2-mancha-aceite"], "clase": "secundaria", "texto": "comentarios:1" },
+    { "id": "comentario:2", "cuando": ["oyo-cerca:alacena"], "clase": "secundaria", "texto": "comentarios:2" },
+
+    { "id": "revelacion:0", "cuando": ["rodo:alacena"], "clase": "importante", "texto": "revelaciones:0" },
+    { "id": "revelacion:1", "cuando": ["examino:fuelle"], "clase": "importante", "texto": "revelaciones:1" },
+
+    { "id": "mueble:n2-mueble-copas", "cuando": ["examino:n2-mueble-copas"], "clase": "secundaria", "texto": "muebles:n2-mueble-copas" },
+    { "id": "mueble:n2-mueble-platos", "cuando": ["examino:n2-mueble-platos"], "clase": "secundaria", "texto": "muebles:n2-mueble-platos" },
+    { "id": "mueble:n2-mueble-sarten", "cuando": ["examino:n2-mueble-sarten"], "clase": "secundaria", "texto": "muebles:n2-mueble-sarten" },
+
+    { "id": "pista:n2-pista-recibo", "cuando": ["recogio:n2-pista-recibo"], "clase": "secundaria", "texto": "pistas:n2-pista-recibo" },
+    { "id": "pista:n2-pista-taza", "cuando": ["recogio:n2-pista-taza"], "clase": "secundaria", "texto": "pistas:n2-pista-taza" },
+    { "id": "bateria", "cuando": ["recogio:bateria"], "clase": "secundaria", "texto": "bateria" }
+  ],
+  "ayuda": {
+    "espera": 45,
+    "refuerzos": [
+      { "efecto": "libreta", "mientras": { "deduccion": "disponible" } },
+      { "efecto": "onda", "mientras": { "sinContar": ["comentario:0"] } },
+      { "efecto": "ruedas", "mientras": { "sinContar": ["revelacion:0"] } },
+      { "efecto": "cuerda", "mientras": { "sinContar": ["revelacion:1"] } },
+      { "efecto": "taza", "mientras": { "sinContar": ["pista:n2-pista-taza"] } },
+      { "efecto": "recibo", "mientras": { "sinContar": ["pista:n2-pista-recibo"] } },
+      { "efecto": "platos", "mientras": { "sinContar": ["mueble:n2-mueble-platos"] } }
+    ]
+  },
+  "deduccion": {
+    "maximoDePruebas": 2,
+    "pilas": "bateria",
+    "pruebas": {
+      "cuerda-al-techo": { "sale": "revelacion:0" },
+      "fuelle-escondido": { "sale": "revelacion:1" },
+      "alacena-con-ruedas": { "sale": "comentario:0" },
+      "platos-para-dos": { "sale": "mueble:n2-mueble-platos" },
+      "copas-limpias": { "sale": "mueble:n2-mueble-copas" },
+      "sarten-con-aceite": { "sale": "mueble:n2-mueble-sarten" },
+      "n2-pista-recibo": { "sale": "pista:n2-pista-recibo" },
+      "n2-pista-taza": { "sale": "pista:n2-pista-taza" }
+    },
+    "preguntas": [
+      { "id": "mecanismo", "correcta": "poleas-cuerda-fuelle", "validas": [["cuerda-al-techo", "fuelle-escondido"]] },
+      { "id": "responsable", "correcta": "sigue-viniendo", "validas": [["n2-pista-recibo", "n2-pista-taza"]] },
+      { "id": "companero", "correcta": "hay-alguien-mas", "validas": [["platos-para-dos"]] }
+    ]
+  }
+}

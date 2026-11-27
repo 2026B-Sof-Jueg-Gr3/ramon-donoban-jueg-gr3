@@ -4,8 +4,6 @@ import assert from 'node:assert/strict';
 import Narrador, { armarPaginasDeCierre } from '../src/ui/Narrador.js';
 import { destinoDeEntrada } from '../src/ui/Entradas.js';
 import { LECTURA, tiempoDeLectura } from '../src/ui/tiemposDeLectura.js';
-import { calcularDistribucion, seSuperponen, DISTRIBUCION } from '../src/ui/Distribucion.js';
-import { cargarNivel } from './utilidades.mjs';
 
 // ── Dobles de prueba: registran lo que el Narrador les pide ─────────────────
 
@@ -165,14 +163,14 @@ test('ambientales: hasta 3 a la vez, el resto en su cola; durante la pausa la co
 test('cierre sin pausa previa: notas con texto completo (la visible a medio leer primero) y el cierre; victoria al final', () => {
     const { narrador, panel, presentacion } = crear();
     narrador.contar(sec('mueble:copas:examinar#3', 'Copas de vino limpias.', { etiqueta: '🍷' }));
-    narrador.contar(sec('comentario:retirar', 'No, ahí no iba.', { alCompletar: 'descartar' }));
-    narrador.contar(sec('comentario:empujar-0', 'Pesa más de lo que parece.'));
+    narrador.contar(sec('comentario:error', 'No, eso no encaja.', { alCompletar: 'descartar' }));
+    narrador.contar(sec('comentario:comentarios-0', 'Esta caja pesa más de lo que parece.'));
     narrador.contar(amb('marca:1'));
     let victoria = false;
     assert.equal(narrador.cerrarNivel({ texto: 'Caso cerrado.' }, () => { victoria = true; }), true);
     assert.equal(narrador.bloqueando(), true);
     assert.equal(panel.tarjetas.length, 0, 'el panel queda vacío: los ambientales se retiran');
-    assert.deepEqual(presentacion.paginas.map(p => p.texto), ['• 🍷 Copas de vino limpias.\n• Pesa más de lo que parece.']);
+    assert.deepEqual(presentacion.paginas.map(p => p.texto), ['• 🍷 Copas de vino limpias.\n• Esta caja pesa más de lo que parece.']);
     leer(narrador);
     assert.equal(presentacion.actual.texto, 'Caso cerrado.');
     assert.equal(victoria, false, 'la victoria no se adelanta');
@@ -263,31 +261,4 @@ test('entradas: durante la pausa solo avanzar y Esc; nada queda pendiente', () =
     assert.equal(destinoDeEntrada('avanzar', jugando), null);
     assert.equal(destinoDeEntrada('avanzar', pausa), 'narrativa');
     assert.equal(destinoDeEntrada('avanzar', pausa, true), null, 'una tecla mantenida no salta acontecimientos');
-});
-
-// ── Distribución de la pantalla ─────────────────────────────────────────────
-
-test('distribución: en los 6 niveles y 4 tamaños, tablero, panel, HUD y controles no se superponen', () => {
-    const tamaños = [[1280, 800, 'lateral'], [1024, 768, 'lateral'], [768, 1024, 'franja'], [375, 812, 'franja']];
-    for (let n = 1; n <= 6; n++) {
-        const e = cargarNivel(n).getEscenario();
-        for (const [w, h, modo] of tamaños) {
-            const d = calcularDistribucion(w, h, e.getColumnas(), e.getFilas(), 226);
-            const caso = `nivel ${n}, ${w}×${h}`;
-            assert.equal(d.modo, modo, caso);
-            const zonas = { hud: d.hud, panel: d.panel, tablero: d.tablero, controles: d.controles };
-            const nombres = Object.keys(zonas);
-            for (let i = 0; i < nombres.length; i++) for (let j = i + 1; j < nombres.length; j++) {
-                assert.equal(seSuperponen(zonas[nombres[i]], zonas[nombres[j]]), false, `${caso}: ${nombres[i]} y ${nombres[j]}`);
-            }
-            for (const z of Object.values(zonas)) assert.ok(z.x >= 0 && z.y >= 0 && z.x + z.ancho <= w && z.y + z.alto <= h, `${caso}: zona dentro de la pantalla`);
-            assert.ok(d.escala >= DISTRIBUCION.escalaMinima && d.escala <= DISTRIBUCION.escalaMaxima);
-            if (modo === 'franja') assert.ok(d.panel.alto >= DISTRIBUCION.franja.minimo && d.panel.alto <= DISTRIBUCION.franja.maximo, `${caso}: panel acotado`);
-        }
-    }
-});
-
-test('distribución: no depende de los textos; el mismo tamaño da siempre el mismo resultado', () => {
-    const a = calcularDistribucion(375, 812, 9, 7, 226), b = calcularDistribucion(375, 812, 9, 7, 226);
-    assert.deepEqual(a, b);
 });

@@ -13,7 +13,7 @@ export function alRedimensionar(scene, fn, dueno = null) {
 }
 
 export function fondoCubriendo(scene, clave) {
-    const img = scene.add.image(0, 0, clave);
+    const img = scene.add.image(0, 0, clave).setData('rev', { tipo: 'ignorar' });      // un fondo: cubre todo a propósito
     alRedimensionar(scene, (w, h) => {
         img.setPosition(w / 2, h / 2).setScale(Math.max(w / img.width, h / img.height));
     });

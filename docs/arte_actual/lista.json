@@ -1,0 +1,690 @@
+[
+  {
+    "clave": "tilesProvisional",
+    "carpeta": "baldosas",
+    "ancho": 320,
+    "alto": 64,
+    "nivel": 1,
+    "x4": true
+  },
+  {
+    "clave": "inspector",
+    "carpeta": "personaje",
+    "ancho": 36,
+    "alto": 58,
+    "nivel": 1,
+    "x4": true
+  },
+  {
+    "clave": "flecha",
+    "carpeta": "personaje",
+    "ancho": 16,
+    "alto": 16,
+    "nivel": 1,
+    "x4": true
+  },
+  {
+    "clave": "sombra",
+    "carpeta": "personaje",
+    "ancho": 34,
+    "alto": 14,
+    "nivel": 1,
+    "x4": true
+  },
+  {
+    "clave": "ventana",
+    "carpeta": "ambiente",
+    "ancho": 64,
+    "alto": 76,
+    "nivel": 1,
+    "x4": true
+  },
+  {
+    "clave": "ventana-rota",
+    "carpeta": "ambiente",
+    "ancho": 64,
+    "alto": 76,
+    "nivel": 1,
+    "x4": true
+  },
+  {
+    "clave": "cortina",
+    "carpeta": "ambiente",
+    "ancho": 30,
+    "alto": 108,
+    "nivel": 1,
+    "x4": true
+  },
+  {
+    "clave": "cortina-rota",
+    "carpeta": "ambiente",
+    "ancho": 30,
+    "alto": 108,
+    "nivel": 1,
+    "x4": true
+  },
+  {
+    "clave": "sombra-caminante",
+    "carpeta": "ambiente",
+    "ancho": 44,
+    "alto": 110,
+    "nivel": 1,
+    "x4": true
+  },
+  {
+    "clave": "solapa",
+    "carpeta": "ambiente",
+    "ancho": 56,
+    "alto": 18,
+    "nivel": 1,
+    "x4": true
+  },
+  {
+    "clave": "polvo",
+    "carpeta": "ambiente",
+    "ancho": 8,
+    "alto": 8,
+    "nivel": 1,
+    "x4": true
+  },
+  {
+    "clave": "brillo",
+    "carpeta": "ambiente",
+    "ancho": 64,
+    "alto": 64,
+    "nivel": 1,
+    "x4": true
+  },
+  {
+    "clave": "olla",
+    "carpeta": "ambiente",
+    "ancho": 34,
+    "alto": 40,
+    "nivel": 1,
+    "x4": true
+  },
+  {
+    "clave": "vela",
+    "carpeta": "ambiente",
+    "ancho": 8,
+    "alto": 22,
+    "nivel": 1,
+    "x4": true
+  },
+  {
+    "clave": "llama",
+    "carpeta": "ambiente",
+    "ancho": 16,
+    "alto": 28,
+    "nivel": 1,
+    "x4": true
+  },
+  {
+    "clave": "luz-vela",
+    "carpeta": "tecnicas",
+    "ancho": 192,
+    "alto": 192,
+    "nivel": 1,
+    "x4": false
+  },
+  {
+    "clave": "mueble-pila-de-cajas",
+    "carpeta": "muebles",
+    "ancho": 128,
+    "alto": 144,
+    "nivel": 1,
+    "x4": true
+  },
+  {
+    "clave": "mueble-armario",
+    "carpeta": "muebles",
+    "ancho": 128,
+    "alto": 214,
+    "nivel": 1,
+    "x4": true
+  },
+  {
+    "clave": "mueble-consola",
+    "carpeta": "muebles",
+    "ancho": 192,
+    "alto": 92,
+    "nivel": 1,
+    "x4": true
+  },
+  {
+    "clave": "mueble-banco",
+    "carpeta": "muebles",
+    "ancho": 128,
+    "alto": 76,
+    "nivel": 1,
+    "x4": true
+  },
+  {
+    "clave": "revelable-polvo",
+    "carpeta": "revelables",
+    "ancho": 96,
+    "alto": 44,
+    "nivel": 1,
+    "x4": true
+  },
+  {
+    "clave": "revelable-arrastre",
+    "carpeta": "revelables",
+    "ancho": 190,
+    "alto": 60,
+    "nivel": 1,
+    "x4": true
+  },
+  {
+    "clave": "item-huella-bota",
+    "carpeta": "objetos",
+    "ancho": 48,
+    "alto": 40,
+    "nivel": 1,
+    "x4": true
+  },
+  {
+    "clave": "item-recorte",
+    "carpeta": "objetos",
+    "ancho": 48,
+    "alto": 30,
+    "nivel": 1,
+    "x4": true
+  },
+  {
+    "clave": "item-pilas",
+    "carpeta": "objetos",
+    "ancho": 48,
+    "alto": 36,
+    "nivel": 1,
+    "x4": true
+  },
+  {
+    "clave": "luz-ventana",
+    "carpeta": "tecnicas",
+    "ancho": 500,
+    "alto": 500,
+    "nivel": 1,
+    "x4": false
+  },
+  {
+    "clave": "retrato-neutral",
+    "carpeta": "retratos",
+    "ancho": 360,
+    "alto": 480,
+    "nivel": 1,
+    "x4": false
+  },
+  {
+    "clave": "retrato-pensativo",
+    "carpeta": "retratos",
+    "ancho": 360,
+    "alto": 480,
+    "nivel": 1,
+    "x4": false
+  },
+  {
+    "clave": "retrato-sonrisa_ironica",
+    "carpeta": "retratos",
+    "ancho": 360,
+    "alto": 480,
+    "nivel": 1,
+    "x4": false
+  },
+  {
+    "clave": "retrato-sorprendido",
+    "carpeta": "retratos",
+    "ancho": 360,
+    "alto": 480,
+    "nivel": 1,
+    "x4": false
+  },
+  {
+    "clave": "retrato-serio",
+    "carpeta": "retratos",
+    "ancho": 360,
+    "alto": 480,
+    "nivel": 1,
+    "x4": false
+  },
+  {
+    "clave": "retrato-satisfecho",
+    "carpeta": "retratos",
+    "ancho": 360,
+    "alto": 480,
+    "nivel": 1,
+    "x4": false
+  },
+  {
+    "clave": "vineta",
+    "carpeta": "tecnicas",
+    "ancho": 1280,
+    "alto": 720,
+    "nivel": 1,
+    "x4": false
+  },
+  {
+    "clave": "mueble-vitrina",
+    "carpeta": "muebles",
+    "ancho": 96,
+    "alto": 150,
+    "nivel": 2,
+    "x4": true
+  },
+  {
+    "clave": "mueble-alacena",
+    "carpeta": "muebles",
+    "ancho": 128,
+    "alto": 214,
+    "nivel": 2,
+    "x4": true
+  },
+  {
+    "clave": "mueble-chimenea",
+    "carpeta": "muebles",
+    "ancho": 160,
+    "alto": 148,
+    "nivel": 2,
+    "x4": true
+  },
+  {
+    "clave": "mueble-mesa",
+    "carpeta": "muebles",
+    "ancho": 160,
+    "alto": 96,
+    "nivel": 2,
+    "x4": true
+  },
+  {
+    "clave": "mueble-fregadero",
+    "carpeta": "muebles",
+    "ancho": 160,
+    "alto": 104,
+    "nivel": 2,
+    "x4": true
+  },
+  {
+    "clave": "mueble-estufa",
+    "carpeta": "muebles",
+    "ancho": 128,
+    "alto": 120,
+    "nivel": 2,
+    "x4": true
+  },
+  {
+    "clave": "revelable-mancha",
+    "carpeta": "revelables",
+    "ancho": 150,
+    "alto": 52,
+    "nivel": 2,
+    "x4": true
+  },
+  {
+    "clave": "item-fuelle",
+    "carpeta": "objetos",
+    "ancho": 80,
+    "alto": 64,
+    "nivel": 2,
+    "x4": true
+  },
+  {
+    "clave": "item-platos",
+    "carpeta": "objetos",
+    "ancho": 56,
+    "alto": 30,
+    "nivel": 2,
+    "x4": true
+  },
+  {
+    "clave": "item-sarten",
+    "carpeta": "objetos",
+    "ancho": 70,
+    "alto": 30,
+    "nivel": 2,
+    "x4": true
+  },
+  {
+    "clave": "item-taza",
+    "carpeta": "objetos",
+    "ancho": 36,
+    "alto": 26,
+    "nivel": 2,
+    "x4": true
+  },
+  {
+    "clave": "item-recibo",
+    "carpeta": "objetos",
+    "ancho": 48,
+    "alto": 30,
+    "nivel": 2,
+    "x4": true
+  },
+  {
+    "clave": "mueble-cajas",
+    "carpeta": "muebles",
+    "ancho": 128,
+    "alto": 160,
+    "nivel": 3,
+    "x4": true
+  },
+  {
+    "clave": "mueble-barril",
+    "carpeta": "muebles",
+    "ancho": 64,
+    "alto": 124,
+    "nivel": 3,
+    "x4": true
+  },
+  {
+    "clave": "mueble-caja-puerta",
+    "carpeta": "muebles",
+    "ancho": 96,
+    "alto": 128,
+    "nivel": 3,
+    "x4": true
+  },
+  {
+    "clave": "revelable-intacto",
+    "carpeta": "revelables",
+    "ancho": 240,
+    "alto": 90,
+    "nivel": 3,
+    "x4": true
+  },
+  {
+    "clave": "revelable-camino",
+    "carpeta": "revelables",
+    "ancho": 600,
+    "alto": 56,
+    "nivel": 3,
+    "x4": true
+  },
+  {
+    "clave": "revelable-tablas-vista",
+    "carpeta": "revelables",
+    "ancho": 200,
+    "alto": 90,
+    "nivel": 3,
+    "x4": true
+  },
+  {
+    "clave": "item-tapiada",
+    "carpeta": "objetos",
+    "ancho": 96,
+    "alto": 108,
+    "nivel": 3,
+    "x4": true
+  },
+  {
+    "clave": "item-llavero",
+    "carpeta": "objetos",
+    "ancho": 56,
+    "alto": 62,
+    "nivel": 3,
+    "x4": true
+  },
+  {
+    "clave": "item-herramientas",
+    "carpeta": "objetos",
+    "ancho": 64,
+    "alto": 42,
+    "nivel": 3,
+    "x4": true
+  },
+  {
+    "clave": "item-puerta-candado",
+    "carpeta": "objetos",
+    "ancho": 96,
+    "alto": 108,
+    "nivel": 3,
+    "x4": true
+  },
+  {
+    "clave": "item-carta",
+    "carpeta": "objetos",
+    "ancho": 44,
+    "alto": 34,
+    "nivel": 3,
+    "x4": true
+  },
+  {
+    "clave": "item-llave",
+    "carpeta": "objetos",
+    "ancho": 40,
+    "alto": 34,
+    "nivel": 3,
+    "x4": true
+  },
+  {
+    "clave": "mueble-caja-juguetes",
+    "carpeta": "muebles",
+    "ancho": 128,
+    "alto": 134,
+    "nivel": 4,
+    "x4": true
+  },
+  {
+    "clave": "mueble-oso",
+    "carpeta": "muebles",
+    "ancho": 96,
+    "alto": 126,
+    "nivel": 4,
+    "x4": true
+  },
+  {
+    "clave": "mueble-caballito",
+    "carpeta": "muebles",
+    "ancho": 96,
+    "alto": 144,
+    "nivel": 4,
+    "x4": true
+  },
+  {
+    "clave": "mueble-munecas",
+    "carpeta": "muebles",
+    "ancho": 192,
+    "alto": 98,
+    "nivel": 4,
+    "x4": true
+  },
+  {
+    "clave": "mueble-tren",
+    "carpeta": "muebles",
+    "ancho": 96,
+    "alto": 76,
+    "nivel": 4,
+    "x4": true
+  },
+  {
+    "clave": "revelable-hilo-caja",
+    "carpeta": "revelables",
+    "ancho": 80,
+    "alto": 18,
+    "nivel": 4,
+    "x4": true
+  },
+  {
+    "clave": "revelable-hilo-caballito",
+    "carpeta": "revelables",
+    "ancho": 80,
+    "alto": 18,
+    "nivel": 4,
+    "x4": true
+  },
+  {
+    "clave": "revelable-hilo-munecas",
+    "carpeta": "revelables",
+    "ancho": 80,
+    "alto": 18,
+    "nivel": 4,
+    "x4": true
+  },
+  {
+    "clave": "revelable-hilo-oso",
+    "carpeta": "revelables",
+    "ancho": 80,
+    "alto": 18,
+    "nivel": 4,
+    "x4": true
+  },
+  {
+    "clave": "item-trampilla",
+    "carpeta": "objetos",
+    "ancho": 96,
+    "alto": 108,
+    "nivel": 4,
+    "x4": true
+  },
+  {
+    "clave": "item-bobina",
+    "carpeta": "objetos",
+    "ancho": 44,
+    "alto": 44,
+    "nivel": 4,
+    "x4": true
+  },
+  {
+    "clave": "item-diario",
+    "carpeta": "objetos",
+    "ancho": 52,
+    "alto": 38,
+    "nivel": 4,
+    "x4": true
+  },
+  {
+    "clave": "mueble-velas",
+    "carpeta": "muebles",
+    "ancho": 64,
+    "alto": 72,
+    "nivel": 5,
+    "x4": true
+  },
+  {
+    "clave": "mueble-sofa",
+    "carpeta": "muebles",
+    "ancho": 192,
+    "alto": 132,
+    "nivel": 5,
+    "x4": true
+  },
+  {
+    "clave": "mueble-cortina",
+    "carpeta": "muebles",
+    "ancho": 112,
+    "alto": 150,
+    "nivel": 5,
+    "x4": true
+  },
+  {
+    "clave": "revelable-pisadas",
+    "carpeta": "revelables",
+    "ancho": 420,
+    "alto": 60,
+    "nivel": 5,
+    "x4": true
+  },
+  {
+    "clave": "item-puerta-atrancada",
+    "carpeta": "objetos",
+    "ancho": 56,
+    "alto": 128,
+    "nivel": 5,
+    "x4": true
+  },
+  {
+    "clave": "item-puerta-jardin",
+    "carpeta": "objetos",
+    "ancho": 64,
+    "alto": 128,
+    "nivel": 5,
+    "x4": true
+  },
+  {
+    "clave": "item-cuadro",
+    "carpeta": "objetos",
+    "ancho": 64,
+    "alto": 64,
+    "nivel": 5,
+    "x4": true
+  },
+  {
+    "clave": "item-puerta-despacho",
+    "carpeta": "objetos",
+    "ancho": 96,
+    "alto": 108,
+    "nivel": 5,
+    "x4": true
+  },
+  {
+    "clave": "item-abrigo",
+    "carpeta": "objetos",
+    "ancho": 48,
+    "alto": 44,
+    "nivel": 5,
+    "x4": true
+  },
+  {
+    "clave": "mueble-reloj",
+    "carpeta": "muebles",
+    "ancho": 96,
+    "alto": 198,
+    "nivel": 6,
+    "x4": true
+  },
+  {
+    "clave": "mueble-archivos",
+    "carpeta": "muebles",
+    "ancho": 128,
+    "alto": 130,
+    "nivel": 6,
+    "x4": true
+  },
+  {
+    "clave": "mueble-archivador",
+    "carpeta": "muebles",
+    "ancho": 96,
+    "alto": 140,
+    "nivel": 6,
+    "x4": true
+  },
+  {
+    "clave": "mueble-escritorio",
+    "carpeta": "muebles",
+    "ancho": 192,
+    "alto": 122,
+    "nivel": 6,
+    "x4": true
+  },
+  {
+    "clave": "revelable-marcas",
+    "carpeta": "revelables",
+    "ancho": 220,
+    "alto": 70,
+    "nivel": 6,
+    "x4": true
+  },
+  {
+    "clave": "item-cuentas",
+    "carpeta": "objetos",
+    "ancho": 48,
+    "alto": 40,
+    "nivel": 6,
+    "x4": true
+  },
+  {
+    "clave": "item-pluma",
+    "carpeta": "objetos",
+    "ancho": 48,
+    "alto": 34,
+    "nivel": 6,
+    "x4": true
+  },
+  {
+    "clave": "item-cartas",
+    "carpeta": "objetos",
+    "ancho": 52,
+    "alto": 40,
+    "nivel": 6,
+    "x4": true
+  }
+]

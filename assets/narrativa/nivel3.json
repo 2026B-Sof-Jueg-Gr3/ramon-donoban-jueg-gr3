@@ -1,16 +1,16 @@
 {
   "intro": "Un candado nuevo en una puerta vieja. ¿Quién cierra con llave una casa abandonada?",
-  "empujar": [
+  "comentarios": [
     "Estas cajas bloqueaban el paso desde dentro. Alguien no quería visitas.",
     "Polvo por todas partes... menos en el camino que alguien recorre a diario.",
     "La madera cruje, pero aguanta. Igual que mi paciencia."
   ],
-  "cajas": [
+  "revelaciones": [
     "El polvo de esta zona está intacto, pero el del camino no. Alguien pasa por aquí seguido.",
     "Bajo la caja hay huellas recientes. Botas de hombre, talla grande."
   ],
   "cierre": "Paso despejado. Las huellas siguen hasta el cuarto de los niños... y nadie entra ahí sin una razón.",
-  "retirar": "Me adelanté. Volvamos a pensarlo.",
+  "error": "Me adelanté. Volvamos a pensarlo.",
   "bateria": "Pilas escondidas detrás de un ladrillo suelto. Un escondite muy humano.",
   "pistas": [
     {
@@ -25,11 +25,59 @@
     }
   ],
   "muebles": [
-    { "id": "n3-mueble-llavero", "emoji": "🗝️", "texto": "Un llavero vacío. Falta justo la llave del ala oeste." },
-    { "id": "n3-mueble-puerta", "emoji": "🚪", "texto": "Una puerta tapiada con tablones nuevos. Los clavos todavía brillan." },
-    { "id": "n3-mueble-herramientas", "emoji": "🧰", "borrador": true, "texto": "Una caja de herramientas de cerrajero. Las ganzúas están gastadas por el uso." },
-    { "id": "n3-mueble-barril", "emoji": "🛢️", "borrador": true, "texto": "Un barril de aceite para bisagras, casi vacío. Esta puerta se abre más de lo que parece." }
+    {
+      "id": "n3-mueble-llavero",
+      "emoji": "🗝️",
+      "texto": "Un llavero vacío. Falta justo la llave del ala oeste."
+    },
+    {
+      "id": "n3-mueble-puerta",
+      "emoji": "🚪",
+      "texto": "Una puerta tapiada con tablones nuevos. Los clavos todavía brillan."
+    },
+    {
+      "id": "n3-mueble-herramientas",
+      "emoji": "🧰",
+      "borrador": true,
+      "texto": "Una caja de herramientas de cerrajero. Las ganzúas están gastadas por el uso."
+    },
+    {
+      "id": "n3-mueble-barril",
+      "emoji": "🛢️",
+      "borrador": true,
+      "texto": "Un barril de aceite para bisagras, casi vacío. Esta puerta se abre más de lo que parece."
+    }
   ],
   "marcas": [],
-  "informe": "INFORME DEL INSPECTOR: El candado no protegía un secreto antiguo, sino uno reciente. Hay huellas humanas frescas entre el polvo y conducen al cuarto de los niños... allí, dicen, los juguetes se mueven solos."
+  "informe": "INFORME DEL INSPECTOR: El candado no protegía un secreto antiguo, sino uno reciente. Hay huellas humanas frescas entre el polvo y conducen al cuarto de los niños... allí, dicen, los juguetes se mueven solos.",
+  "deduccion": {
+    "pruebas": {
+      "camino-sin-polvo": "Camino sin polvo",
+      "huellas-recientes": "Huellas recientes",
+      "llavero-vacio": "Llavero vacío",
+      "puerta-tapiada": "Puerta tapiada",
+      "herramientas-de-cerrajero": "Herramientas de cerrajero",
+      "aceite-para-bisagras": "Aceite para bisagras"
+    },
+    "preguntas": [
+      {
+        "id": "candado",
+        "texto": "¿Por qué hay un candado nuevo en una puerta vieja?",
+        "opciones": [
+          {
+            "id": "entra-a-diario",
+            "texto": "Alguien entra y sale a diario y no quiere visitas"
+          },
+          {
+            "id": "nadie-en-anos",
+            "texto": "Nadie ha cruzado esta puerta en años"
+          },
+          {
+            "id": "sellaron-algo",
+            "texto": "La sellaron para encerrar algo"
+          }
+        ]
+      }
+    ]
+  }
 }

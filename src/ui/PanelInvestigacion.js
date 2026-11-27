@@ -1,5 +1,7 @@
 import { FUENTE } from './Boton.js';
 import { LECTURA } from './tiemposDeLectura.js';
+import { etiquetar } from './etiquetas.js';
+import { limitarDesplazamiento, indicadores } from '../motor/Maquetacion.js';
 
 // Panel de investigación: zona fija (ver Distribucion.js) donde se leen los textos que NO detienen el juego.
 //   · la nota de la libreta (secundaria), siempre la primera
@@ -11,24 +13,29 @@ const PADDING = 10;
 const SEPARACION = 6;
 const AMBAR = 0xc89012;
 const PROFUNDIDAD = 22;
+const RESERVA = 20;          // la franja de abajo donde va el indicador ▲ ▼ cuando el contenido no cabe (nada se le encima)
+let tarjetasCreadas = 0;
 
 export default class PanelInvestigacion {
-    constructor(scene) {
+    // profundidad: capa base del panel. Se dibuja fijo a la pantalla (no se desplaza con la cámara).
+    // ajustarAlContenido: el marco mide lo que miden las tarjetas (hasta el alto del panel) en vez de verse vacío.
+    constructor(scene, { profundidad = PROFUNDIDAD, ajustarAlContenido = false } = {}) {
+        this.ajustarAlContenido = ajustarAlContenido;
         this.scene = scene;
         this.tarjetas = [];
         this.desplazamiento = 0;
         this.rect = { x: 0, y: 0, ancho: 0, alto: 0 };
 
-        this.fondo = scene.add.graphics().setDepth(PROFUNDIDAD);
-        this.contenido = scene.add.container(0, 0).setDepth(PROFUNDIDAD + 1);
-        this.forma = scene.make.graphics({ add: false });
+        this.fondo = scene.add.graphics().setDepth(profundidad).setScrollFactor(0);
+        this.contenido = scene.add.container(0, 0).setDepth(profundidad + 1).setScrollFactor(0);
+        this.forma = scene.make.graphics({ add: false }).setScrollFactor(0);
         this.contenido.setMask(this.forma.createGeometryMask());
         this.indicador = scene.add.text(0, 0, '', {
             fontFamily: FUENTE, fontSize: '11px', color: '#c89012', resolution: 2
-        }).setOrigin(1, 1).setDepth(PROFUNDIDAD + 2);
+        }).setOrigin(1, 1).setDepth(profundidad + 2).setScrollFactor(0);
 
         // Desplazamiento: rueda del ratón sobre el panel o arrastre dentro de él
-        this.zona = scene.add.zone(0, 0, 1, 1).setOrigin(0).setDepth(PROFUNDIDAD + 2).setInteractive();
+        this.zona = scene.add.zone(0, 0, 1, 1).setOrigin(0).setDepth(profundidad + 2).setScrollFactor(0).setInteractive();
         this.zona.on('pointerdown', p => { this.arrastre = { y: p.y, desde: this.desplazamiento }; });
         scene.input.on('pointermove', p => {
             if (this.arrastre && p.isDown) this.desplazar(this.arrastre.desde - (p.y - this.arrastre.y));
@@ -42,19 +49,39 @@ export default class PanelInvestigacion {
 
     reposicionar(rect) {
         this.rect = rect;
-        this.fondo.clear();
-        this.fondo.fillStyle(0x07101b, 0.9);
-        this.fondo.fillRoundedRect(rect.x, rect.y, rect.ancho, rect.alto, 10);
-        this.fondo.lineStyle(1, AMBAR, 0.45);
-        this.fondo.strokeRoundedRect(rect.x, rect.y, rect.ancho, rect.alto, 10);
-        this.forma.clear();
-        this.forma.fillStyle(0xffffff);
-        this.forma.fillRect(rect.x, rect.y + 2, rect.ancho, rect.alto - 4);
+        this.dibujarFondo();
+        this.dibujarMascara();
         this.zona.setPosition(rect.x, rect.y).setSize(rect.ancho, rect.alto);
         this.zona.input.hitArea.setSize(rect.ancho, rect.alto);
         // El ancho del texto cambió: las tarjetas se vuelven a componer con el mismo estado
         for (const t of this.tarjetas) t.componer();
         this.acomodar();
+    }
+
+    // Lo que se ve de las tarjetas: todo el panel, menos la franja del indicador cuando el contenido no cabe
+    get altoVisible() {
+        return this.desborda ? this.rect.alto - RESERVA : this.rect.alto;
+    }
+
+    get desborda() { return (this.altoContenido || 0) > this.rect.alto; }
+
+    dibujarMascara() {
+        const r = this.rect, alto = this.altoVisible;
+        this.forma.clear();
+        this.forma.fillStyle(0xffffff);
+        this.forma.fillRect(r.x, r.y + 2, r.ancho, alto - 4);
+        this.contenido.setData('clip', { x: r.x, y: r.y + 2, ancho: r.ancho, alto: alto - 4 });
+    }
+
+    dibujarFondo() {
+        const r = this.rect;
+        const alto = this.ajustarAlContenido ? Math.min(r.alto, Math.max(0, this.altoContenido || 0) + (this.desborda ? RESERVA : 0)) : r.alto;
+        this.fondo.clear();
+        if (alto <= 0) return;
+        this.fondo.fillStyle(0x07101b, 0.9);
+        this.fondo.fillRoundedRect(r.x, r.y, r.ancho, alto, 10);
+        this.fondo.lineStyle(1, AMBAR, 0.45);
+        this.fondo.strokeRoundedRect(r.x, r.y, r.ancho, alto, 10);
     }
 
     anchoTarjeta() {
@@ -70,16 +97,19 @@ export default class PanelInvestigacion {
             y += t.alto + SEPARACION;
         }
         this.altoContenido = y - SEPARACION + PADDING;
+        this.dibujarMascara();
+        if (this.ajustarAlContenido) this.dibujarFondo();
         this.desplazar(this.desplazamiento);
     }
 
     desplazar(valor) {
-        const maximo = Math.max(0, (this.altoContenido || 0) - this.rect.alto);
-        this.desplazamiento = Math.min(maximo, Math.max(0, valor));
+        this.desplazamiento = limitarDesplazamiento(valor, this.altoContenido || 0, this.altoVisible);
         for (const t of this.tarjetas) t.vista.setPosition(this.rect.x + PADDING, this.rect.y + t.y - this.desplazamiento);
-        const arriba = this.desplazamiento > 0, abajo = this.desplazamiento < maximo;
-        this.indicador.setText(arriba && abajo ? '▲▼ desliza' : abajo ? '▼ desliza' : arriba ? '▲ desliza' : '')
-            .setPosition(this.rect.x + this.rect.ancho - 8, this.rect.y + this.rect.alto - 4);
+        if (!this.indicador.scene) return;            // la escena ya se cerró: el indicador está destruido
+        const { arriba, abajo } = indicadores(this.desplazamiento, this.altoContenido || 0, this.altoVisible);
+        this.indicador.setText(arriba && abajo ? '▲ ▼ rueda' : abajo ? '▼ rueda' : arriba ? '▲ rueda' : '')
+            .setPosition(this.rect.x + this.rect.ancho - 8, this.rect.y + this.rect.alto - 3);
+        etiquetar(this.indicador, { tipo: 'contenido' });
     }
 
     // m: mensaje del Narrador · op: { lecturaMs, alLeida, alTerminar }
@@ -164,6 +194,11 @@ class Tarjeta {
         const fondo = scene.add.graphics();
         fondo.fillStyle(libreta ? 0x0b1420 : 0x141008, 0.96);
         fondo.fillRoundedRect(0, 0, ancho, this.alto, 8);
+        // Para el revisor (F6): el fondo es un Graphics y no sabe medirse; lo suyo va dentro de él
+        const grupo = `tarjeta${++tarjetasCreadas}`;
+        etiquetar(fondo, { tipo: 'control', grupo, rect: { x: 0, y: 0, ancho, alto: this.alto } });
+        etiquetar(cabecera, { tipo: 'contenido', grupo });
+        etiquetar(cuerpo, { tipo: 'contenido', grupo });
         fondo.fillStyle(Phaser.Display.Color.HexStringToColor(color).color, 0.9);
         fondo.fillRoundedRect(4, 6, 3, this.alto - 12, 1.5);
         this.vista.add([fondo, cabecera, cuerpo]);

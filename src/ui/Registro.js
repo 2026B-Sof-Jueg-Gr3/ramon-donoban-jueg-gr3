@@ -1,6 +1,7 @@
 // Expediente del jugador guardado en el navegador: qué pistas descubrió, en qué nivel y cuándo.
 // Reiniciar un nivel no lo borra; es la base del cuaderno de investigación.
-const CLAVE = 'inspector-logica-expediente';
+// Clave propia de la v2: las pistas guardadas por la v1.1 no deben aparecer como encontradas en la v2
+const CLAVE = 'inspector-logica-v2-expediente';
 
 export default class Registro {
     static leer() {

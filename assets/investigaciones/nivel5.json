@@ -1,0 +1,50 @@
+{
+  "nivel": 5,
+  "comentario": "Reglas de la Sombra en la Ventana (persecución en tiempo real, SIN deducción: la captura es la prueba). No lleva texto: cada regla apunta a una línea de assets/narrativa/nivel5.json. Hechos: entro · ilumino:X · examino:X · piso:X · cerro:X · apago:X · recogio:X · abrio:X · capturo (la sombra quedó atrapada). La persecución misma (la sombra, la captura, los 60 s de los papeles) está en src/motor/Persecucion.js. Los PLANOS DE LA MANSIÓN salen DESPUÉS de la revelación 1 (apagar la chimenea; los dos son importantes y el motor los entrega en el orden de esta lista) y quedan en el Registro: así no se pueden perder. Tras la captura se pueden recoger el abrigo y las pilas; la puerta al despacho se abre con E una vez apagada la chimenea.",
+  "objetos": {
+    "n5-pisadas": { "descubre": "luz", "acciones": { "examinar": { "requiere": ["ilumino:n5-pisadas"] } } },
+    "cerca-chimenea": {},
+    "puerta-atrancada": { "acciones": { "examinar": {} } },
+    "salida-jardin": { "acciones": { "cerrar": {} } },
+    "chimenea": { "acciones": { "apagar": {} } },
+    "n5-mueble-velas": { "acciones": { "examinar": {} } },
+    "n5-mueble-cuadro": { "acciones": { "examinar": {} } },
+    "n5-mueble-sofa": { "acciones": { "examinar": {} } },
+    "n5-pista-abrigo": { "acciones": { "recoger": { "requiere": ["capturo"] } } },
+    "bateria": { "acciones": { "recoger": { "requiere": ["recogio:n5-pista-abrigo"] } } },
+    "puerta-despacho": { "acciones": { "abrir": { "requiere": ["capturo", "apago:chimenea"] } } }
+  },
+  "reglas": [
+    { "id": "intro", "cuando": ["entro"], "clase": "importante", "texto": "intro" },
+
+    { "id": "comentario:0", "cuando": ["examino:n5-pisadas"], "clase": "secundaria", "texto": "comentarios:0" },
+    { "id": "comentario:1", "cuando": ["piso:cerca-chimenea"], "clase": "secundaria", "texto": "comentarios:1" },
+    { "id": "comentario:2", "cuando": ["examino:puerta-atrancada"], "clase": "secundaria", "texto": "comentarios:2" },
+
+    { "id": "revelacion:0", "cuando": ["cerro:salida-jardin"], "clase": "importante", "texto": "revelaciones:0" },
+    { "id": "revelacion:1", "cuando": ["apago:chimenea"], "clase": "importante", "texto": "revelaciones:1" },
+    { "id": "pista:n5-pista-planos", "cuando": ["apago:chimenea"], "clase": "importante", "texto": "pistas:n5-pista-planos", "paraElFinal": true },
+
+    { "id": "mueble:n5-mueble-velas", "cuando": ["examino:n5-mueble-velas"], "clase": "secundaria", "texto": "muebles:n5-mueble-velas" },
+    { "id": "mueble:n5-mueble-cuadro", "cuando": ["examino:n5-mueble-cuadro"], "clase": "secundaria", "texto": "muebles:n5-mueble-cuadro" },
+    { "id": "mueble:n5-mueble-sofa", "cuando": ["examino:n5-mueble-sofa"], "clase": "secundaria", "texto": "muebles:n5-mueble-sofa" },
+
+    { "id": "pista:n5-pista-abrigo", "cuando": ["recogio:n5-pista-abrigo"], "clase": "secundaria", "texto": "pistas:n5-pista-abrigo" },
+    { "id": "bateria", "cuando": ["recogio:bateria"], "clase": "secundaria", "texto": "bateria" }
+  ],
+  "ayuda": {
+    "espera": 15,
+    "refuerzos": [
+      { "efecto": "pisadas", "mientras": { "sinContar": ["revelacion:0"] } },
+      { "efecto": "humo", "mientras": { "sinContar": ["revelacion:1"] } }
+    ]
+  },
+  "final": { "objeto": "puerta-despacho", "accion": "abrir", "despuesDelCierre": true },
+  "libreta": {
+    "pilas": "bateria",
+    "pruebas": {
+      "n5-pista-planos": { "sale": "pista:n5-pista-planos" },
+      "n5-pista-abrigo": { "sale": "pista:n5-pista-abrigo" }
+    }
+  }
+}
