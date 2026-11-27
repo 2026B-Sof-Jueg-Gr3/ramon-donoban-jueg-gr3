@@ -29,7 +29,9 @@
     { "id": "mueble:n6-mueble-pluma", "cuando": ["examino:n6-mueble-pluma"], "clase": "secundaria", "texto": "muebles:n6-mueble-pluma" },
 
     { "id": "pista:n6-pista-compartimento", "cuando": ["resolvio"], "clase": "secundaria", "texto": "pistas:n6-pista-compartimento", "paraElFinal": true, "despuesDelCierre": true },
-    { "id": "bateria", "cuando": ["recogio:bateria"], "clase": "secundaria", "texto": "bateria" }
+    { "id": "bateria", "cuando": ["recogio:bateria"], "clase": "secundaria", "texto": "bateria" },
+
+    { "id": "momento:conexion-v", "cuando": ["acerto:detras", "en-registro:n5-pista-abrigo"], "clase": "importante", "texto": "momentos:conexion-v" }
   ],
   "ayuda": {
     "espera": 45,

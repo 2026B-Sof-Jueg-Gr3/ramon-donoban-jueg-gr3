@@ -347,3 +347,38 @@ test('hayAlgoNuevo: lo que no se puede hacer todavía tampoco se ofrece, y lo qu
     assert.equal(inv.hayAlgoNuevo('no-existe', 'examinar'), false);
     assert.equal(inv.hayAlgoNuevo('pila-de-cajas', 'volar'), false);
 });
+
+// ── Las líneas agregadas en la v2 ("momentos") y los hechos con identificador estable ──
+
+test('resolverTexto encuentra "momentos:<id>" y nada más', () => {
+    const n = { momentos: { visto: 'Una línea.' } };
+    assert.deepEqual(resolverTexto(n, 'momentos:visto'), { categoria: 'momentos', texto: 'Una línea.' });
+    assert.equal(resolverTexto(n, 'momentos:otro'), null);
+    assert.equal(resolverTexto(n, 'momentos'), null);
+    assert.equal(resolverTexto({}, 'momentos:visto'), null);
+    assert.equal(resolverTexto(n, 'momentos:toString'), null);       // solo sus propias claves
+});
+
+test('"acerto:<pregunta>" y "en-registro:<pista>": una regla con los dos sale una sola vez, en cualquier orden', () => {
+    const r = copia(reglas);
+    const n = { ...copia(narrativa), momentos: { union: 'Línea de prueba.' } };
+    r.reglas.push({ id: 'momento:union', cuando: ['acerto:detras', 'en-registro:abrigo'], clase: 'importante', texto: 'momentos:union' });
+    assert.deepEqual(validarReglas(r, n), []);
+    for (const orden of [['acerto', 'enRegistro'], ['enRegistro', 'acerto']]) {
+        const inv = new Investigacion(r, n);
+        const sale = [];
+        for (const metodo of orden) sale.push(...inv[metodo](metodo === 'acerto' ? 'detras' : 'abrigo'));
+        assert.deepEqual(ids(sale), ['momento:union'], orden.join(' → '));
+        assert.equal(sale[0].texto, 'Línea de prueba.');
+        assert.deepEqual(inv.acerto('detras'), []);
+        assert.deepEqual(inv.enRegistro('abrigo'), []);
+    }
+    // Solo con uno de los dos, no sale; con otra pregunta, tampoco
+    const inv = new Investigacion(r, n);
+    assert.deepEqual(inv.acerto('espantaba'), []);
+    assert.deepEqual(inv.acerto('detras'), []);
+    assert.equal(inv.yaSalio('momento:union'), false);
+    // Sin identificador no es un hecho válido
+    r.reglas.push({ id: 'mal', cuando: ['acerto'], clase: 'importante', texto: 'momentos:union' });
+    assert.ok(validarReglas(r, n).some(e => e.includes('necesita un identificador')));
+});

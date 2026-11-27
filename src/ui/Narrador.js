@@ -1,6 +1,8 @@
 import { LECTURA, tiempoDeLectura } from './tiemposDeLectura.js';
 
-// Punto único por el que pasa todo mensaje de la historia. Ningún mensaje se pierde, se acorta ni sobrescribe a otro.
+// Punto único por el que pasa todo mensaje de la historia. No hay esperas obligatorias: lo nuevo que encuentra el jugador
+// sale enseguida y, si todavía estaba leyendo la nota anterior de la libreta, esa se va (dejarPasar). Lo que sale de un mismo
+// suceso, o lo que se juntó durante una pausa, sí se lee en orden.
 //
 // Mensaje: { acontecimiento, ref, texto, clase, titulo, color, etiqueta, repetible, alCompletar }
 //   acontecimiento: identidad de LO QUE OCURRIÓ (p. ej. 'pista:n1-pista-huella:recogida', 'mueble:X:examinar#12').
@@ -16,7 +18,7 @@ import { LECTURA, tiempoDeLectura } from './tiemposDeLectura.js';
 // La pausa empieza en la misma llamada que registra el acontecimiento importante: no existe un instante en el que
 // ya ocurrió y el jugador todavía pueda actuar. Durante la pausa los secundarios y ambientales quedan suspendidos
 // con su estado exacto y nada consume tiempo; al terminar la secuencia se reanudan y el juego continúa.
-// Los avisos puramente informativos (✔, 📜) no pasan por aquí.
+// Los avisos puramente informativos no pasan por aquí.
 export default class Narrador {
     // panel: PanelInvestigacion · presentacion: DialogoPrincipal
     // alPausar / alReanudar: la escena detiene o reanuda lo que no es narrativo (controles, apariciones de marcas)
@@ -58,7 +60,7 @@ export default class Narrador {
         if (m.clase === 'importante') this.agregarASecuencia([{ texto: m.texto, titulo: m.titulo, acontecimiento: m.acontecimiento }]);
         else if (m.clase === 'ambiental') {
             this.colaAmbiental.push(m);
-            this.siguienteAmbiental();
+            this.siguienteAmbiental({ hacerSitio: true });
         } else {
             this.secundarios.push(m);
             this.siguienteEnLibreta();
@@ -168,13 +170,30 @@ export default class Narrador {
         this.siguienteEnLibreta();
     }
 
+    // Empieza algo nuevo que leer en la libreta: la nota que se estaba leyendo se va al instante, sin esperar su tiempo de
+    // lectura (si el jugador sigue actuando antes de terminarla, es su decisión). Cuenta como leída. En una pausa no hace nada.
+    dejarPasar() {
+        if (this.pausado || this.cerrandoNivel || !this.actual) return;
+        const anterior = this.actual;
+        anterior.leida = true;
+        this.actual = null;
+        this.proteger('dejarPasar', () => this.panel.retirar(t => t.mensaje === anterior));
+    }
+
     libretaOcupada() {
         return !!this.actual || this.secundarios.length > 0;
     }
 
     // ── Ambientales ──────────────────────────────────────────────────────────
 
-    siguienteAmbiental() {
+    // hacerSitio: llegó una tarjeta nueva; si ya hay el máximo a la vista, la más vieja se va para que la nueva salga ya
+    siguienteAmbiental({ hacerSitio = false } = {}) {
+        if (hacerSitio && !this.pausado && !this.cerrandoNivel) {
+            while (this.ambientalesActivos.length && this.ambientalesActivos.length + this.colaAmbiental.length > LECTURA.maximoAmbientales) {
+                const vieja = this.ambientalesActivos.shift();
+                this.proteger('hacerSitio', () => this.panel.retirar(t => t.mensaje === vieja));
+            }
+        }
         while (!this.pausado && !this.cerrandoNivel && this.ambientalesActivos.length < LECTURA.maximoAmbientales && this.colaAmbiental.length) {
             const m = this.colaAmbiental.shift();
             this.ambientalesActivos.push(m);
@@ -251,7 +270,7 @@ export function armarPaginasDeCierre(importantes, notas, cierre, caracteresPorPa
     }
     grupos.forEach((grupo, i) => paginas.push({
         texto: grupo.join('\n'),
-        titulo: '📒 NOTAS DE LA LIBRETA' + (grupos.length > 1 ? ` (${i + 1}/${grupos.length})` : '')
+        titulo: 'NOTAS DE LA LIBRETA' + (grupos.length > 1 ? ` (${i + 1}/${grupos.length})` : '')
     }));
     if (cierre?.texto) paginas.push({ texto: cierre.texto, titulo: cierre.titulo });
     return paginas;

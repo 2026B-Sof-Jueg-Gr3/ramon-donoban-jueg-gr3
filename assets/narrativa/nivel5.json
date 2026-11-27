@@ -30,5 +30,6 @@
     { "id": "n5-mueble-sofa", "emoji": "🛋️", "texto": "Un sofá con la tela hundida. Alguien vigiló desde aquí durante horas." }
   ],
   "marcas": [],
-  "informe": "INFORME DEL INSPECTOR: ¡Atrapado! La sombra de la ventana era un cómplice que intentaba borrar las evidencias físicas. Solo queda una habitación, el despacho principal... es hora de resolver el caso."
+  "informe": "INFORME DEL INSPECTOR: ¡Atrapado! La sombra de la ventana era un cómplice que intentaba borrar las evidencias físicas. Solo queda una habitación, el despacho principal... es hora de resolver el caso.",
+  "momentos": {"sombra-vista": "Ahí estás..."}
 }

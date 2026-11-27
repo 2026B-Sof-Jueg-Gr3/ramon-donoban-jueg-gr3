@@ -17,12 +17,12 @@ export default class AvisoDeContinuar {
         if (this.visible) return;
         this.visible = true;
         const e = this.escena, x = e.scale.width / 2, y = e.scale.height - 48;
-        const texto = e.add.text(x, y, TEXTO_DE_CONTINUAR, { fontFamily: FUENTE, fontSize: '16px', color: '#f0e6d3', resolution: 2 })
+        const texto = e.add.text(x, y, TEXTO_DE_CONTINUAR, { fontFamily: FUENTE, fontSize: '16px', color: '#f4efe4', resolution: 2 })
             .setOrigin(0.5).setScrollFactor(0).setDepth(this.profundidad + 1);
         const ancho = texto.width + 40, alto = texto.height + 18;
         const fondo = e.add.graphics().setScrollFactor(0).setDepth(this.profundidad);
-        fondo.fillStyle(0x0b1420, 0.96).fillRoundedRect(x - ancho / 2, y - alto / 2, ancho, alto, 8);
-        fondo.lineStyle(2, 0xc89012, 0.9).strokeRoundedRect(x - ancho / 2, y - alto / 2, ancho, alto, 8);
+        fondo.fillStyle(0x04060b, 0.72).fillRoundedRect(x - ancho / 2, y - alto / 2, ancho, alto, 8);
+        fondo.lineStyle(1, 0xffffff, 0.18).strokeRoundedRect(x - ancho / 2, y - alto / 2, ancho, alto, 8);
         // Para el revisor (F6): el fondo es un Graphics y no sabe medirse
         etiquetar(fondo, { tipo: 'control', grupo: 'continuar', rect: { x: x - ancho / 2, y: y - alto / 2, ancho, alto } });
         etiquetar(texto, { tipo: 'contenido', grupo: 'continuar' });

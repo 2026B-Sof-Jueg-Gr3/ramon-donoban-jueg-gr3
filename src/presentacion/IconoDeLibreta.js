@@ -3,8 +3,7 @@
 // texto: solo el ícono y la tecla. Un clic lo abre. Se dibuja fijo a la pantalla.
 import { acercar } from '../motor/Movimiento.js';
 import { FUENTE } from '../ui/Boton.js';
-
-const FUENTE_EMOJI = '"Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", sans-serif';
+import { iconoDeLibreta } from './ArteDibujado.js';
 
 export default class IconoDeLibreta {
     // alPulsar: lo que hace un clic sobre el ícono
@@ -12,9 +11,9 @@ export default class IconoDeLibreta {
         this.visible = 0;                  // 0..1, aparece y desaparece con suavidad
         this.fuerza = 0;                   // 0 latido suave · 1 latido fuerte (ayuda)
         const halo = escena.add.circle(0, 0, 40, 0xffd27a, 0.35);
-        const fondo = escena.add.circle(0, 0, 32, 0x0b1420, 0.95).setStrokeStyle(3, 0xc89012, 0.95);
-        const emoji = escena.add.text(0, -2, '📒', { fontFamily: FUENTE_EMOJI, fontSize: '32px', padding: { top: 6, bottom: 6 }, resolution: 2 }).setOrigin(0.5);
-        const tecla = escena.add.rectangle(0, 40, 54, 22, 0x1b1b1b).setStrokeStyle(2, 0xffffff, 0.85);
+        const fondo = escena.add.circle(0, 0, 32, 0x04060b, 0.72).setStrokeStyle(1.5, 0xd9b25a, 0.85);
+        const emoji = escena.add.image(0, -2, iconoDeLibreta(escena)).setOrigin(0.5);           // un cuaderno dibujado, no un emoji
+        const tecla = escena.add.rectangle(0, 40, 54, 22, 0x04060b, 0.72).setStrokeStyle(1, 0xffffff, 0.3);
         const letra = escena.add.text(0, 40, 'TAB', { fontFamily: FUENTE, fontSize: '12px', color: '#ffffff', resolution: 2 }).setOrigin(0.5);
         this.halo = halo;
         this.contenedor = escena.add.container(x, y, [halo, fondo, emoji, tecla, letra]).setDepth(profundidad).setScrollFactor(0).setAlpha(0);
@@ -26,7 +25,8 @@ export default class IconoDeLibreta {
 
     // visible: ¿se muestra ahora? · fuerte: la ayuda pide que lata más fuerte · tiempo en ms
     actualizar(dt, tiempo, { visible, fuerte }) {
-        this.visible = acercar(this.visible, visible ? 1 : 0, dt, 3);
+        // Aparece con suavidad, pero se aparta enseguida: si se abre la caja de un texto, ocupa esta misma esquina
+        this.visible = visible ? acercar(this.visible, 1, dt, 3) : 0;
         this.fuerza = acercar(this.fuerza, fuerte ? 1 : 0, dt, 1.2);
         const t = tiempo / 1000;
         const velocidad = 2.2 + 2.2 * this.fuerza;

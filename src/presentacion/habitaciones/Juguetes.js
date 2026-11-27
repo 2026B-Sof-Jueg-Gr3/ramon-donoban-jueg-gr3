@@ -15,7 +15,7 @@ import { PROFUNDIDAD } from '../profundidad.js';
 const DESPLAZAMIENTO_DEL_CABALLITO = 240;       // px hacia el este: "se mueve al otro lado del cuarto"
 const DURACION_DE_TIRAR = 900;
 const DURACION_DE_LA_SILUETA = 3200;
-const ESPERA_DE_LA_SILUETA = 1400;               // cruza cuando la cámara ya llegó a la ventana y ya entró algo de luz
+const PAGINA_DE_LA_SILUETA = 1;                  // el tramo del cierre «Espera.»: ahí empieza a cruzar
 const ALCANCE_DEL_OJO = 120;                     // un juguete se mueve "cerca" si el inspector está a menos de esto
 
 export default class Juguetes {
@@ -163,7 +163,7 @@ export default class Juguetes {
         terminado();
     }
 
-    // El cierre: los juguetes se quedan quietos y una silueta cruza frente a la ventana exterior (mientras sale el texto del cierre)
+    // El cierre: los juguetes se quedan quietos y una silueta cruza frente a la ventana exterior (cuando el texto del cierre dice «Espera.»)
     calmar() { this.ciclo.calmar(); this.mecer = 0; this.girar = 0; }
 
     // Lo que revela el cierre: la silueta que cruza frente a la ventana exterior
@@ -172,11 +172,35 @@ export default class Juguetes {
         return { x: v.x + v.ancho / 2, y: v.y + v.alto / 2, radio: 190 };
     }
 
+    // Al empezar el cierre la silueta queda oculta en su punto de partida; cruza cuando aparece su página
     alIniciarCierre() {
         const v = this.ventana;
         this.silueta.setPosition(v.x - 30, v.y + v.alto - 4).setAlpha(0);
-        this.escena.tweens.add({ targets: this.silueta, alpha: 0.95, delay: ESPERA_DE_LA_SILUETA, duration: 200 });
-        this.escena.tweens.add({ targets: this.silueta, x: v.x + v.ancho + 30, delay: ESPERA_DE_LA_SILUETA, duration: DURACION_DE_LA_SILUETA, ease: 'Sine.easeInOut', onComplete: () => this.silueta.setAlpha(0) });
+        this.cruce = null;                  // null (no empezó) | 'cruzando' | 'terminado'
+        this.trasElCruce = null;
+    }
+
+    alMostrarTramoDelCierre(i) {
+        if (i !== PAGINA_DE_LA_SILUETA || this.cruce) return;
+        const v = this.ventana;
+        this.cruce = 'cruzando';
+        this.escena.tweens.add({ targets: this.silueta, alpha: 0.95, duration: 200 });
+        this.escena.tweens.add({
+            targets: this.silueta, x: v.x + v.ancho + 30, duration: DURACION_DE_LA_SILUETA, ease: 'Sine.easeInOut',
+            onComplete: () => {
+                this.silueta.setAlpha(0);
+                this.cruce = 'terminado';
+                const siguiente = this.trasElCruce;
+                this.trasElCruce = null;
+                siguiente?.();
+            }
+        });
+    }
+
+    // El informe espera a que la silueta termine de cruzar
+    alTerminarCierre(siguiente) {
+        if (this.cruce === 'cruzando') this.trasElCruce = siguiente;
+        else siguiente();
     }
 
     depurar() {

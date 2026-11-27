@@ -5,7 +5,7 @@ import { acercar } from '../motor/Movimiento.js';
 
 export default class IndicadorDeAccion {
     constructor(escena, profundidad) {
-        const fondo = escena.add.circle(0, 0, 15, 0x0b1420, 0.92).setStrokeStyle(2, 0xc89012, 1);
+        const fondo = escena.add.circle(0, 0, 15, 0x04060b, 0.78).setStrokeStyle(1.5, 0xd9b25a, 1);
         const letra = escena.add.text(0, 0, 'E', { fontFamily: FUENTE, fontSize: '16px', color: '#ffd27a', resolution: 2 }).setOrigin(0.5);
         this.contenedor = escena.add.container(0, 0, [fondo, letra]).setDepth(profundidad).setAlpha(0);
         this.alfa = 0;

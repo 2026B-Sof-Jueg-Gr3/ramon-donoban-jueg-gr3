@@ -31,6 +31,8 @@ function panelFalso() {
         pausar() { p.pausado = true; p.tarjetas.forEach(t => { t.pausada = true; }); },
         reanudar() { p.pausado = false; p.tarjetas.forEach(t => { t.pausada = false; }); },
         retirarTodo() { p.retiradas += p.tarjetas.length; p.tarjetas = []; },
+        // Quita sin avisar las tarjetas que cumplan el filtro (como PanelInvestigacion.retirar, que mira t.mensaje)
+        retirar(filtro) { const quedan = p.tarjetas.filter(t => !filtro({ mensaje: t.m })); p.retiradas += p.tarjetas.length - quedan.length; p.tarjetas = quedan; },
         libreta: () => p.tarjetas.find(t => t.tipo === 'libreta'),
         ambientales: () => p.tarjetas.filter(t => t.tipo === 'ambiental'),
         // Simula el fin natural de una tarjeta (su lectura y su salida)
@@ -144,18 +146,19 @@ test('un secundario visible se suspende durante la pausa (no termina oculto) y s
     assert.equal(panel.libreta().m.texto, 'texto comentario:b', 'los secundarios conservan su orden');
 });
 
-test('ambientales: hasta 3 a la vez, el resto en su cola; durante la pausa la cola no avanza', () => {
+test('ambientales: hasta 3 a la vez; una nueva sale ya y quita la más vieja; durante la pausa la cola no avanza', () => {
     const { narrador, panel } = crear();
     for (let i = 1; i <= 5; i++) narrador.contar(amb(`marca:${i}`));
-    assert.deepEqual(panel.ambientales().map(t => t.m.acontecimiento), ['marca:1', 'marca:2', 'marca:3']);
+    assert.deepEqual(panel.ambientales().map(t => t.m.acontecimiento), ['marca:3', 'marca:4', 'marca:5'], 'sin esperar: las más viejas se van');
+    assert.deepEqual(narrador.colaAmbiental, []);
     narrador.contar(imp('pista'));
     assert.ok(panel.ambientales().every(t => t.pausada), 'quedan suspendidos');
     narrador.contar(amb('marca:6'));
-    assert.equal(panel.ambientales().length, 3);
+    assert.deepEqual(panel.ambientales().map(t => t.m.acontecimiento), ['marca:3', 'marca:4', 'marca:5'], 'en la pausa no se quita nada');
     leer(narrador);
+    assert.deepEqual(narrador.colaAmbiental.map(m => m.acontecimiento), ['marca:6'], 'lo juntado en la pausa espera su turno');
     panel.terminar(panel.ambientales()[0]);
-    assert.deepEqual(panel.ambientales().map(t => t.m.acontecimiento), ['marca:2', 'marca:3', 'marca:4']);
-    assert.deepEqual(narrador.colaAmbiental.map(m => m.acontecimiento), ['marca:5', 'marca:6'], 'nadie se pierde ni se fusiona');
+    assert.deepEqual(panel.ambientales().map(t => t.m.acontecimiento), ['marca:4', 'marca:5', 'marca:6']);
 });
 
 // ── Cierre del nivel ────────────────────────────────────────────────────────
@@ -209,7 +212,7 @@ test('cierre sin nada que presentar ni texto de cierre: devuelve false para que 
 test('las notas largas se reparten en varias páginas sin cortar ningún texto', () => {
     const largo = n => ({ texto: `${n}: ` + 'x'.repeat(250) });
     const paginas = armarPaginasDeCierre([], [largo('a'), largo('b'), largo('c')], { texto: 'Fin.' });
-    assert.deepEqual(paginas.map(p => p.titulo), ['📒 NOTAS DE LA LIBRETA (1/3)', '📒 NOTAS DE LA LIBRETA (2/3)', '📒 NOTAS DE LA LIBRETA (3/3)', undefined]);
+    assert.deepEqual(paginas.map(p => p.titulo), ['NOTAS DE LA LIBRETA (1/3)', 'NOTAS DE LA LIBRETA (2/3)', 'NOTAS DE LA LIBRETA (3/3)', undefined]);
     for (const [i, letra] of ['a', 'b', 'c'].entries()) assert.equal(paginas[i].texto, `• ${letra}: ` + 'x'.repeat(250));
 });
 

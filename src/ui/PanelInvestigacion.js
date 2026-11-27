@@ -11,7 +11,6 @@ import { limitarDesplazamiento, indicadores } from '../motor/Maquetacion.js';
 // su estado exacto (letra escrita o tiempo de lectura restante).
 const PADDING = 10;
 const SEPARACION = 6;
-const AMBAR = 0xc89012;
 const PROFUNDIDAD = 22;
 const RESERVA = 20;          // la franja de abajo donde va el indicador ▲ ▼ cuando el contenido no cabe (nada se le encima)
 let tarjetasCreadas = 0;
@@ -78,9 +77,10 @@ export default class PanelInvestigacion {
         const alto = this.ajustarAlContenido ? Math.min(r.alto, Math.max(0, this.altoContenido || 0) + (this.desborda ? RESERVA : 0)) : r.alto;
         this.fondo.clear();
         if (alto <= 0) return;
-        this.fondo.fillStyle(0x07101b, 0.9);
+        // El mismo estilo de la caja de diálogo: oscuro y translúcido, con un borde apenas visible
+        this.fondo.fillStyle(0x04060b, 0.62);
         this.fondo.fillRoundedRect(r.x, r.y, r.ancho, alto, 10);
-        this.fondo.lineStyle(1, AMBAR, 0.45);
+        this.fondo.lineStyle(1, 0xffffff, 0.16);
         this.fondo.strokeRoundedRect(r.x, r.y, r.ancho, alto, 10);
     }
 
@@ -180,27 +180,30 @@ class Tarjeta {
         const scene = this.scene, ancho = this.panel.anchoTarjeta(), m = this.mensaje;
         this.vista.removeAll(true);
         const libreta = this.tipo === 'libreta';
-        const titulo = libreta ? (m.titulo || '🕵️ LIBRETA DEL INSPECTOR') : `${m.etiqueta || '✦'} ${m.titulo || 'RASTRO'}`;
-        const color = libreta ? (m.color || '#c89012') : '#ffd27a';
-        const cabecera = scene.add.text(12, 6, titulo, { fontFamily: FUENTE, fontSize: '11px', color, resolution: 2 });
-        const cuerpo = scene.add.text(12, 22, '', {
-            fontFamily: FUENTE, fontSize: libreta ? '13px' : '12px', color: libreta ? '#f0e6d3' : '#ffe6b0',
-            lineSpacing: 3, resolution: 2, wordWrap: { width: Math.max(40, ancho - 22), useAdvancedWrap: true }
+        const titulo = libreta ? (m.titulo || 'LIBRETA DEL INSPECTOR') : (m.titulo || 'RASTRO');          // sin emojis
+        // Como en la caja de diálogo: el nombre arriba, en dorado suave, y el texto con la misma letra de serifa
+        const color = libreta ? (m.color || '#ead7a4') : '#e8c97a';
+        const cabecera = scene.add.text(12, 7, titulo, { fontFamily: FUENTE, fontSize: '13px', color, resolution: 2 });
+        cabecera.setShadow(0, 1, '#000000', 3, false, true);
+        const cuerpo = scene.add.text(12, 26, '', {
+            fontFamily: FUENTE, fontSize: '15px', color: '#f4efe4',
+            lineSpacing: 4, resolution: 2, wordWrap: { width: Math.max(40, ancho - 22), useAdvancedWrap: true }
         });
+        cuerpo.setShadow(0, 1, '#000000', 3, false, true);
         this.envuelto = cuerpo.getWrappedText(m.texto).join('\n');
         cuerpo.setText(this.envuelto);
         this.alto = cuerpo.y + cuerpo.height + 8;
         cuerpo.setWordWrapWidth(null).setText(this.escribir ? this.envuelto.slice(0, this.escritas) : this.envuelto);
         const fondo = scene.add.graphics();
-        fondo.fillStyle(libreta ? 0x0b1420 : 0x141008, 0.96);
+        fondo.fillStyle(0x0d1424, libreta ? 0.7 : 0.55);
         fondo.fillRoundedRect(0, 0, ancho, this.alto, 8);
+        fondo.lineStyle(1, 0xffffff, 0.1);
+        fondo.strokeRoundedRect(0, 0, ancho, this.alto, 8);
         // Para el revisor (F6): el fondo es un Graphics y no sabe medirse; lo suyo va dentro de él
         const grupo = `tarjeta${++tarjetasCreadas}`;
         etiquetar(fondo, { tipo: 'control', grupo, rect: { x: 0, y: 0, ancho, alto: this.alto } });
         etiquetar(cabecera, { tipo: 'contenido', grupo });
         etiquetar(cuerpo, { tipo: 'contenido', grupo });
-        fondo.fillStyle(Phaser.Display.Color.HexStringToColor(color).color, 0.9);
-        fondo.fillRoundedRect(4, 6, 3, this.alto - 12, 1.5);
         this.vista.add([fondo, cabecera, cuerpo]);
         this.cuerpo = cuerpo;
     }

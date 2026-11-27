@@ -1,0 +1,13 @@
+{
+  "comentario": "La música de fondo: qué archivo de esta carpeta suena en cada parte del juego. 'inicio': menú, preámbulo y elección de habitación. 'nivel1'…'nivel6': dentro de cada habitación y en su informe. 'final': desde el cierre de la última habitación (el compartimento bajo el reloj), el informe final y los créditos. Una parte sin archivo no suena. Para cambiar una canción, reemplaza el archivo o cambia el nombre aquí. Ojo con los derechos: música de otras obras solo para la versión privada o de clase.",
+  "pistas": {
+    "inicio": "inicio.ogg",
+    "nivel1": "nivel1.ogg",
+    "nivel2": "nivel2.ogg",
+    "nivel3": "nivel3.ogg",
+    "nivel4": "nivel4.ogg",
+    "nivel5": "nivel5.ogg",
+    "nivel6": "nivel6.ogg",
+    "final": "final.ogg"
+  }
+}

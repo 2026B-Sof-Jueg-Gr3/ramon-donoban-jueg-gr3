@@ -81,11 +81,18 @@ export default class Sombra {
         // La persecución empieza cuando termina la intro; no corre durante una pausa narrativa, con la libreta ni con la pausa del juego
         if (!pausado && !this.empezo && e.fase === 'investigando') this.empezo = true;
         if (this.empezo && e.fase === 'investigando') {
-            const sucesos = p.actualizar(dt, {
-                activo: !pausado, inspector: e.inspector.pies, iluminada: () => this.iluminada(),
-                salidaBloqueada: this.salidaBloqueada, chimeneaApagada: this.chimeneaApagada
-            });
-            if (sucesos.length) this.alSuceder(sucesos[0]);
+            // La primera vez que la luz da en la sombra sale su línea (una sola vez por partida: reintentar() no reinicia la investigación).
+            // Ese cuadro la persecución no avanza: nada se mueve antes de la pausa
+            const vista = !pausado && p.estado !== 'capturada' && p.estado !== 'escapada' && this.iluminada();
+            const eventos = vista ? e.investigacion.ilumino('sombra') : [];
+            if (eventos.length) e.contar(eventos);
+            else {
+                const sucesos = p.actualizar(dt, {
+                    activo: !pausado, inspector: e.inspector.pies, iluminada: () => this.iluminada(),
+                    salidaBloqueada: this.salidaBloqueada, chimeneaApagada: this.chimeneaApagada
+                });
+                if (sucesos.length) this.alSuceder(sucesos[0]);
+            }
         }
         this.colocar();
 

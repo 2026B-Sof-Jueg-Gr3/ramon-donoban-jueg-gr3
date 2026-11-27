@@ -1,9 +1,9 @@
-# Inspector Lógica: El Misterio de la Mansión
+# Silas Vane: El Misterio de la Mansión
 
 Un juego de investigación en 2.5D para el navegador, hecho con Phaser 3: caminas con una linterna, descubres lo que la oscuridad esconde y
 resuelves cada habitación con una deducción apoyada en pruebas.
 
-**La historia:** la Mansión Flieder lleva años abandonada y dicen que sombras malditas mueven los objetos. El Inspector Lógica entra bajo la
+**La historia:** la Mansión Flieder lleva años abandonada y dicen que sombras malditas mueven los objetos. El inspector Silas Vane entra bajo la
 tormenta, habitación por habitación, a demostrar con pruebas físicas que la «magia» es solo una fachada.
 
 Autor: **DonobanR**.
@@ -26,6 +26,7 @@ Autor: **DonobanR**.
 | Continuar un texto | **E**, **Espacio**, **Enter** o **clic** |
 | Libreta | **Tab** o **I** |
 | Pausa (continuar o salir al menú) | **Esc** |
+| Silenciar o volver a encender la música | **M** |
 | Menús y deducción | flechas o WASD para moverse, **E** o Enter para elegir, Esc para volver; también con el ratón |
 
 Se juega con teclado y ratón, en una pantalla apaisada. El control táctil todavía no está hecho.
@@ -122,9 +123,13 @@ El arte de las habitaciones es **provisional y se genera por código** (`src/pre
 
 Lo que no tenga archivo se sigue dibujando por código.
 
-## Sin audio
+## Música
 
-El juego **no lleva música ni sonido, por decisión del autor**. Lo que se contaría con el oído se cuenta con la vista.
+Solo **música de fondo**, sin efectos de sonido: cada parte del juego tiene su canción (el inicio, cada habitación y el final) y al pasar de
+una a otra se funden. `assets/musica/lista.json` dice qué archivo de `assets/musica/` suena en cada parte; se reproducen en streaming, sin
+descargarlas todas al empezar. El navegador no deja sonar nada hasta el primer clic o tecla. **M** silencia o vuelve a encender la música.
+
+**Derechos:** las canciones de otras obras solo valen para la versión privada o de clase; para publicar el juego conviene música libre o propia.
 
 ## Versiones anteriores
 

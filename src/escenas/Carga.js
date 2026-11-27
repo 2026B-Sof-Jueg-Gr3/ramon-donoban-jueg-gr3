@@ -1,5 +1,7 @@
 import { TOTAL_NIVELES, NIVELES_JUGABLES } from '../motor/niveles.js';
 import { claveDelArte } from '../presentacion/Retrato.js';
+import { iniciarMusica } from '../presentacion/MusicaDeFondo.js';
+import { claveDeIlustracion } from '../motor/Expresiones.js';
 
 export default class Carga extends Phaser.Scene {
     constructor() { super('Carga'); }
@@ -7,12 +9,12 @@ export default class Carga extends Phaser.Scene {
     preload() {
         const { width, height } = this.scale;
         const anchoBarra = Math.min(400, width * 0.8);
-        const barra = this.add.rectangle((width - anchoBarra) / 2, height / 2, 0, 20, 0x2e9a58).setOrigin(0, 0.5);
+        const barra = this.add.rectangle((width - anchoBarra) / 2, height / 2, 0, 4, 0xc89012).setOrigin(0, 0.5);
         this.load.on('progress', p => barra.width = anchoBarra * p);
 
-        this.load.image('logo', 'assets/img/images.png');
         this.load.image('fondoMenu', 'assets/img/fondoMenuPrincipal.png');
-        this.load.image('fondoNiveles', 'assets/img/fondoNiveles.png');
+        // Qué canción suena en cada parte (las canciones no se descargan aquí: suenan en streaming al llegar a cada parte)
+        this.load.json('musica', 'assets/musica/lista.json');
         // El mapa y las reglas de cada habitación que ya se puede jugar
         for (const n of NIVELES_JUGABLES) {
             this.load.tilemapTiledJSON('mapa' + n, `assets/mapas/nivel${n}.json`);
@@ -33,9 +35,16 @@ export default class Carga extends Phaser.Scene {
             for (const archivo of datos.archivos ?? []) this.load.image(archivo.replace('.png', ''), `assets/sprites/${archivo}`);
         });
         this.load.json('sprites', 'assets/sprites/disponibles.json');
+        // Las ilustraciones de escena (el cómplice en el suelo al ser capturado): solo decoran una línea importante
+        this.load.on('filecomplete-json-ilustraciones', (clave, tipo, datos) => {
+            const nombres = new Set(Object.values(datos.niveles ?? {}).flatMap(n => Object.values(n)));
+            for (const nombre of nombres) this.load.image(claveDeIlustracion(nombre), `assets/ilustraciones/${nombre}.png`);
+        });
+        this.load.json('ilustraciones', 'assets/ilustraciones/lista.json');
     }
 
     create() {
+        iniciarMusica(this.game, this.cache.json.get('musica'));
         this.scene.start('MenuPrincipal');
     }
 }

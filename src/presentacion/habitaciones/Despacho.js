@@ -7,6 +7,7 @@
 import { acercar } from '../../motor/Movimiento.js';
 import { respirar, RESPIRACION } from '../../motor/Respiracion.js';
 import { PROFUNDIDAD } from '../profundidad.js';
+import { iconoDeHerramientas } from '../ArteDibujado.js';
 
 const DURACION_DE_ABRIR = 1400;
 
@@ -54,7 +55,7 @@ export default class Despacho {
         const c = this.compartimento;
         this.hoyo = e.add.rectangle(c.x + c.ancho / 2, c.y + c.alto / 2, c.ancho, c.alto, 0x120c06).setStrokeStyle(2, 0x6b4f2d).setDepth(PROFUNDIDAD.marcas + 0.1).setAlpha(0);
         this.tapa = e.add.rectangle(c.x + c.ancho / 2, c.y + c.alto / 2, c.ancho, c.alto, 0x7a5a38).setStrokeStyle(2, 0x2e2012).setDepth(PROFUNDIDAD.marcas + 0.2).setAlpha(0);
-        this.herramientas = e.add.text(c.x + c.ancho / 2, c.y + c.alto / 2, '⛏️', { fontFamily: '"Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", sans-serif', fontSize: '22px', padding: { top: 4, bottom: 4 } }).setOrigin(0.5).setDepth(PROFUNDIDAD.marcas + 0.3).setAlpha(0);
+        this.herramientas = e.add.image(c.x + c.ancho / 2, c.y + c.alto / 2, iconoDeHerramientas(e)).setOrigin(0.5).setDepth(PROFUNDIDAD.marcas + 0.3).setAlpha(0);
     }
 
     aplicarAyuda(efecto) { this.efecto = efecto ?? null; }

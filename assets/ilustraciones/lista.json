@@ -1,0 +1,6 @@
+{
+  "comentario": "Ilustraciones de escena: un personaje que acompaña a una línea importante, en el lado contrario al retrato del inspector. Solo decoran: no cambian nada del juego. La clave de cada línea es la misma que en assets/presentacion/expresiones.json (\"cierre\", \"intro\", el id de su regla). Cada nombre es un PNG de esta carpeta (se prepara con herramientas/preparar_ilustracion.py).",
+  "niveles": {
+    "5": { "cierre": "complice-capturado" }
+  }
+}

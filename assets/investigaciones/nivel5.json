@@ -3,6 +3,7 @@
   "comentario": "Reglas de la Sombra en la Ventana (persecución en tiempo real, SIN deducción: la captura es la prueba). No lleva texto: cada regla apunta a una línea de assets/narrativa/nivel5.json. Hechos: entro · ilumino:X · examino:X · piso:X · cerro:X · apago:X · recogio:X · abrio:X · capturo (la sombra quedó atrapada). La persecución misma (la sombra, la captura, los 60 s de los papeles) está en src/motor/Persecucion.js. Los PLANOS DE LA MANSIÓN salen DESPUÉS de la revelación 1 (apagar la chimenea; los dos son importantes y el motor los entrega en el orden de esta lista) y quedan en el Registro: así no se pueden perder. Tras la captura se pueden recoger el abrigo y las pilas; la puerta al despacho se abre con E una vez apagada la chimenea.",
   "objetos": {
     "n5-pisadas": { "descubre": "luz", "acciones": { "examinar": { "requiere": ["ilumino:n5-pisadas"] } } },
+    "sombra": { "descubre": "luz" },
     "cerca-chimenea": {},
     "puerta-atrancada": { "acciones": { "examinar": {} } },
     "salida-jardin": { "acciones": { "cerrar": {} } },
@@ -30,7 +31,9 @@
     { "id": "mueble:n5-mueble-sofa", "cuando": ["examino:n5-mueble-sofa"], "clase": "secundaria", "texto": "muebles:n5-mueble-sofa" },
 
     { "id": "pista:n5-pista-abrigo", "cuando": ["recogio:n5-pista-abrigo"], "clase": "secundaria", "texto": "pistas:n5-pista-abrigo" },
-    { "id": "bateria", "cuando": ["recogio:bateria"], "clase": "secundaria", "texto": "bateria" }
+    { "id": "bateria", "cuando": ["recogio:bateria"], "clase": "secundaria", "texto": "bateria" },
+
+    { "id": "momento:sombra-vista", "cuando": ["ilumino:sombra"], "clase": "importante", "texto": "momentos:sombra-vista" }
   ],
   "ayuda": {
     "espera": 15,

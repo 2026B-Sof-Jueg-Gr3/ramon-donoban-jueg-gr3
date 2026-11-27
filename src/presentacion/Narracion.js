@@ -18,18 +18,23 @@ export default class Narracion {
     // alPulsar: lo que hace un toque sobre la caja de texto · profundidad: capa del panel (la caja va por encima)
     // expresionDe(evento): la expresión del inspector para una línea importante (src/motor/Expresiones.js)
     // oscurecer(): 1 en las pausas normales; con el cierre mucho menos, para que se vea la luz que entra
-    constructor(escena, { profundidad, jugadorEnPantalla, alPausar, alReanudar, alPulsar, expresionDe = () => 'neutral', oscurecer = () => 1 }) {
+    // alMostrarTramo(indice, texto): empieza a verse un tramo de un texto importante (ver DialogoPrincipal)
+    // ilustracionDe(evento): el nombre de la ilustración de escena que acompaña a una línea importante, o null
+    constructor(escena, { profundidad, jugadorEnPantalla, alPausar, alReanudar, alPulsar, expresionDe = () => 'neutral', oscurecer = () => 1, alMostrarTramo = null, ilustracionDe = () => null }) {
         this.escena = escena;
         this.jugadorEnPantalla = jugadorEnPantalla;
         this.panel = new PanelInvestigacion(escena, { profundidad, ajustarAlContenido: true });
         // La caja grande lleva el retrato. Qué expresión toca se sabe por el texto que se está mostrando (el Narrador solo pasa el texto)
         this.expresionDe = expresionDe;
         this.expresiones = new Map();       // texto de un importante → expresión
+        this.ilustracionDe = ilustracionDe;
+        this.ilustraciones = new Map();     // texto de un importante → ilustración de escena (casi siempre ninguna)
         this.ladoDelRetrato = 'izquierda';
         this.decorado = new DecoradoDeNovela(escena, {
-            profundidad: profundidad + 10, lado: () => this.ladoDelRetrato, expresionDelTexto: texto => this.expresiones.get(texto), oscurecer
+            profundidad: profundidad + 10, lado: () => this.ladoDelRetrato, expresionDelTexto: texto => this.expresiones.get(texto), oscurecer,
+            ilustracionDelTexto: texto => this.ilustraciones.get(texto) ?? null
         });
-        this.dialogo = new DialogoPrincipal(escena, alPulsar, { profundidad: profundidad + 10, decorado: this.decorado, oscurecer });
+        this.dialogo = new DialogoPrincipal(escena, alPulsar, { profundidad: profundidad + 10, decorado: this.decorado, oscurecer, alMostrarTramo });
         this.gestor = new GestorDePresentaciones();          // apariciones temporales de las marcas
         this.narrador = new Narrador({
             panel: this.panel,
@@ -43,14 +48,13 @@ export default class Narracion {
         this.colocarPanel(this.ladoLibre());
     }
 
-    // Bloquea durante la cuenta previa a la revelación (la causa ya está a la vista y falta ese momento para que
-    // se pueda ver) y durante la pausa narrativa.
-    get bloqueando() { return this.narrador.bloqueando() || this.pendientes.some(p => p.cuenta); }
+    // Bloquea durante la pausa narrativa.
+    get bloqueando() { return this.narrador.bloqueando(); }
     avanzar() { return this.narrador.avanzar(); }
     llamarAtencion() { if (this.narrador.bloqueando()) this.narrador.llamarAtencion(); }
 
     detener() {
-        for (const p of this.pendientes) { p.cuenta?.remove(false); p.seguro?.remove(false); }
+        for (const p of this.pendientes) p.seguro?.remove(false);
         this.pendientes = [];
         this.mostradas.clear();
         this.narrador.detener();
@@ -58,54 +62,56 @@ export default class Narracion {
 
     // Pasa un acontecimiento de la habitación (src/motor/Investigacion.js) al Narrador. Devuelve true si se presentó.
     contar(evento) {
-        if (evento.clase === 'importante') this.expresiones.set(evento.texto, this.expresionDe(evento));
+        if (evento.clase === 'importante') {
+            this.expresiones.set(evento.texto, this.expresionDe(evento));
+            const ilustracion = this.ilustracionDe(evento);
+            if (ilustracion) this.ilustraciones.set(evento.texto, ilustracion);
+        }
         return this.narrador.contar(this.aMensaje(evento));
     }
 
-    // Pasa lo que produjo UN mismo suceso, con la causa primero (así llega de Investigacion): las tarjetas y notas
-    // se presentan de inmediato y la revelación sale cuando la causa ya está a la vista y pasó un momento
-    // (LECTURA.causaAntesDeConsecuenciaMs). Si la libreta todavía está ocupada con otra nota, la causa espera su
-    // turno y la revelación espera con ella: nunca sale antes. Si el suceso no produjo nada más que la revelación
-    // (mirar detrás de las cajas), sale de inmediato.
+    // Pasa lo que produjo UN mismo suceso, con la causa primero (así llega de Investigacion). Sin esperas obligatorias: si
+    // trae una nota nueva, la que se estaba leyendo se va (Narrador.dejarPasar); las tarjetas y notas se presentan de
+    // inmediato y la revelación sale en cuanto su causa está a la vista. La revelación nunca sale antes que su causa: si la
+    // causa no puede verse todavía (una pausa), la revelación espera con ella.
     contarTodos(eventos) {
         const importantes = eventos.filter(e => e.clase === 'importante');
         const causas = eventos.filter(e => e.clase !== 'importante');
+        if (causas.some(e => e.clase === 'secundaria')) this.narrador.dejarPasar();
         for (const e of causas) this.contar(e);
         if (!importantes.length) return;
         if (!causas.length) { importantes.forEach(e => this.contar(e)); return; }
-        const pendiente = { importantes, causas: causas.map(e => e.acontecimiento), cuenta: null, seguro: null };
+        const pendiente = { importantes, causas: causas.map(e => e.acontecimiento), seguro: null };
         // Por si la causa no llega a mostrarse nunca (no debería pasar), la revelación sale igualmente
         pendiente.seguro = this.escena.time.delayedCall(LECTURA.esperaMaximaDeLaCausaMs, () => this.soltar(pendiente));
         this.pendientes.push(pendiente);
         this.revisar();
     }
 
-    // Una causa "está a la vista" cuando es la nota de la libreta o una tarjeta ambiental visible; desde entonces
-    // empieza la cuenta de la revelación. Se llama al contar y en cada cuadro.
+    // Una causa "está a la vista" cuando es la nota de la libreta o una tarjeta ambiental visible; entonces sale su
+    // revelación. Se llama al contar y en cada cuadro.
     revisar() {
         const n = this.narrador;
         if (n.actual) this.mostradas.add(n.actual.acontecimiento);
         for (const a of n.ambientalesActivos) this.mostradas.add(a.acontecimiento);
         for (const p of [...this.pendientes]) {
-            if (p.cuenta || !p.causas.every(id => this.mostradas.has(id))) continue;
-            p.cuenta = this.escena.time.delayedCall(LECTURA.causaAntesDeConsecuenciaMs, () => this.soltar(p));
+            if (!p.causas.every(id => this.mostradas.has(id))) continue;
+            this.soltar(p);
         }
     }
 
     soltar(pendiente) {
         if (!this.pendientes.includes(pendiente)) return;
         this.pendientes = this.pendientes.filter(p => p !== pendiente);
-        pendiente.cuenta?.remove(false);
         pendiente.seguro?.remove(false);
         for (const e of pendiente.importantes) this.contar(e);
     }
 
-    // Los íconos y el color son de interfaz; el texto es exactamente el de la narrativa
+    // El título y el color son de interfaz (sin emojis); el texto es exactamente el de la narrativa
     aMensaje(e) {
         const m = { acontecimiento: e.acontecimiento, ref: e.ref, clase: e.clase, texto: e.texto, alCompletar: e.alCompletar };
-        if (e.categoria === 'pistas') Object.assign(m, { titulo: `📜 ${e.titulo}`, etiqueta: '📜', color: COLOR_PISTA });
-        else if (e.categoria === 'marcas') m.etiqueta = e.etiqueta;
-        else if (e.categoria === 'bateria') Object.assign(m, { titulo: '🔋', etiqueta: '🔋' });
+        if (e.categoria === 'pistas') Object.assign(m, { titulo: e.titulo, color: COLOR_PISTA });
+        else if (e.categoria === 'bateria') m.titulo = 'PILAS';
         return m;
     }
 

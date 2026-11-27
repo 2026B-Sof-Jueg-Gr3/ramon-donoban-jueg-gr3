@@ -1,6 +1,7 @@
-// El arte provisional de las habitaciones 3 a 6 (fase 6), también generado por código y sin imágenes externas: los objetos pequeños
-// se dibujan con un emoji sobre un fondo (hasta que llegue el arte final de la fase 7), las puertas y la trampilla con formas, y las
-// marcas que solo se ven con la luz (el camino limpio, las pisadas mojadas…) con formas suaves. Las claves y los tamaños son los de siempre.
+// El arte provisional de las habitaciones 3 a 6 (fase 6), también generado por código y sin imágenes externas: los objetos pequeños y los
+// muebles están dibujados en src/presentacion/ArteDibujado.js (ya sin emojis), las puertas y la trampilla con formas aquí, y las marcas que
+// solo se ven con la luz (el camino limpio, las pisadas mojadas…) con formas suaves. Las claves y los tamaños son los de siempre.
+import { dibujarObjeto } from './ArteDibujado.js';
 
 function lienzo(escena, clave, ancho, alto, dibujar) {
     if (escena.textures.exists(clave)) return;
@@ -9,22 +10,6 @@ function lienzo(escena, clave, ancho, alto, dibujar) {
     g.generateTexture(clave, ancho, alto);
     g.destroy();
 }
-
-// Un emoji dibujado en el centro de una textura que ya existe (la de un mueble) o nueva
-export function ponerEmoji(escena, clave, simbolo, cx, cy, tam) {
-    const textura = escena.textures.get(clave);
-    const imagen = textura?.getSourceImage?.();
-    if (!imagen || typeof imagen.getContext !== 'function') return;
-    const ctx = imagen.getContext('2d');
-    ctx.font = `${tam}px "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", sans-serif`;
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText(simbolo, cx, cy);
-    textura.refresh?.();
-}
-
-// Emoji de los muebles: se dibuja sobre su cara de frente
-export const EMOJI_DE_MUEBLE = { barril: '🛢️', sofa: '🛋️', reloj: '🕰️', archivos: '🗂️', archivador: '🗄️', caballito: '🎠', munecas: '🎎', oso: '🧸', tren: '🚂', juguetero: '🧰', velas: '🕯️', escritorio: '🖋️' };
 
 export const ESTILOS_NUEVOS = {
     barril: { tapa: 0x6b4f2d, cara: 0x5a4125, borde: 0x2e2012 },
@@ -42,11 +27,11 @@ export const ESTILOS_NUEVOS = {
     velas: { tapa: 0x6e5a3c, cara: 0x594630, borde: 0x30241a }
 };
 
-// Objetos pequeños de la habitación: [emoji, ancho, alto, tamaño del emoji]
+// Objetos pequeños de la habitación: [ancho, alto] de su textura (el dibujo está en ArteDibujado.js)
 const OBJETOS = {
-    carta: ['✉️', 44, 34, 28], llave: ['🗝️', 40, 34, 26], llavero: ['🔑', 56, 62, 36], herramientas: ['🧰', 64, 42, 32],
-    bobina: ['🧵', 44, 44, 30], diario: ['📖', 52, 38, 30], abrigo: ['🧥', 48, 44, 32], planos: ['🗺️', 50, 40, 30], cartas: ['✉️', 52, 40, 30],
-    pluma: ['🖋️', 48, 34, 28], cuadro: ['🖼️', 64, 64, 44], 'cuentas': ['📒', 48, 40, 30]
+    carta: [44, 34], llave: [40, 34], llavero: [56, 62], herramientas: [64, 42],
+    bobina: [44, 44], diario: [52, 38], abrigo: [48, 44], planos: [50, 40], cartas: [52, 40],
+    pluma: [48, 34], cuadro: [64, 64], cuentas: [48, 40]
 };
 
 function puerta(g, w, h, madera, marco, extra) {
@@ -62,9 +47,8 @@ export function generarObjetoNuevo(escena, dibujo) {
     const clave = `item-${dibujo}`;
     if (escena.textures.exists(clave)) return true;
     if (OBJETOS[dibujo]) {
-        const [simbolo, w, h, tam] = OBJETOS[dibujo];
-        lienzo(escena, clave, w, h, g => { g.fillStyle(0x000000, 0.0).fillRect(0, 0, w, h); });
-        ponerEmoji(escena, clave, simbolo, w / 2, h / 2 + 2, tam);
+        const [w, h] = OBJETOS[dibujo];
+        lienzo(escena, clave, w, h, g => dibujarObjeto(g, dibujo, w, h));
         return true;
     }
     switch (dibujo) {

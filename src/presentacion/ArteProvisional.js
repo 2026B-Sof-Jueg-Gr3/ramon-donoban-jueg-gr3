@@ -1,6 +1,7 @@
 // Arte provisional generado por código: todas las texturas se crean con graphics.generateTexture, sin imágenes externas.
 // Cuando exista el arte final, basta con cargar imágenes con estas mismas claves y tamaños.
-import { ESTILOS_NUEVOS, EMOJI_DE_MUEBLE, generarObjetoNuevo, generarMarcaNueva, ponerEmoji } from './ArteNueva.js';
+import { ESTILOS_NUEVOS, generarObjetoNuevo, generarMarcaNueva } from './ArteNueva.js';
+import { dibujarMueble } from './ArteDibujado.js';
 const TAM = 64;
 
 // La caja de arriba de la pila (medidas dentro de la imagen de la pila): ahí está la solapa que aletea con la corriente
@@ -197,6 +198,8 @@ function detallesDeMueble(g, estilo, ancho, profundo, alto, e) {
 function generarMueble(escena, clave, { ancho, profundo, alto, estilo }) {
     const e = ESTILOS[estilo] || ESTILOS_NUEVOS[estilo] || ESTILOS.armario;
     textura(escena, clave, ancho, alto + profundo, g => {
+        // Los muebles de las habitaciones 3 a 6 tienen su propio dibujo (src/presentacion/ArteDibujado.js); los demás, la caja de siempre
+        if (dibujarMueble(g, estilo, ancho, profundo, alto)) return;
         g.fillStyle(e.tapa, 1).fillRect(0, 0, ancho, profundo);
         g.fillStyle(e.cara, 1).fillRect(0, profundo, ancho, alto);
         g.fillStyle(0x000000, 0.2).fillRect(0, profundo + alto - 4, ancho, 4);
@@ -206,7 +209,6 @@ function generarMueble(escena, clave, { ancho, profundo, alto, estilo }) {
             g.lineStyle(1, e.borde, 0.8).lineBetween(0, profundo, ancho, profundo);
         }
     });
-    if (EMOJI_DE_MUEBLE[estilo]) ponerEmoji(escena, clave, EMOJI_DE_MUEBLE[estilo], ancho / 2, profundo + alto / 2, Math.max(18, Math.min(ancho * 0.45, alto * 0.7)));
 }
 
 // ── El muro norte: ventanas, cortinas, la sombra que "camina" y el polvo ────

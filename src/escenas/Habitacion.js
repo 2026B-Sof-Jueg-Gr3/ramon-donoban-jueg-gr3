@@ -20,7 +20,7 @@ import Registro from '../ui/Registro.js';
 import { pistasQueReponer } from '../motor/Reposicion.js';
 import EsperaDeLectura, { quedaPorLeer } from '../motor/EsperaDeLectura.js';
 import AvisoDeContinuar from '../presentacion/AvisoDeContinuar.js';
-import { claveDeLinea, expresionDe } from '../motor/Expresiones.js';
+import { claveDeLinea, expresionDe, ilustracionDe } from '../motor/Expresiones.js';
 import { LuzDeCierre, Relampagos, encuadre, formaDeLaLinterna } from '../motor/Luz.js';
 import Progreso from '../ui/Progreso.js';
 import AparicionDeMarca from '../presentacion/AparicionDeMarca.js';
@@ -34,12 +34,12 @@ import { PROFUNDIDAD } from '../presentacion/profundidad.js';
 import Narracion from '../presentacion/Narracion.js';
 import Cuaderno from '../presentacion/Cuaderno.js';
 import IconoDeLibreta from '../presentacion/IconoDeLibreta.js';
+import { iconoDeRastro } from '../presentacion/ArteDibujado.js';
 import { cargaExtrema, aplicarALaHabitacion, lanzarTarjetas, lanzarCaja } from '../presentacion/CargaExtrema.js';
 
 export { PROFUNDIDAD };
 const OSCURECIDO_EN_EL_CIERRE = 0.15;     // con el cierre, lo de detrás de la caja casi no se oscurece: se ve entrar la luz
 const SUAVIZADO_DE_CAMARA = 7;          // 1 / segundos: cuánto tarda la cámara en alcanzar al inspector
-const FUENTE_EMOJI = '"Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", sans-serif';
 const TECLAS_DE_MOVER = ['W', 'A', 'S', 'D', 'UP', 'DOWN', 'LEFT', 'RIGHT'];
 // Qué suceso del motor de investigación produce cada acción con E (src/motor/Investigacion.js)
 const SUCESO_DE_ACCION = {
@@ -68,6 +68,9 @@ export default class Habitacion extends Phaser.Scene {
             const faltan = pistasQueReponer({ pruebas: reglas.deduccion.pruebas, narrativas, completados: Progreso.leerCompletados(), registradas: Registro.leer().pistas });
             for (const { id, nivel } of faltan) Registro.registrarPista(id, nivel);
         }
+        // Solo informa a la investigación qué conserva el expediente persistente: no registra nada ni toca estadísticas. Es
+        // intencional que cuente una pista recogida en una partida anterior. (Lo que devuelva se descarta: al entrar no se cuenta nada.)
+        for (const id of Object.keys(Registro.leer().pistas)) this.investigacion.enRegistro(id);
         if (reglas.deduccion) {
             const problemas = validarDeduccion(reglas, this.narrativa);
             if (problemas.length) throw new Error('Deducción de la habitación no válida:\n- ' + problemas.join('\n- '));
@@ -114,7 +117,10 @@ export default class Habitacion extends Phaser.Scene {
             alReanudar: () => this.alReanudar(),
             alPulsar: () => this.recibirEntrada('avanzar'),
             expresionDe: evento => expresionDe(this.cache.json.get('expresiones'), this.numeroDeNivel, claveDeLinea(evento)),
-            oscurecer: () => (this.luzDeCierre.encendida && this.fase === 'cierre' ? OSCURECIDO_EN_EL_CIERRE : 1)
+            ilustracionDe: evento => ilustracionDe(this.cache.json.get('ilustraciones'), this.numeroDeNivel, claveDeLinea(evento)),
+            oscurecer: () => (this.luzDeCierre.encendida && this.fase === 'cierre' ? OSCURECIDO_EN_EL_CIERRE : 1),
+            // La habitación puede acompañar las páginas de su cierre (la silueta del nivel 4 cruza al aparecer «Espera.»)
+            alMostrarTramo: (i, texto) => { if (this.fase === 'cierre' && texto === this.narrativa.cierre) this.habitacion.alMostrarTramoDelCierre?.(i); }
         });
         // La libreta y la deducción: por encima de las tarjetas y por debajo de los textos importantes (el error sale encima)
         this.cuaderno = new Cuaderno(this, {
@@ -122,6 +128,7 @@ export default class Habitacion extends Phaser.Scene {
             alCerrar: () => this.reanudarDeLaLibreta(),
             alError: () => this.alEquivocarse(),
             alResolver: () => this.alResolver(),
+            alAcertar: id => this.alAcertar(id),
             alContinuar: () => this.reanudarDeLaLibreta(false),
             alSalir: () => this.salir()
         });
@@ -500,8 +507,9 @@ export default class Habitacion extends Phaser.Scene {
         // Una marca sin tarjeta en la narrativa (la mancha de aceite de la cocina) solo aparece en el suelo, sin texto
         if (datos) {
             this.narracion.gestor.mostrar(new AparicionDeMarca(this, this.capaMarcas, { id: r.ref }, {
-                x: o.x + o.ancho / 2, y: o.y + o.alto / 2 - 10, icono: datos.icono || '✦',
-                crearIcono: (x, y, icono) => this.add.text(x, y, icono, { fontFamily: FUENTE_EMOJI, fontSize: '26px', padding: { top: 6, bottom: 6 }, resolution: 2 }).setOrigin(0.5)
+                // Una lupa dorada dibujada (antes era el emoji de la narrativa: la pata, la lupa…)
+                x: o.x + o.ancho / 2, y: o.y + o.alto / 2 - 10, icono: 'rastro',
+                crearIcono: (x, y) => this.add.image(x, y, iconoDeRastro(this)).setOrigin(0.5)
             }));
         }
         this.contar(this.investigacion.ilumino(r.ref));
@@ -617,6 +625,17 @@ export default class Habitacion extends Phaser.Scene {
         });
     }
 
+    // Se acertó una pregunta y quedan más. Si ese acierto cuenta una línea (la conexión de la «V»), sale como importante y, al
+    // terminarla, se vuelve a la libreta en la siguiente pregunta. Devuelve true solo en ese caso: entonces la libreta se cierra.
+    alAcertar(idDePregunta) {
+        const eventos = this.investigacion.acerto(idDePregunta);
+        if (!eventos.length) return false;
+        this.reanudarDeLaLibreta(false);
+        this.despuesDelTexto = () => { this.pausarPorLaLibreta(); this.cuaderno.abrirPregunta(); };
+        this.contar(eventos);
+        return true;
+    }
+
     // Las preguntas resueltas. Si el nivel tiene una acción final (abrir la puerta, cortar el último hilo), ahora hay que hacerla
     // (la ayuda sigue); si no, el nivel se cierra: queda completado, la ayuda se apaga, el fenómeno se calma y sale el cierre
     // como importante; al cerrarlo, pasa al informe.
@@ -637,6 +656,8 @@ export default class Habitacion extends Phaser.Scene {
     // (con lo que cada habitación quiera hacer antes: el compartimento que se abre, la silueta que cruza la ventana).
     cerrarNivel({ alTerminar = null } = {}) {
         this.fase = 'cierre';
+        // El cierre de la última habitación es el final del caso: empieza la música del final (src/presentacion/MusicaDeFondo.js)
+        if (this.numeroDeNivel === 6) this.game?.events.emit('musica-final');
         if (!this.final?.despuesDelCierre) this.ayuda.apagar();
         this.habitacion.calmar();
         this.habitacion.alIniciarCierre?.();

@@ -8,6 +8,7 @@
 // CargaExtrema.js) la libreta, la deducción y el informe llevan el contenido más grande que puede tener el juego. Para
 // dejar lo encontrado se usa el motor de investigación (no se camina): lo que se comprueba aquí es la maquetación.
 import { cargaExtrema, lanzarTarjetas, lanzarCaja } from './CargaExtrema.js';
+import { CORTE } from '../ui/DialogoPrincipal.js';
 
 const esperar = ms => new Promise(r => setTimeout(r, ms));
 
@@ -170,7 +171,7 @@ export default class RecorridoDeRevision {
     // texto importante real más largo de las habitaciones jugables (revelaciones, cierre).
     async caja({ mismaHabitacion = false } = {}) {
         const e = mismaHabitacion ? this.juego.scene.getScene('Habitacion') : await this.habitacion(2, { todo: false });
-        const reales = [1, 2, 3, 4, 5, 6].flatMap(n => { const x = this.juego.cache.json.get('narrativa' + n); return [x.cierre, x.intro, ...(x.revelaciones || [])]; }).sort((a, b) => b.length - a.length);
+        const reales = [1, 2, 3, 4, 5, 6].flatMap(n => { const x = this.juego.cache.json.get('narrativa' + n); return [x.cierre.replaceAll(CORTE, ' '), x.intro, ...(x.revelaciones || [])]; }).sort((a, b) => b.length - a.length);
         if (cargaExtrema()) lanzarCaja(e);
         else e.narracion.narrador.contar({ acontecimiento: 'rev:importante', ref: 'rev-importante', clase: 'importante', texto: reales[0], alCompletar: 'descartar' });
         await esperar(500);

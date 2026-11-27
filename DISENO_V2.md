@@ -357,6 +357,25 @@ dependen del orden, para respetar la libertad de descubrimiento.
 El resto de las líneas de `empujar`, `cajas` y `retirar` ya hablan de lo que el inspector descubre y encajan sin
 cambios, igual que el preámbulo, los informes, las pistas, las marcas, los muebles y las pilas.
 
+### Agregados de narrativa aprobados (2026-11-26)
+
+Son los únicos tres. No cambian mecánicas, pistas, deducciones ni estadísticas.
+
+1. **Nivel 4, el cierre en cuatro páginas.** El texto de `cierre` lleva el carácter de salto de página (`\f`) entre página y página;
+   la caja grande empieza una página nueva en cada uno y nunca lo dibuja. La silueta cruza la ventana al aparecer la segunda página
+   («Espera.»), la tercera la nombra y el informe espera a que termine de cruzar.
+   - «Último hilo cortado. Los juguetes no cobraban vida: alguien los manejaba desde arriba...»
+   - «Espera.»
+   - «¡Una silueta, frente a la ventana! Alguien nos estaba observando.»
+   - «Hasta ahora solo tenía rastros. Esta vez, el rastro tiene piernas.»
+2. **Nivel 5, «Ahí estás...»** (`momentos.sombra-vista`). Sale la primera vez que la linterna ilumina la sombra: importante, con
+   pausa (la sombra y los papeles no avanzan), expresión **seria**. Una sola vez por partida, aunque se pierda un intento.
+3. **Nivel 6, la conexión de la «V»** (`momentos.conexion-v`). «El cómplice no habló. No hizo falta: la «V» de su nota es la misma
+   que firma esta pluma.» Sale justo después de acertar la pregunta `detras`, solo si el abrigo (`n5-pista-abrigo`) está en el
+   Registro; expresión **pensativa**. La libreta se cierra para mostrarla y vuelve en la segunda pregunta; sin el abrigo, pasa directo.
+   - **Decisión intencional:** el Registro es persistente, así que si el abrigo se recogió en una partida anterior la línea sale
+     igual, del mismo modo que el expediente del nivel 6 muestra todas las pistas guardadas.
+
 ---
 
 ## 7. Mecánicas generales
@@ -468,8 +487,18 @@ abierta, Esc retrocede un paso y, desde la libreta, cierra. Durante un texto imp
 
 ## 10. Audio
 
-**Sin audio, por decisión del autor** (2026-11-26). El juego no lleva música ni sonido de ningún tipo. Lo que el diseño contaba con el oído se
-cuenta con la vista (el suelo hueco hace una onda, los golpes de la cocina un anillo). Los relámpagos son solo luz.
+**El cómplice en el suelo** (2026-11-26). Al capturar la sombra, con el cierre del nivel 5 aparece la ilustración del cómplice caído
+y asustado (`assets/ilustraciones/complice-capturado.png`, anotada en `assets/ilustraciones/lista.json`), en el lado contrario al retrato
+y por detrás de la caja. Solo decora: se va al cerrar el texto y no cambia nada del juego.
+
+**Sin esperas obligatorias entre textos** (2026-11-26, por pedido del autor). Una nota nueva de la libreta reemplaza al instante la que se
+estaba leyendo; una tarjeta de rastro nueva quita la más vieja si ya hay tres; y la revelación sale en cuanto su causa está a la vista
+(antes había 1,2 s de cuenta). Lo que sale de un mismo suceso, o lo que se juntó durante una pausa, sí se lee en orden.
+
+**Solo música de fondo, por decisión del autor** (2026-11-26; antes, sin audio). Ningún efecto de sonido: lo que el diseño contaba con el oído
+se cuenta con la vista (el suelo hueco hace una onda, los golpes de la cocina un anillo) y los relámpagos son solo luz. Cada parte tiene su
+canción (`assets/musica/lista.json`: inicio, nivel1…nivel6 y final, que empieza con el cierre de la última habitación), con fundidos entre
+una y otra, volumen bajo (`src/motor/ListaDeMusica.js`) y **M** para silenciar.
 
 ---
 

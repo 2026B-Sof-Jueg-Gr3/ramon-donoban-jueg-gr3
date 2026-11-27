@@ -10,8 +10,16 @@ import ZonaDesplazable from './ZonaDesplazable.js';
 import { etiquetar } from './etiquetas.js';
 import { maquetarPantalla, repartirEnFilas, MARGEN_POR_DEFECTO, HUECO_POR_DEFECTO } from '../motor/Maquetacion.js';
 
-export const COLOR = { fondo: 0x0b1420, borde: 0xc89012, fila: 0x16263a, filaBorde: 0x3a5570, foco: 0x24405c, focoBorde: 0xffd060, marcada: 0x1f4a35, marcadaBorde: 0x4fcf86, primario: 0x1f6f3f };
-export const TEXTO = { normal: '#f0e6d3', tenue: '#8aabbf', ambar: '#ffd060', error: '#ff9a7a', acierto: '#4fcf86' };
+// El mismo estilo de la caja de diálogo (novela visual): recuadros oscuros y translúcidos con un borde apenas visible, filas que se
+// adivinan sobre el fondo y el dorado solo para resaltar (el foco, lo marcado, la acción principal)
+export const COLOR = {
+    fondo: 0x04060b, fondoAlfa: 0.84, borde: 0xffffff, bordeAlfa: 0.18,
+    fila: 0x0d1424, filaAlfa: 0.62, filaBorde: 0xffffff, filaBordeAlfa: 0.12,
+    foco: 0x1a2438, focoAlfa: 0.92, focoBorde: 0xd9b25a,
+    marcada: 0x2b2312, marcadaAlfa: 0.9, marcadaBorde: 0xd9b25a,
+    primario: 0x2b2312, primarioAlfa: 0.9, primarioBorde: 0xc89012
+};
+export const TEXTO = { normal: '#f4efe4', tenue: '#9aa6b4', ambar: '#e8c97a', error: '#ff9a7a', acierto: '#9fd8a8' };
 export const FUENTE_EMOJI = '"Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", sans-serif';
 
 export { etiquetar };
@@ -40,10 +48,11 @@ export default class Pantalla {
         this.zona = new ZonaDesplazable(escena, { profundidad: profundidad + 3 });
         if (velo) {
             const { width, height } = escena.scale;
-            this.nuevo(escena.add.rectangle(0, 0, width, height, 0x000000, 0.78).setOrigin(0).setInteractive(), 0).setData('rev', { tipo: 'ignorar', modal: true });
+            this.nuevo(escena.add.rectangle(0, 0, width, height, 0x000000, 0.62).setOrigin(0).setInteractive(), 0).setData('rev', { tipo: 'ignorar', modal: true });
         }
         if (marco) {
-            this.nuevo(escena.add.rectangle(caja.x, caja.y, caja.ancho, caja.alto, estilo.fondo ?? COLOR.fondo, estilo.opacidad ?? 0.98).setOrigin(0).setStrokeStyle(3, estilo.borde ?? COLOR.borde, 0.95), 1)
+            this.nuevo(escena.add.rectangle(caja.x, caja.y, caja.ancho, caja.alto, estilo.fondo ?? COLOR.fondo, estilo.opacidad ?? COLOR.fondoAlfa).setOrigin(0)
+                .setStrokeStyle(1, estilo.borde ?? COLOR.borde, estilo.borde ? 0.6 : COLOR.bordeAlfa), 1)
                 .setData('rev', { tipo: 'ignorar', marco: true });
         }
     }
@@ -57,8 +66,8 @@ export default class Pantalla {
     // ── Bloques ──────────────────────────────────────────────────────────────
 
     // Un texto que se parte en líneas al ancho que le toque. centrado: centra las líneas en todo el ancho.
-    texto(id, contenido, { size = 18, color = TEXTO.normal, espacio = 0, centrado = false, emoji = false, ancho = this.ancho, antes = 0, cede = false } = {}) {
-        const t = this.crearTexto(contenido, { size, color, espacio, centrado, emoji, ancho });
+    texto(id, contenido, { size = 18, color = TEXTO.normal, espacio = 0, centrado = false, emoji = false, ancho = this.ancho, antes = 0, cede = false, fuente } = {}) {
+        const t = this.crearTexto(contenido, { size, color, espacio, centrado, emoji, ancho, fuente });
         etiquetar(t, { tipo: 'contenido', dentroDe: this.caja });
         return { id, alto: t.height, cede, antes, objetos: [t], mover: (x, y) => t.setPosition(x, y), texto: t };
     }
@@ -77,14 +86,14 @@ export default class Pantalla {
     }
 
     linea() {
-        const r = this.nuevo(this.escena.add.rectangle(0, 0, this.ancho, 2, COLOR.borde, 0.5).setOrigin(0), 2);
+        const r = this.nuevo(this.escena.add.rectangle(0, 0, this.ancho, 2, COLOR.focoBorde, 0.4).setOrigin(0), 2);
         etiquetar(r, { tipo: 'ignorar' });
         return { id: `linea${this.objetos.length}`, alto: 2, objetos: [r], mover: (x, y, ancho) => r.setPosition(x, y).setSize(ancho, 2) };
     }
 
-    crearTexto(contenido, { size = 18, color = TEXTO.normal, espacio = 0, centrado = false, emoji = false, ancho }) {
+    crearTexto(contenido, { size = 18, color = TEXTO.normal, espacio = 0, centrado = false, emoji = false, ancho, fuente = FUENTE }) {
         const t = this.escena.add.text(0, 0, contenido, {
-            fontFamily: emoji ? `${FUENTE}, ${FUENTE_EMOJI}` : FUENTE, fontSize: `${size}px`, color, lineSpacing: espacio, resolution: 2,
+            fontFamily: emoji ? `${fuente}, ${FUENTE_EMOJI}` : fuente, fontSize: `${size}px`, color, lineSpacing: espacio, resolution: 2,
             padding: emoji ? { top: 4, bottom: 4 } : undefined,
             wordWrap: ancho ? { width: ancho, useAdvancedWrap: true } : undefined,
             align: centrado ? 'center' : 'left', fixedWidth: centrado && ancho ? ancho : 0
@@ -107,7 +116,7 @@ export default class Pantalla {
         const casilla = esFila ? this.crearTexto('☐', { size: 26 }) : null;
         const contenido = etiqueta.height + (cuerpo ? 4 + cuerpo.height : 0);
         const altoReal = Math.max(alto, Math.ceil(contenido + 2 * aire));
-        const fondo = this.escena.add.rectangle(0, 0, ancho, altoReal, COLOR.fila).setOrigin(0).setStrokeStyle(2, COLOR.filaBorde);
+        const fondo = this.escena.add.rectangle(0, 0, ancho, altoReal, COLOR.fila, COLOR.filaAlfa).setOrigin(0).setStrokeStyle(1, COLOR.filaBorde, COLOR.filaBordeAlfa);
         fondo.setInteractive(new Phaser.Geom.Rectangle(0, 0, ancho, altoReal), Phaser.Geom.Rectangle.Contains);
         fondo.input.cursor = 'pointer';
         this.nuevo(fondo, 2);
@@ -121,8 +130,11 @@ export default class Pantalla {
             marcarCon: valor => { item.marcado = valor; casilla?.setText(valor ? '☑' : '☐'); item.pintar(item.enfocado); },
             pintar: enfocado => {
                 item.enfocado = enfocado;
-                fondo.setFillStyle(enfocado ? COLOR.foco : item.marcado ? COLOR.marcada : primario && item.habilitado ? COLOR.primario : COLOR.fila);
-                fondo.setStrokeStyle(enfocado ? 3 : 2, enfocado ? COLOR.focoBorde : item.marcado ? COLOR.marcadaBorde : COLOR.filaBorde);
+                const tipo = enfocado ? 'foco' : item.marcado ? 'marcada' : primario && item.habilitado ? 'primario' : 'fila';
+                fondo.setFillStyle(COLOR[tipo], COLOR[`${tipo}Alfa`]);
+                if (tipo === 'fila') fondo.setStrokeStyle(1, COLOR.filaBorde, COLOR.filaBordeAlfa);
+                else fondo.setStrokeStyle(enfocado ? 2 : 1.5, COLOR[`${tipo}Borde`], 1);
+                etiqueta.setColor?.(enfocado ? TEXTO.ambar : (detalle ? TEXTO.ambar : TEXTO.normal));
                 const alfa = item.habilitado ? 1 : 0.4;
                 for (const o of [fondo, etiqueta, cuerpo, casilla]) o?.setAlpha(alfa);
             }

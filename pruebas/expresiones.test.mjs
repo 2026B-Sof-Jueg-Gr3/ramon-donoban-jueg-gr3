@@ -19,7 +19,7 @@ test('las seis expresiones del diseño', () => {
 
 test('cada línea importante de los seis niveles tiene su expresión, y no sobra ninguna', () => {
     assert.deepEqual(validarExpresiones(tabla, reglas), []);
-    assert.deepEqual(lineasImportantes(reglas[5]), ['intro', 'revelacion:0', 'revelacion:1', 'pista:n5-pista-planos', 'cierre', 'error']);
+    assert.deepEqual(lineasImportantes(reglas[5]), ['intro', 'revelacion:0', 'revelacion:1', 'pista:n5-pista-planos', 'momento:sombra-vista', 'cierre', 'error']);
     const usadas = new Set(Object.values(tabla.niveles).flatMap(Object.values));
     assert.equal(usadas.size, 6, 'las seis se usan alguna vez');
 });

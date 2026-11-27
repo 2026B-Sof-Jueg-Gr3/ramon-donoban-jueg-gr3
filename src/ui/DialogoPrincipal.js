@@ -1,23 +1,29 @@
 import { FUENTE } from './Boton.js';
+import { FUENTE_NOVELA } from './estilo.js';
 import { LECTURA } from './tiemposDeLectura.js';
 import { maquetarPantalla } from '../motor/Maquetacion.js';
 
-// La caja grande de novela visual para los acontecimientos importantes, durante la pausa narrativa: semitransparente, abajo, con la placa
-// del nombre; el juego queda detrás, oscurecido. El retrato y la viñeta los pone un "decorado" aparte (src/presentacion/DecoradoDeNovela.js).
+// La caja grande de novela visual para los acontecimientos importantes, durante la pausa narrativa: oscura y translúcida, abajo, con el
+// nombre de quien habla arriba a la izquierda y el texto con letra de serifa, al estilo de las novelas visuales de misterio; el juego queda
+// detrás, oscurecido. El retrato y la viñeta los pone un "decorado" aparte (src/presentacion/DecoradoDeNovela.js).
 // Los textos que no caben se reparten en páginas sin perder contenido. No escucha el teclado: Espacio y Enter le llegan desde el
 // distribuidor de entradas; tocarla también avanza.
-const PADDING = 22;
-const AMBAR = 0xc89012;
-const ALTO_DE_LA_PLACA = 30;
-export const NOMBRE = 'INSPECTOR LÓGICA';
-const TITULO_POR_DEFECTO = '🕵️ ' + NOMBRE;
+// Un texto puede traer TRAMOS separados por CORTE: cada tramo empieza en página nueva (la marca no se dibuja nunca).
+export const CORTE = '\f';
+const PADDING = 26;
+const ALTO_DE_LA_PLACA = 0;          // el nombre va dentro de la caja, no en una placa encima
+export const NOMBRE = 'SILAS VANE';
+const TITULO_POR_DEFECTO = NOMBRE;
 
 export default class DialogoPrincipal {
     // alPulsar: lo que hace un toque sobre la presentación (lo decide el distribuidor de entradas)
     // profundidad: capa en la que se dibuja (el velo; la caja va por encima). Se dibuja fijo a la pantalla.
     // decorado: { mostrar(texto), ocultar() } (la viñeta y el retrato); es opcional
     // oscurecer(): cuánto se oscurece lo de detrás (0 a 1). Con el cierre casi nada: tiene que verse la luz que entra
-    constructor(scene, alPulsar, { profundidad = 30, decorado = null, oscurecer = () => 1 } = {}) {
+    // alMostrarTramo(indice, texto): empieza a verse la primera página de ese tramo (una vez por tramo y por apertura); texto es el completo
+    constructor(scene, alPulsar, { profundidad = 30, decorado = null, oscurecer = () => 1, alMostrarTramo = null } = {}) {
+        this.alMostrarTramo = alMostrarTramo;
+        this.tramosAvisados = new Set();
         this.oscurecer = oscurecer;
         this.scene = scene;
         this.alPulsar = alPulsar;
@@ -36,14 +42,17 @@ export default class DialogoPrincipal {
     }
 
     // indice/total: posición del acontecimiento dentro de la secuencia de la pausa
-    abrir(texto, { titulo = TITULO_POR_DEFECTO, indice = 1, total = 1, alCerrar } = {}) {
+    // nombre: quien habla (por defecto el inspector; vacío para una narración sin nombre)
+    abrir(texto, { titulo = TITULO_POR_DEFECTO, indice = 1, total = 1, alCerrar, nombre = NOMBRE } = {}) {
         this.texto = texto;
+        this.nombre = nombre;
         this.titulo = titulo || TITULO_POR_DEFECTO;
         this.indice = indice;
         this.total = total;
         this.alCerrar = alCerrar;
         this.pagina = 0;
         this.abierto = true;
+        this.tramosAvisados.clear();
         this.dibujar(true);
     }
 
@@ -76,42 +85,49 @@ export default class DialogoPrincipal {
         this.velo.on('pointerdown', () => this.alPulsar?.());
         this.decorado?.mostrar(this.texto);
 
-        const dentroDe = { x: px, y: z.y, ancho, alto: alto + ALTO_DE_LA_PLACA };
-        // La placa del nombre, montada sobre el borde de arriba de la caja
-        const nombre = scene.add.text(0, 0, NOMBRE, { fontFamily: FUENTE, fontSize: '15px', color: '#1a1206', resolution: 2 });
-        const placa = scene.add.graphics();
-        const anchoDePlaca = 220;
-        placa.fillStyle(AMBAR, 0.96);
-        placa.fillRoundedRect(18, -ALTO_DE_LA_PLACA, anchoDePlaca, ALTO_DE_LA_PLACA - 2, 8);
-        nombre.setOrigin(0.5).setPosition(18 + anchoDePlaca / 2, -(ALTO_DE_LA_PLACA + 2) / 2);
-        placa.setData('rev', { tipo: 'control', grupo: 'placa', rect: { x: 18, y: -ALTO_DE_LA_PLACA, ancho: anchoDePlaca, alto: ALTO_DE_LA_PLACA - 2 } });
-        nombre.setData('rev', { tipo: 'contenido', grupo: 'placa', dentroDe });
+        const dentroDe = { x: px, y: py, ancho, alto };
+        // El nombre de quien habla, dentro de la caja, arriba a la izquierda
+        const nombre = scene.add.text(0, 0, this.nombre ?? '', { fontFamily: FUENTE_NOVELA, fontSize: z.ancho < 360 ? '15px' : '22px', color: '#ead7a4', resolution: 2 })
+            .setShadow(0, 2, '#000000', 4, false, true);
+        nombre.setData('rev', { tipo: 'contenido', grupo: 'nombre', dentroDe });
+        const conNombre = !!this.nombre;
+        nombre.setVisible(conNombre);
 
         const propio = this.titulo !== TITULO_POR_DEFECTO ? this.titulo : '';
-        const cabecera = scene.add.text(0, 0, propio, { fontFamily: FUENTE, fontSize: '13px', color: '#ffd060', resolution: 2, wordWrap: { width: ancho - PADDING * 2, useAdvancedWrap: true } });
+        const cabecera = scene.add.text(0, 0, propio, { fontFamily: FUENTE_NOVELA, fontSize: '15px', color: '#ffd060', resolution: 2, wordWrap: { width: ancho - PADDING * 2, useAdvancedWrap: true } });
         const cuerpo = scene.add.text(0, 0, '', {
-            fontFamily: FUENTE, fontSize: z.ancho < 360 ? '14px' : '22px', color: '#f6efe0', lineSpacing: 7, resolution: 2,
+            fontFamily: FUENTE_NOVELA, fontSize: z.ancho < 360 ? '15px' : '25px', color: '#f4efe4', lineSpacing: 8, resolution: 2,
             wordWrap: { width: ancho - PADDING * 2, useAdvancedWrap: true }
-        });
+        }).setShadow(0, 2, '#000000', 5, false, true);
         const pista = scene.add.text(0, 0, '', { fontFamily: FUENTE, fontSize: '12px', color: '#8aabbf', resolution: 2, align: 'right', wordWrap: { width: ancho - PADDING * 2 - 24, useAdvancedWrap: true } });
         pista.setText('▸ E / Espacio / clic: completar · 99 de 99');        // la pista más larga posible: se reserva su alto
         const altoDePista = pista.height;
         const altoDeCabecera = propio ? cabecera.height : 0;
         pista.setText('');
-        // Cuánto espacio queda para el texto entre la cabecera y la pista
+        // Cuánto espacio queda para el texto entre el nombre (y la cabecera) y la pista
         const hueco = 8;
+        const cabeceras = [];
+        if (conNombre) cabeceras.push({ id: 'nombre', alto: nombre.height });
+        if (altoDeCabecera) cabeceras.push({ id: 'cabecera', alto: altoDeCabecera });
         const libre = maquetarPantalla({
-            caja: { x: 0, y: 0, ancho, alto }, margen: { x: PADDING, y: 14 }, hueco,
-            cabecera: altoDeCabecera ? [{ id: 'cabecera', alto: altoDeCabecera }] : [], pie: [{ id: 'pista', alto: altoDePista }], cuerpo: [], minimoCuerpo: 0
+            caja: { x: 0, y: 0, ancho, alto }, margen: { x: PADDING, y: 16 }, hueco,
+            cabecera: cabeceras, pie: [{ id: 'pista', alto: altoDePista }], cuerpo: [], minimoCuerpo: 0
         });
-        // Páginas: tantas líneas como quepan en ese espacio
-        const lineas = cuerpo.getWrappedText(this.texto);
+        if (conNombre) nombre.setPosition(libre.colocados.nombre.x, libre.colocados.nombre.y);
+        // Páginas: tantas líneas como quepan en ese espacio. Cada tramo se reparte por separado: ninguna página mezcla dos
+        const lineasPorTramo = String(this.texto).split(CORTE).map(tramo => cuerpo.getWrappedText(tramo));
         cuerpo.setText('X');
         const altoLinea = cuerpo.height;
         const porPagina = Math.max(1, Math.floor((libre.zona.alto + 7) / (altoLinea + 7)));
         this.paginas = [];
-        for (let i = 0; i < lineas.length; i += porPagina) this.paginas.push(lineas.slice(i, i + porPagina).join('\n'));
-        if (!this.paginas.length) this.paginas.push('');
+        this.tramoDePagina = [];            // a qué tramo pertenece cada página
+        lineasPorTramo.forEach((lineas, tramo) => {
+            for (let i = 0; i < lineas.length; i += porPagina) {
+                this.paginas.push(lineas.slice(i, i + porPagina).join('\n'));
+                this.tramoDePagina.push(tramo);
+            }
+        });
+        if (!this.paginas.length) { this.paginas.push(''); this.tramoDePagina.push(0); }
         this.pagina = Math.min(this.pagina, this.paginas.length - 1);
         cuerpo.setWordWrapWidth(null).setText(escribir ? '' : this.paginas[this.pagina]);
 
@@ -123,15 +139,16 @@ export default class DialogoPrincipal {
         pista.setOrigin(1, 0).setPosition(borde - 24, libre.colocados.pista.y);
         const flecha = scene.add.text(borde - 14, libre.colocados.pista.y, '▼', { fontFamily: FUENTE, fontSize: '12px', color: '#ffd060', resolution: 2 });
         flecha.setVisible(false);
+        // La caja: oscura y translúcida, con un borde apenas visible, para que detrás se adivine la escena
         const fondo = scene.add.graphics();
-        fondo.fillStyle(0x070d18, 0.82);
-        fondo.fillRoundedRect(0, 0, ancho, alto, 14);
-        fondo.lineStyle(2, AMBAR, 0.85);
-        fondo.strokeRoundedRect(0, 0, ancho, alto, 14);
+        fondo.fillStyle(0x04060b, 0.68);
+        fondo.fillRoundedRect(0, 0, ancho, alto, 10);
+        fondo.lineStyle(1, 0xffffff, 0.16);
+        fondo.strokeRoundedRect(0.5, 0.5, ancho - 1, alto - 1, 10);
         fondo.setData('rev', { tipo: 'ignorar' });
         for (const t of [cabecera, cuerpo, pista, flecha]) t.setData('rev', { tipo: 'contenido', dentroDe });
 
-        this.panel = scene.add.container(px, py, [fondo, placa, nombre, cabecera, cuerpo, pista, flecha]).setDepth(this.profundidad + 2).setScrollFactor(0);
+        this.panel = scene.add.container(px, py, [fondo, nombre, cabecera, cuerpo, pista, flecha]).setDepth(this.profundidad + 2).setScrollFactor(0);
         this.panel.setInteractive(new Phaser.Geom.Rectangle(0, 0, ancho, alto), Phaser.Geom.Rectangle.Contains);
         this.panel.on('pointerdown', () => this.alPulsar?.());
         this.cuerpo = cuerpo;
@@ -139,10 +156,19 @@ export default class DialogoPrincipal {
         this.flecha = flecha;
         this.flechaY = libre.colocados.pista.y;
         if (escribir) this.escribirPagina();
-        else this.mostrarPista();
+        else { this.avisarTramo(); this.mostrarPista(); }
+    }
+
+    // Avisa que empieza a verse un tramo: solo en su primera página y una sola vez por apertura (redibujar no lo repite)
+    avisarTramo() {
+        const tramo = this.tramoDePagina[this.pagina];
+        if (this.tramosAvisados.has(tramo) || this.tramoDePagina.indexOf(tramo) !== this.pagina) return;
+        this.tramosAvisados.add(tramo);
+        this.alMostrarTramo?.(tramo, this.texto);
     }
 
     escribirPagina() {
+        this.avisarTramo();
         const texto = this.paginas[this.pagina];
         let i = 0;
         this.cuerpo.setText('');

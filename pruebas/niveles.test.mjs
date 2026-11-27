@@ -65,7 +65,8 @@ for (const n of NIVELES) {
     test(`nivel ${n}: cada línea de la narrativa (menos cierre, error e informe) se usa exactamente una vez`, () => {
         const usadas = reglas.reglas.map(r => r.texto).sort();
         const esperadas = ['intro', 'bateria', ...narrativa.comentarios.map((_, i) => `comentarios:${i}`), ...narrativa.revelaciones.map((_, i) => `revelaciones:${i}`),
-            ...narrativa.muebles.map(m => `muebles:${m.id}`), ...narrativa.pistas.map(p => `pistas:${p.id}`), ...(narrativa.marcas || []).map(m => `marcas:${m.id}`)].sort();
+            ...narrativa.muebles.map(m => `muebles:${m.id}`), ...narrativa.pistas.map(p => `pistas:${p.id}`), ...(narrativa.marcas || []).map(m => `marcas:${m.id}`),
+            ...Object.keys(narrativa.momentos || {}).map(id => `momentos:${id}`)].sort();
         assert.deepEqual(usadas, esperadas);
     });
 
@@ -156,7 +157,8 @@ for (const n of NIVELES) {
     test(`nivel ${n}: en cualquier orden, cada línea sale una sola vez (con todo hecho no queda ninguna por salir)`, () => {
         const inv = hacerTodo(nuevaInv(), mapa, reglas);
         const finales = reglas.final?.objeto ? [] : [];
-        const pendientes = reglas.reglas.filter(r => !inv.yaSalio(r.id) && !r.cuando.some(f => f === 'resolvio' || f === 'capturo'));
+        // "momentos" con acerto, en-registro o ilumino:sombra: se prueban en nivel5.test.mjs y nivel6.test.mjs
+        const pendientes = reglas.reglas.filter(r => !inv.yaSalio(r.id) && !r.cuando.some(f => f === 'resolvio' || f === 'capturo' || /^(acerto|en-registro):/.test(f) || f === 'ilumino:sombra'));
         assert.deepEqual(pendientes.map(r => r.id), finales, 'todas las reglas salen');
         assert.equal(new Set(inv.historial.map(h => h.regla)).size, inv.historial.length, 'ninguna sale dos veces');
     });

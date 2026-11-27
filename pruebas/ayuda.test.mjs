@@ -228,7 +228,7 @@ test('no ayuda con las pistas ni con las pilas: son opcionales', () => {
     assert.equal(pasar(ayuda, 600), null);
 });
 
-test('no cuenta durante la pausa narrativa ni durante la cuenta de 1,2 s previa a la revelación', () => {
+test('no cuenta durante la pausa narrativa (que empieza enseguida, sin cuenta previa a la revelación)', () => {
     const escena = crearEscena({ ancho: 1280, alto: 720 });
     const narracion = new Narracion(escena, { profundidad: 100000, jugadorEnPantalla: () => ({ x: 200, y: 200 }), alPausar() { }, alReanudar() { }, alPulsar() { } });
     const inv = nuevaInvestigacion(), ayuda = nuevaAyuda(inv);
@@ -241,12 +241,7 @@ test('no cuenta durante la pausa narrativa ni durante la cuenta de 1,2 s previa 
     narracion.contarTodos([marca, rev]);
     ayuda.alDescubrir();
     const inicio = ayuda.inactividad;
-    assert.equal(narracion.narrador.bloqueando(), false);
-    assert.equal(narracion.bloqueando, true, 'hay cuenta previa');
-    for (let t = 0; t < LECTURA.causaAntesDeConsecuenciaMs - 100; t += 16) cuadro();
-    assert.equal(ayuda.inactividad, inicio, 'durante la cuenta de 1,2 s no cuenta');
-    for (let t = 0; t < 400; t += 16) cuadro();
-    assert.equal(narracion.narrador.bloqueando(), true, 'ya empezó la pausa narrativa');
+    assert.equal(narracion.narrador.bloqueando(), true, 'la pausa narrativa empieza enseguida');
     for (let t = 0; t < 5000; t += 16) cuadro();
     assert.equal(ayuda.inactividad, inicio, 'durante la pausa tampoco cuenta');
     for (let i = 0; i < 6 && narracion.bloqueando; i++) { narracion.avanzar(); for (let t = 0; t < 640; t += 16) cuadro(); }

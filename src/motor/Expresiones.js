@@ -13,6 +13,17 @@ export function expresionDe(tabla, nivel, clave) {
     return EXPRESIONES.includes(expresion) ? expresion : EXPRESION_POR_DEFECTO;
 }
 
+// La ilustración de escena que acompaña a una línea importante (assets/ilustraciones/lista.json), o null. Solo decora.
+export function ilustracionDe(tabla, nivel, clave) {
+    const nombre = tabla?.niveles?.[nivel]?.[clave];
+    return typeof nombre === 'string' && nombre ? nombre : null;
+}
+
+// La clave de la textura de una ilustración
+export function claveDeIlustracion(nombre) {
+    return `ilustracion-${nombre}`;
+}
+
 // Las líneas importantes de un nivel: las reglas "importante" más el cierre y el error de la narrativa
 export function lineasImportantes(reglas) {
     return [...reglas.reglas.filter(r => r.clase === 'importante').map(r => r.id), 'cierre', 'error'];

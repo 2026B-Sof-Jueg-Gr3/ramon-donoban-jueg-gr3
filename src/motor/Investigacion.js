@@ -13,7 +13,12 @@
 // Sucesos del mundo, no acciones con E: "oyo-cerca" (un golpe del fenómeno con el inspector cerca), "vio-cerca" (un juguete se
 // mueve con el inspector cerca), "piso" (el inspector camina sobre una zona) y "resolvio" (la deducción quedó resuelta).
 const TIPOS_DE_SUCESO = ['entro', 'ilumino', 'examino', 'miro-detras', 'miro-debajo', 'recogio', 'rodo', 'tiro', 'corto', 'ordeno', 'cerro', 'apago', 'abrio',
-    'oyo-cerca', 'vio-cerca', 'piso', 'resolvio', 'capturo'];
+    'oyo-cerca', 'vio-cerca', 'piso', 'resolvio', 'capturo', 'acerto', 'en-registro'];
+// Hechos que no hablan de un objeto de la habitación, sino de un identificador estable:
+//   "acerto:<pregunta>"   se acertó esa pregunta de la deducción (su id, por ejemplo "detras"; nunca el texto visible)
+//   "en-registro:<pista>" el expediente persistente (src/ui/Registro.js) conserva esa pista, de esta partida o de una anterior.
+//                          Solo informa a la investigación: no registra nada ni cuenta como hallazgo de esta habitación.
+const SIN_DEFINICION = ['acerto', 'en-registro'];
 const ACCION_DE_SUCESO = {
     examino: 'examinar', 'miro-detras': 'mirar-detras', 'miro-debajo': 'mirar-debajo', recogio: 'recoger', rodo: 'rodar', tiro: 'tirar',
     corto: 'cortar', ordeno: 'ordenar', cerro: 'cerrar', apago: 'apagar', abrio: 'abrir'
@@ -35,7 +40,8 @@ function analizarHecho(texto) {
 }
 
 // Busca una línea de la narrativa por su referencia: "intro", "bateria", "comentarios:0", "revelaciones:1",
-// "marcas:<id>", "pistas:<id>" o "muebles:<id>". Devuelve { categoria, texto, titulo?, etiqueta? } o null si no existe.
+// "marcas:<id>", "pistas:<id>", "muebles:<id>" o "momentos:<id>" (las líneas agregadas en la v2: { id: texto }).
+// Devuelve { categoria, texto, titulo?, etiqueta? } o null si no existe.
 export function resolverTexto(narrativa, referencia) {
     const [categoria, clave, ...resto] = String(referencia).split(':');
     if (resto.length) return null;
@@ -62,6 +68,10 @@ export function resolverTexto(narrativa, referencia) {
             const p = (narrativa.pistas || []).find(e => e.id === clave);
             return p && hay(p.texto) ? { categoria, texto: p.texto, titulo: p.titulo } : null;
         }
+        case 'momentos': {
+            const texto = clave !== undefined && narrativa.momentos && Object.hasOwn(narrativa.momentos, clave) ? narrativa.momentos[clave] : undefined;
+            return hay(texto) ? { categoria, texto } : null;
+        }
         default:
             return null;
     }
@@ -79,6 +89,7 @@ export function validarReglas(reglas, narrativa) {
         const h = analizarHecho(texto);
         if (!h.valido) return errores.push(`${donde}: hecho mal formado "${texto}"`);
         if (SIN_OBJETO.includes(h.tipo)) return h.objeto === undefined ? undefined : errores.push(`${donde}: "${h.tipo}" no lleva objeto`);
+        if (SIN_DEFINICION.includes(h.tipo)) return h.objeto ? undefined : errores.push(`${donde}: "${h.tipo}" necesita un identificador`);
         const def = objetos?.[h.objeto];
         if (!def) return errores.push(`${donde}: el objeto "${h.objeto}" no está definido`);
         if (h.tipo === 'ilumino') {
@@ -156,6 +167,8 @@ export default class Investigacion {
     abrio(objeto) { return this.recibir({ tipo: 'abrio', objeto }); }
     resolvio() { return this.recibir({ tipo: 'resolvio' }); }
     capturo() { return this.recibir({ tipo: 'capturo' }); }
+    acerto(pregunta) { return this.recibir({ tipo: 'acerto', objeto: pregunta }); }
+    enRegistro(pista) { return this.recibir({ tipo: 'en-registro', objeto: pista }); }
 
     ocurrio(h) { return this.hechos.has(h); }
     yaSalio(idDeRegla) { return this.dichas.has(idDeRegla); }
@@ -190,6 +203,7 @@ export default class Investigacion {
         if (!TIPOS_DE_SUCESO.includes(tipo)) return [];
         if (tipo === 'ilumino' && this.objetos[objeto]?.descubre !== 'luz') return [];
         if (DEL_MUNDO.includes(tipo) && !this.objetos[objeto]) return [];
+        if (SIN_DEFINICION.includes(tipo) && !objeto) return [];
         if (ACCION_DE_SUCESO[tipo] && !this.puedeActuar(objeto, ACCION_DE_SUCESO[tipo], lado)) return [];
         const h = hecho(tipo, objeto, tipo === 'miro-detras' ? lado : undefined);
         if (this.hechos.has(h)) return [];                 // ya ocurrió: ninguna regla puede salir por ello otra vez

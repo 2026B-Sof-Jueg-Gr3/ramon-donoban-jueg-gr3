@@ -1,6 +1,6 @@
-// Narracion: la causa se muestra antes que la consecuencia. Lo que un mismo suceso produce se presenta con la causa
-// (tarjeta o nota) de inmediato y la revelación cuando la causa ya está a la vista y pasó un momento, sin perder ni
-// duplicar nada.
+// Narracion: la causa se muestra antes que la consecuencia, sin esperas obligatorias. Lo que un mismo suceso produce se
+// presenta con la causa (tarjeta o nota) y la revelación en cuanto la causa está a la vista, sin duplicar nada. Una nota
+// nueva reemplaza al instante la que se estaba leyendo.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { crearEscena } from './escenaSimulada.mjs';
@@ -30,34 +30,24 @@ function crear() {
     return { escena, n, llamadas, correr, salidas };
 }
 
-const MS = LECTURA.causaAntesDeConsecuenciaMs;
+const MS = 100;          // un par de cuadros: ya no hay cuenta previa a la revelación
 
-test('la espera entre la causa y la revelación existe y es breve', () => {
-    assert.ok(MS >= 800 && MS <= 2500);
-    assert.ok(LECTURA.esperaMaximaDeLaCausaMs > MS);
+test('no hay espera obligatoria entre la causa y la revelación', () => {
+    assert.equal(LECTURA.causaAntesDeConsecuenciaMs, undefined);
+    assert.ok(LECTURA.esperaMaximaDeLaCausaMs > 0, 'el tope de seguridad sigue');
 });
 
-test('una marca y su revelación: la tarjeta sale primero y la pausa empieza después de la espera', () => {
-    const { n, llamadas, correr, salidas } = crear();
+test('una marca y su revelación: la tarjeta sale primero y la pausa empieza enseguida', () => {
+    const { n, llamadas, salidas } = crear();
     n.contarTodos([evento('marca', 'ambiental'), evento('rev', 'importante')]);
-    assert.deepEqual(salidas, ['marca'], 'la tarjeta de la causa ya está a la vista');
-    assert.equal(n.narrador.bloqueando(), false, 'todavía no empezó la pausa narrativa');
-    assert.equal(llamadas.pausas, 0);
-    assert.equal(n.bloqueando, true, 'pero el jugador ya no puede actuar');
-    correr(MS - 100);
-    assert.equal(n.narrador.bloqueando(), false, 'antes de cumplirse el tiempo no hay pausa');
-    correr(200);
-    assert.equal(n.narrador.bloqueando(), true, 'cumplido el tiempo empieza la pausa narrativa');
+    assert.deepEqual(salidas, ['marca', 'Texto de rev'], 'la tarjeta de la causa primero, la revelación después, sin esperar');
+    assert.equal(n.narrador.bloqueando(), true);
     assert.equal(llamadas.pausas, 1);
-    assert.deepEqual(salidas, ['marca', 'Texto de rev']);
 });
 
-test('un comentario y su revelación: igual, el comentario primero', () => {
-    const { n, correr, salidas } = crear();
+test('un comentario y su revelación: igual, el comentario primero y sin esperar', () => {
+    const { n, salidas } = crear();
     n.contarTodos([evento('com', 'secundaria'), evento('rev', 'importante')]);
-    assert.deepEqual(salidas, ['com']);
-    assert.equal(n.narrador.bloqueando(), false);
-    correr(MS + 100);
     assert.equal(n.narrador.bloqueando(), true);
     assert.deepEqual(salidas, ['com', 'Texto de rev']);
 });
@@ -69,20 +59,27 @@ test('una revelación sola (sin causa visible) sale de inmediato, sin espera', (
     assert.equal(llamadas.pausas, 1);
 });
 
-test('si la libreta está ocupada, la causa espera su turno y la revelación espera con ella (nunca sale antes)', () => {
-    const { n, correr, salidas } = crear();
+test('una nota nueva reemplaza al instante la que se estaba leyendo (sin esperar su lectura), y su revelación sale enseguida', () => {
+    const { n, salidas } = crear();
     n.contarTodos([evento('anterior', 'secundaria')]);                       // la libreta ya muestra otra nota
     assert.deepEqual(salidas, ['anterior']);
     n.contarTodos([evento('com', 'secundaria'), evento('rev', 'importante')]);
-    assert.deepEqual(salidas, ['anterior'], 'la causa todavía no se ve');
-    assert.equal(n.bloqueando, false, 'y mientras tanto el jugador no está bloqueado');
-    correr(tiempoDeLectura('Texto de anterior') + 600);                      // la nota anterior termina y entra la causa
-    assert.deepEqual(salidas, ['anterior', 'com'], 'primero la causa');
-    assert.equal(n.narrador.bloqueando(), false, 'la revelación todavía espera');
-    assert.equal(n.bloqueando, true, 'desde que la causa se ve empieza la cuenta y el jugador queda bloqueado');
-    correr(MS + 100);
-    assert.deepEqual(salidas, ['anterior', 'com', 'Texto de rev']);
+    assert.deepEqual(salidas, ['anterior', 'com', 'Texto de rev'], 'la nota anterior se va, entra la causa y luego la revelación');
+    assert.equal(n.narrador.actual.acontecimiento, 'com');
+    assert.equal(n.panel.tarjetas.filter(t => t.mensaje.acontecimiento === 'anterior').length, 0, 'la anterior ya no está');
     assert.equal(n.narrador.bloqueando(), true);
+});
+
+test('dos hallazgos seguidos: el segundo sale de inmediato; lo de un mismo suceso se lee en orden', () => {
+    const { n, correr, salidas } = crear();
+    n.contarTodos([evento('a', 'secundaria')]);
+    correr(200);
+    n.contarTodos([evento('b', 'secundaria')]);
+    assert.deepEqual(salidas, ['a', 'b'], 'b no espera a que termine la lectura de a');
+    n.contarTodos([evento('c1', 'secundaria'), evento('c2', 'secundaria')]);
+    assert.deepEqual(salidas, ['a', 'b', 'c1'], 'c1 reemplaza a b; c2 es del mismo suceso y espera su turno');
+    correr(tiempoDeLectura('Texto de c1') + 1500);
+    assert.deepEqual(salidas, ['a', 'b', 'c1', 'c2']);
 });
 
 test('si la causa no llega a verse, la revelación sale igual al cumplirse el tope', () => {
@@ -109,7 +106,7 @@ test('nada se pierde ni se duplica: la tarjeta queda y la revelación sale una s
     assert.deepEqual(salidas, ['marca', 'Texto de rev']);
 });
 
-test('durante la cuenta y la pausa el jugador está bloqueado; al terminar, libre', () => {
+test('durante la pausa el jugador está bloqueado; al terminar, libre', () => {
     const { n, correr } = crear();
     n.contarTodos([evento('marca', 'ambiental'), evento('rev', 'importante')]);
     assert.equal(n.bloqueando, true);
@@ -119,9 +116,11 @@ test('durante la cuenta y la pausa el jugador está bloqueado; al terminar, libr
     assert.equal(n.bloqueando, false);
 });
 
-test('detener durante la cuenta cancela la revelación pendiente', () => {
+test('detener con una revelación pendiente (su causa en cola durante una pausa) la cancela', () => {
     const { n, llamadas, correr } = crear();
-    n.contarTodos([evento('marca', 'ambiental'), evento('rev', 'importante')]);
+    n.narrador.pausado = true;
+    n.contarTodos([evento('com', 'secundaria'), evento('rev', 'importante')]);
+    n.narrador.pausado = false;
     n.detener();
     correr(LECTURA.esperaMaximaDeLaCausaMs + 500);
     assert.equal(llamadas.pausas, 0);

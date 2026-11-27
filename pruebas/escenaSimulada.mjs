@@ -38,6 +38,8 @@ function graficos(escena) {
 function texto(escena, x, y, contenido, estilo = {}) {
     const t = objetoBase(escena);
     Object.assign(t, { x, y, text: String(contenido ?? ''), style: { color: estilo.color }, anchoEnvoltura: estilo.wordWrap?.width ?? null });
+    t.setShadow = () => t;          // la sombra y el estilo de la letra no cambian nada que se pruebe aquí
+    t.setFontStyle = () => t;
     // Envoltura simple y determinista: palabras completas, ANCHO_LETRA px por letra
     t.getWrappedText = s => {
         const porLinea = Math.max(1, Math.floor((t.anchoEnvoltura ?? 1e9) / ANCHO_LETRA));

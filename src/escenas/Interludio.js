@@ -1,48 +1,39 @@
-import Boton from '../ui/Boton.js';
-import Pantalla from '../ui/Pantalla.js';
-import { fondoCubriendo } from './utilidades.js';
+import DialogoPrincipal from '../ui/DialogoPrincipal.js';
+import { fondoDeTormenta } from './utilidades.js';
 
-const CAJA = { x: 364, y: 48, ancho: 552, alto: 624 };          // el panel de 460 × 520 ampliado 1,2
+// Un texto narrado antes de entrar a la mansión (el preámbulo), en la misma caja de diálogo del juego: la mansión bajo la tormenta
+// detrás y el texto abajo, escrito letra a letra y repartido en páginas si no cabe. E, Espacio, Enter o un clic completan y avanzan;
+// Esc lo salta.
+const ZONA = { x: 40, y: 720 - 262 - 28, ancho: 1200, alto: 262 };
 
-// Un texto largo sobre fondo oscuro (el preámbulo). Se arma en flujo (src/ui/Pantalla.js): el texto va en una zona que se
-// desplaza si no cabe y el botón queda siempre abajo. La letra se achica un poco antes de recurrir a desplazar.
 export default class Interludio extends Phaser.Scene {
     constructor() { super('Interludio'); }
 
     init(data) {
         this.texto = data.texto;
+        this.titulo = data.titulo || '';
         this.siguiente = data.siguiente;
         this.datosSiguiente = data.datosSiguiente || {};
         this.continuado = false;
     }
 
     create() {
-        fondoCubriendo(this, 'fondoMenu');
-        const p = this.pantalla = new Pantalla(this, {
-            caja: CAJA, margen: { x: 36, y: 36 }, hueco: 24, prefijo: 'interludio', centrarCuerpo: true,
-            estilo: { fondo: 0x111111, borde: 0xffffff, opacidad: 0.94 }
-        });
-        const texto = p.textoAjustado('texto', this.texto, { size: 23, minimo: 16, altoMaximo: 440, color: '#ffffff', espacio: 8, centrado: true });
-        p.enCuerpo(texto);
-        const continuar = new Boton(this, 0, 0, 'Continuar', () => this.avanzar(), 252, 53, 24);
-        p.enPie(p.objeto('continuar', continuar, { ancho: continuar.ancho, alto: continuar.alto }));
-        p.componer();
+        const { width, height } = this.scale;
+        fondoDeTormenta(this, 0.3);
+        // Sin velo extra: la mansión se tiene que ver detrás de la caja, como en una novela visual
+        this.dialogo = new DialogoPrincipal(this, () => this.dialogo.alTocar(), { profundidad: 10, oscurecer: () => 0 });
+        this.dialogo.reposicionar(ZONA, { x: 0, y: 0, ancho: width, alto: height });
+        this.dialogo.abrir(this.texto, { nombre: this.titulo, alCerrar: () => this.avanzar() });
 
-        this.input.keyboard.on('keydown-ENTER', () => this.programarAvance());
-        this.input.keyboard.on('keydown-SPACE', () => this.programarAvance());
-        this.input.keyboard.on('keydown-UP', () => p.desplazar(-1));
-        this.input.keyboard.on('keydown-DOWN', () => p.desplazar(1));
-        this.events.once('shutdown', () => p.destruir());
-    }
-
-    programarAvance() {
-        if (this.continuado) return;
-        this.time.delayedCall(0, () => this.avanzar());
+        const avanzarTexto = ev => { if (!ev.repeat) this.dialogo.alTocar(); };
+        for (const tecla of ['SPACE', 'ENTER', 'E']) this.input.keyboard.on(`keydown-${tecla}`, avanzarTexto);
+        this.input.keyboard.on('keydown-ESC', () => this.avanzar());
+        this.events.once('shutdown', () => this.dialogo.cerrar());
     }
 
     avanzar() {
         if (this.continuado) return;
         this.continuado = true;
-        this.scene.start(this.siguiente, this.datosSiguiente);
+        this.time.delayedCall(0, () => this.scene.start(this.siguiente, this.datosSiguiente));
     }
 }

@@ -182,3 +182,94 @@ test('el informe cuenta lo recogido tras el cierre: las pilas, los hallazgos ext
     inv.capturo(); inv.apago('chimenea'); inv.recogio('n5-pista-abrigo'); inv.recogio('bateria');
     assert.deepEqual(libreta.resumen(), { extras: 1, totalDeExtras: 4, pistas: 2, totalDePistas: 2, pilas: true });
 });
+
+// ── «Ahí estás...»: la primera vez que la luz da en la sombra ─────────────────
+// Con el código de la habitación (Sombra.actualizar) y la persecución de verdad; la escena y los dibujos, simulados.
+
+const { default: Sombra } = await import('../src/presentacion/habitaciones/Sombra.js');
+const dibujo = () => { const o = { alpha: 0, setAlpha(a) { o.alpha = a; return o; }, setPosition() { return o; }, setDepth() { return o; }, setScale() { return o; } }; return o; };
+
+function habitacionDeLaSombra({ luz = true } = {}) {
+    const inv = nueva();
+    inv.entro();
+    const dichas = [];
+    const escena = {
+        fase: 'investigando', inspector: { pies: { ...mapa.inicio } }, investigacion: inv, contar: eventos => dichas.push(...eventos),
+        events: { emit() { } }, cerrarNivel() { }, fallar: reintentar => reintentar()
+    };
+    const sombra = new Sombra(escena);
+    Object.assign(sombra, {
+        persecucion: persecucion(), imagen: dibujo(), reborde: dibujo(), llama: [dibujo(), dibujo()], humo: [], huellas: [], despues: [],
+        chimenea: { x: 600, y: 300 }, luz
+    });
+    sombra.iluminada = () => sombra.luz;
+    const cuadros = (n, opciones) => { for (let i = 0; i < n; i++) sombra.actualizar(1 / 60, i * 1000 / 60, opciones); };
+    return { inv, escena, sombra, p: sombra.persecucion, dichas, cuadros };
+}
+
+test('«Ahí estás...» sale la primera vez que se ilumina la sombra, como importante y con su texto exacto', () => {
+    const { dichas, cuadros } = habitacionDeLaSombra();
+    cuadros(1);
+    assert.deepEqual(clases(dichas), ['momento:sombra-vista:importante']);
+    assert.equal(dichas[0].texto, 'Ahí estás...');
+    assert.equal(dichas[0].texto, narrativa.momentos['sombra-vista']);
+    assert.equal(dichas[0].categoria, 'momentos');
+});
+
+test('«Ahí estás...» no sale si la sombra no se ilumina, ni en pausa, ni cuando ya está capturada o se escapó', () => {
+    const aOscuras = habitacionDeLaSombra({ luz: false });
+    aOscuras.cuadros(120);
+    assert.deepEqual(aOscuras.dichas, []);
+    const enPausa = habitacionDeLaSombra();
+    enPausa.cuadros(120, { pausado: true });
+    assert.deepEqual(enPausa.dichas, []);
+    for (const estado of ['capturada', 'escapada']) {
+        const h = habitacionDeLaSombra();
+        h.p.estado = estado;
+        h.cuadros(5);
+        assert.deepEqual(h.dichas, [], estado);
+    }
+});
+
+test('«Ahí estás...» no se repite: ni con la luz encima, ni al perder un intento (reintentar solo reinicia la persecución)', () => {
+    const { inv, sombra, p, dichas, cuadros } = habitacionDeLaSombra();
+    cuadros(60);
+    assert.equal(dichas.length, 1);
+    assert.deepEqual(inv.ilumino('sombra'), []);
+    sombra.reintentar();
+    assert.equal(p.tiempo, 0);
+    cuadros(60);
+    assert.equal(dichas.length, 1);
+});
+
+test('el cuadro en que sale y la pausa narrativa no mueven la sombra ni avanzan los papeles', () => {
+    const { sombra, p, dichas, cuadros } = habitacionDeLaSombra({ luz: false });
+    cuadros(30);                                    // la persecución ya lleva medio segundo
+    const estado = () => ({ pos: { ...p.pos }, quemado: p.quemado, tiempo: p.tiempo });
+    const antes = estado();
+    assert.ok(antes.quemado > 0.4);
+    sombra.luz = true;
+    cuadros(1);                                     // sale la línea
+    assert.equal(dichas.length, 1);
+    assert.deepEqual(estado(), antes, 'ni un cuadro antes de la pausa');
+    cuadros(300, { pausado: true });                // leyendo
+    assert.deepEqual(estado(), antes);
+    cuadros(1);                                     // al cerrar el texto sigue
+    assert.ok(p.quemado > antes.quemado);
+});
+
+test('la captura sigue exigiendo 1,5 s de luz: el cuadro de «Ahí estás...» no cuenta', () => {
+    const { escena, sombra, p, dichas, cuadros } = habitacionDeLaSombra();
+    sombra.salidaBloqueada = true;
+    sombra.chimeneaApagada = true;
+    const pegado = () => { escena.inspector.pies = { ...p.pos }; };
+    pegado();
+    cuadros(1);
+    assert.equal(dichas[0].regla, 'momento:sombra-vista');
+    assert.equal(p.captura, 0);
+    let n = 0;
+    while (p.estado !== 'capturada' && n < 600) { pegado(); cuadros(1); n++; }
+    assert.equal(p.estado, 'capturada');
+    assert.ok(n >= 90 && n <= 92, `${n} cuadros de luz`);
+    assert.equal(p.config.segundosDeCaptura, 1.5);
+});

@@ -175,3 +175,104 @@ test('los hallazgos extra del nivel 6 salen de los datos: reloj, libros, archiva
     S.pilas(libreta.investigacion);
     assert.equal(libreta.resumen().pilas, true);
 });
+
+// ── La conexión de la «V»: al acertar la primera pregunta, con el abrigo del nivel 5 en el expediente ──
+
+const clasesDeCodigo = new Proxy({}, { get: (t, k) => (t[k] ??= class { }) });
+globalThis.Phaser ??= {
+    Scene: class { }, GameObjects: clasesDeCodigo, Physics: { Arcade: clasesDeCodigo }, BlendModes: { ADD: 1 }, Math: {},
+    Display: { Color: { HexStringToColor: () => ({ color: 0 }) } }, Geom: { Rectangle: Object.assign(class { }, { Contains: () => true }) }, Input: { Keyboard: {} }
+};
+const { default: Habitacion } = await import('../src/escenas/Habitacion.js');
+const { default: Cuaderno } = await import('../src/presentacion/Cuaderno.js');
+
+const conAbrigo = () => { const inv = nueva(); inv.enRegistro('n5-pista-abrigo'); return inv; };
+
+test('la conexión de la «V» sale al acertar "detras" con el abrigo en el Registro, como importante y con su texto exacto', () => {
+    const inv = conAbrigo();
+    const eventos = inv.acerto('detras');
+    assert.deepEqual(clases(eventos), ['momento:conexion-v:importante']);
+    assert.equal(eventos[0].texto, 'El cómplice no habló. No hizo falta: la «V» de su nota es la misma que firma esta pluma.');
+    assert.equal(eventos[0].texto, narrativa.momentos['conexion-v']);
+});
+
+test('no sale sin el abrigo, ni al acertar "espantaba", ni dos veces, ni solo por tener el abrigo', () => {
+    assert.deepEqual(nueva().acerto('detras'), []);
+    const sinAbrigo = nueva();
+    for (const id of Object.keys(TODO_EL_REGISTRO)) if (id !== 'n5-pista-abrigo') sinAbrigo.enRegistro(id);
+    assert.deepEqual(sinAbrigo.acerto('detras'), []);
+    const inv = nueva();
+    assert.deepEqual(inv.enRegistro('n5-pista-abrigo'), [], 'tenerlo no cuenta nada al entrar');
+    assert.deepEqual(inv.acerto('espantaba'), []);
+    assert.equal(inv.acerto('detras').length, 1);
+    assert.deepEqual(inv.acerto('detras'), []);
+    assert.deepEqual(inv.enRegistro('n5-pista-abrigo'), []);
+});
+
+test('el oráculo de la deducción no cambia: mismas preguntas, conclusiones y pruebas', () => {
+    assert.deepEqual(reglas.deduccion.preguntas, [
+        { id: 'detras', correcta: 'voss', validas: [['pluma-gv', 'n2-pista-recibo']] },
+        { id: 'espantaba', correcta: 'buscar-tesoro', validas: [['n3-pista-carta', 'n5-pista-planos']] }
+    ]);
+    assert.ok(!('n5-pista-abrigo' in reglas.deduccion.pruebas), 'el abrigo no es prueba');
+});
+
+// La libreta y la escena, con su código: qué pasa al presentar las pruebas
+function presentando({ abrigo, pregunta = 'detras', conclusion, pruebas }) {
+    const { inv, deduccion } = partida(TODO_EL_REGISTRO, 'marcas', 'archivos', 'ordenar', 'pluma', 'cartas');
+    if (abrigo) inv.enRegistro('n5-pista-abrigo');
+    if (pregunta === 'espantaba') deduccion.responder('detras', 'voss', ['pluma-gv', 'n2-pista-recibo']);
+    const q = deduccion.pregunta(pregunta);
+    const pasos = [];
+    const escena = Object.create(Habitacion.prototype);
+    const cuaderno = Object.create(Cuaderno.prototype);
+    Object.assign(escena, {
+        investigacion: inv, cuaderno, despuesDelTexto: null,
+        reanudarDeLaLibreta: reiniciar => pasos.push(`reanuda:${reiniciar}`), pausarPorLaLibreta: () => pasos.push('pausa'),
+        contar: eventos => pasos.push(`cuenta:${eventos.map(e => e.regla)}`)
+    });
+    Object.assign(cuaderno, {
+        deduccion, seleccion: { conclusion: conclusion ?? q.correcta, pruebas: pruebas ?? [...q.validas[0]] }, modo: 'pruebas',
+        cerrar: () => pasos.push('cierra'), abrirPregunta: () => pasos.push('pregunta'), alError: () => pasos.push('error'),
+        alResolver: () => pasos.push('resuelto'), alAcertar: id => escena.alAcertar(id)
+    });
+    cuaderno.presentar();
+    return { pasos, escena };
+}
+
+test('con el abrigo, la libreta se cierra para mostrar la línea y al terminarla vuelve a la segunda pregunta', () => {
+    const { pasos, escena } = presentando({ abrigo: true });
+    assert.deepEqual(pasos, ['reanuda:false', 'cuenta:momento:conexion-v', 'cierra']);
+    escena.alReanudar();
+    assert.deepEqual(pasos.slice(3), ['pausa', 'pregunta']);
+});
+
+test('sin el abrigo, pasa directo a la siguiente pregunta sin cerrar la libreta', () => {
+    const { pasos, escena } = presentando({ abrigo: false });
+    assert.deepEqual(pasos, ['pregunta']);
+    assert.equal(escena.despuesDelTexto, null);
+});
+
+test('un error en la primera pregunta no la dispara (y funciona como antes); la segunda tampoco la cuenta', () => {
+    const mala = presentando({ abrigo: true, conclusion: 'complice' });
+    assert.deepEqual(mala.pasos, ['cierra', 'error']);
+    assert.equal(mala.escena.investigacion.yaSalio('momento:conexion-v'), false);
+    const ajena = presentando({ abrigo: true, pruebas: ['pluma-gv'] });
+    assert.deepEqual(ajena.pasos, ['cierra', 'error']);
+    const segunda = presentando({ abrigo: true, pregunta: 'espantaba' });
+    assert.deepEqual(segunda.pasos, ['cierra', 'resuelto']);
+    assert.equal(segunda.escena.investigacion.yaSalio('momento:conexion-v'), false);
+});
+
+test('los hallazgos extra de los seis niveles son los de antes: las líneas "momentos" no cuentan', () => {
+    const totales = [4, 2, 5, 4, 4, 4];
+    for (const n of [1, 2, 3, 4, 5, 6]) {
+        const r = leerJson(`assets/investigaciones/nivel${n}.json`);
+        const inv = new Investigacion(r, narrativas[n]);
+        const definicion = r.deduccion ?? { pruebas: r.libreta?.pruebas ?? {}, preguntas: [], pilas: r.libreta?.pilas };
+        const libreta = new Libreta(definicion, narrativas[n], inv, { nivel: n });
+        assert.equal(libreta.resumen().totalDeExtras, totales[n - 1], `nivel ${n}`);
+        inv.enRegistro('n5-pista-abrigo'); inv.acerto('detras'); inv.ilumino('sombra');
+        assert.deepEqual([libreta.resumen().extras, libreta.resumen().totalDeExtras], [0, totales[n - 1]], `nivel ${n}`);
+    }
+});

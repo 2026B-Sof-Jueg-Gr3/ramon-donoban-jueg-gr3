@@ -19,10 +19,14 @@ test('hay seis habitaciones y cada una tiene su narrativa', () => {
     for (const n of niveles) assert.doesNotThrow(() => narrativa(n), `nivel${n}.json`);
 });
 
+// "momentos": las líneas agregadas en la v2 y aprobadas (la sombra del nivel 5, la conexión de la «V» del nivel 6). Solo ahí.
+const CON_MOMENTOS = [5, 6];
+
 test('cada narrativa usa exactamente las categorías de la v2 y ninguna del Sokoban', () => {
     for (const n of niveles) {
         const claves = Object.keys(narrativa(n));
-        assert.deepEqual([...claves].sort(), CATEGORIAS_DE(n), `nivel ${n}`);
+        if (!CON_MOMENTOS.includes(n)) assert.ok(!claves.includes('momentos'), `nivel ${n}: no lleva "momentos"`);
+        assert.deepEqual(claves.filter(c => c !== 'momentos').sort(), CATEGORIAS_DE(n), `nivel ${n}`);
         for (const vieja of CATEGORIAS_DEL_SOKOBAN) assert.ok(!claves.includes(vieja), `nivel ${n}: sigue la categoría "${vieja}"`);
     }
 });
@@ -157,4 +161,15 @@ test('las deducciones de los niveles 3, 4 y 6 usan palabra por palabra los texto
     assert.deepEqual(d6.preguntas[0].opciones.map(o => o.texto), ['Gerhard Voss, el albacea', 'El cómplice de la ventana', 'La propia maldición de los Flieder']);
     assert.deepEqual(d6.preguntas[1].opciones.map(o => o.texto), ['Para buscar el tesoro sin que nadie se quedara con la casa', 'Para proteger la memoria del señor Flieder', 'Porque creía en la maldición']);
     assert.equal(narrativa(5).deduccion, undefined);
+});
+
+test('el cierre del nivel 4 va en cuatro páginas (aprobado) y ningún otro texto de la historia lleva el corte \f', () => {
+    assert.equal(narrativa(4).cierre, 'Último hilo cortado. Los juguetes no cobraban vida: alguien los manejaba desde arriba...\fEspera.\f¡Una silueta, frente a la ventana! Alguien nos estaba observando.\fHasta ahora solo tenía rastros. Esta vez, el rastro tiene piernas.');
+    const conCorte = [];
+    const revisar = (valor, ruta) => {
+        if (typeof valor === 'string') { if (valor.includes('\f')) conCorte.push(ruta); }
+        else if (valor && typeof valor === 'object') for (const [k, v] of Object.entries(valor)) revisar(v, `${ruta}.${k}`);
+    };
+    for (const n of niveles) revisar(narrativa(n), `nivel${n}`);
+    assert.deepEqual(conCorte, ['nivel4.cierre']);
 });

@@ -37,8 +37,8 @@ export default class Informe extends Phaser.Scene {
             p.texto('informe', informe, { size: 22, espacio: 9, ancho: p.anchoCuerpo }),
             { ...p.linea(), antes: 10 },
             p.texto('encontrado', 'LO ENCONTRADO', { size: 14, color: TEXTO.tenue }),
-            p.texto('extras', `📜  Hallazgos extra: ${r.extras} de ${r.totalDeExtras}`, { size: 24, emoji: true }),
-            p.texto('pilas', `🔋  Pilas: ${r.pilas ? 'encontradas' : 'no encontradas'}`, { size: 24, emoji: true })
+            p.texto('extras', `Hallazgos extra: ${r.extras} de ${r.totalDeExtras}`, { size: 24 }),
+            p.texto('pilas', `Pilas: ${r.pilas ? 'encontradas' : 'no encontradas'}`, { size: 24 })
         );
         const botones = [];
         if (n < TOTAL_NIVELES) botones.push({ texto: 'Siguiente habitación', primario: true, ancho: 340, alActivar: () => this.siguiente() });

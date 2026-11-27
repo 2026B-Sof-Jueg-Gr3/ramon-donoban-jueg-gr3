@@ -28,7 +28,7 @@ export default class ZonaDesplazable {
     }
 
     crearIndicador(simbolo, profundidad, paso) {
-        const texto = this.escena.add.text(0, 0, simbolo, { fontFamily: FUENTE, fontSize: '22px', color: '#ffd060', backgroundColor: '#16263a', padding: { x: 6, y: 2 }, resolution: 2 })
+        const texto = this.escena.add.text(0, 0, simbolo, { fontFamily: FUENTE, fontSize: '22px', color: '#e8c97a', backgroundColor: 'rgba(4,6,11,0.72)', padding: { x: 6, y: 2 }, resolution: 2 })
             .setOrigin(0.5).setScrollFactor(0).setDepth(profundidad).setVisible(false);
         texto.setInteractive({ useHandCursor: true });
         texto.on('pointerdown', () => this.desplazar(this.desplazamiento + paso));

@@ -30,8 +30,9 @@ export default class Cuaderno {
     // libreta y deduccion: los del motor · narrativa: assets/narrativa/nivelN.json (preguntas y opciones)
     // alCerrar(): cerró la libreta o eligió seguir investigando · alError(resultado): una respuesta equivocada
     // alResolver(): las dos preguntas están resueltas
+    // alAcertar(idDePregunta): se acertó una y quedan más; si devuelve true (hay una línea que mostrar) la libreta se cierra
     // alContinuar(): se eligió seguir desde el menú de pausa · alSalir(): se confirmó salir de la habitación
-    constructor(escena, { profundidad, libreta, deduccion, narrativa, alCerrar, alError, alResolver, alContinuar, alSalir }) {
+    constructor(escena, { profundidad, libreta, deduccion, narrativa, alCerrar, alError, alResolver, alAcertar, alContinuar, alSalir }) {
         this.escena = escena;
         this.profundidad = profundidad;
         this.libreta = libreta;
@@ -40,6 +41,7 @@ export default class Cuaderno {
         this.alCerrar = alCerrar;
         this.alError = alError;
         this.alResolver = alResolver;
+        this.alAcertar = alAcertar;
         this.alContinuar = alContinuar;
         this.alSalir = alSalir;
         this.pantalla = null;
@@ -172,7 +174,7 @@ export default class Cuaderno {
             colocadosD.push({ obj: crear('PISTAS', { size: 14, color: TEXTO.tenue, ancho: der }), x: izq + hueco, y: yd });
             yd += colocadosD[0].obj.height + 14;
             pistas.forEach((h, i) => {
-                const titulo = crear(`📜 ${h.nombre}`, { size: 19, color: TEXTO.ambar, emoji: true, ancho: der });
+                const titulo = crear(h.nombre, { size: 19, color: TEXTO.ambar, ancho: der });
                 const cuerpo = crear(h.texto, { size: 15, espacio: 4, ancho: der });
                 colocadosD.push({ obj: titulo, x: izq + hueco, y: yd }, { obj: cuerpo, x: izq + hueco, y: yd + titulo.height + 4 });
                 yd += titulo.height + 4 + cuerpo.height + (i < pistas.length - 1 ? 22 : 0);
@@ -197,7 +199,7 @@ export default class Cuaderno {
             y += cab.height + 10;
             for (const h of hallazgos.filter(x => x.nivel === nivel)) {
                 if (h.tipo === 'pista') {
-                    const titulo = crear(`📜 ${h.nombre}`, { size: 19, color: TEXTO.ambar, emoji: true, ancho });
+                    const titulo = crear(h.nombre, { size: 19, color: TEXTO.ambar, ancho });
                     const cuerpo = crear(h.texto, { size: 15, espacio: 4, ancho: ancho - 26 });      // va sangrado 26 px: el ancho se lo descuenta
                     colocados.push({ obj: titulo, x: 0, y }, { obj: cuerpo, x: 26, y: y + titulo.height + 2 });
                     y += titulo.height + 2 + cuerpo.height + 12;
@@ -367,7 +369,10 @@ export default class Cuaderno {
             this.cerrar();
             this.alError?.(r);
         } else if (r.estado === 'correcta') {
-            this.abrirPregunta();             // sigue la siguiente; la ya resuelta no vuelve a preguntarse
+            // Si el acierto cuenta una línea, la libreta se cierra para mostrarla (la escena la reabre después); si no, sigue la
+            // siguiente. La ya resuelta no vuelve a preguntarse.
+            if (this.alAcertar?.(q.id)) this.cerrar();
+            else this.abrirPregunta();
         } else if (r.estado === 'resuelto') {
             this.cerrar();
             this.alResolver?.();
