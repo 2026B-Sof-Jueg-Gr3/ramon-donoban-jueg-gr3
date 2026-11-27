@@ -8,6 +8,7 @@ import EnConstruccion from './escenas/EnConstruccion.js';
 import Revisor from './presentacion/Revisor.js';
 import RecorridoDeRevision from './presentacion/RecorridoDeRevision.js';
 import AyudasDeVerificacion from './presentacion/AyudasDeVerificacion.js';
+import ControlesTactiles from './presentacion/ControlesTactiles.js';
 
 const config = {
     type: Phaser.AUTO,
@@ -24,4 +25,5 @@ const juego = new Phaser.Game(config);
 const revisor = new Revisor(juego);
 revisor.instalar();                      // F6: revisa la maquetación de la pantalla actual (DISENO_V2.md, "Reglas de interfaz")
 new RecorridoDeRevision(juego, revisor).instalar();      // window.__recorrido(): la tabla de maquetación de todas las pantallas
+new ControlesTactiles(juego).instalar();          // joystick y botones en pantallas táctiles (aprietan las mismas teclas)
 new AyudasDeVerificacion(juego).instalar();      // window.__v: caminar y apuntar para verificar en el navegador (no cambia el juego)

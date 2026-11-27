@@ -29,7 +29,14 @@ Autor: **DonobanR**.
 | Silenciar o volver a encender la música | **M** |
 | Menús y deducción | flechas o WASD para moverse, **E** o Enter para elegir, Esc para volver; también con el ratón |
 
-Se juega con teclado y ratón, en una pantalla apaisada. El control táctil todavía no está hecho.
+Se juega con teclado y ratón, en una pantalla apaisada.
+
+### En el celular
+
+En una pantalla táctil aparecen controles al estilo de un emulador: un **joystick** a la izquierda para caminar (la linterna apunta
+hacia donde caminas), el botón **E** y el de la **libreta** a la derecha, y **Música** y **Pausa** en las esquinas de arriba. Cada
+control aprieta la misma tecla que el teclado (`src/presentacion/ControlesTactiles.js`). Mientras sale un texto solo queda **E**
+(o tocar la pantalla). Se juega con el teléfono en horizontal; en vertical se pide girarlo.
 
 ## Las seis habitaciones
 
@@ -44,6 +51,11 @@ Se juega con teclado y ratón, en una pantalla apaisada. El control táctil toda
 
 Cada habitación resuelta desbloquea la siguiente. El progreso y las pistas encontradas se guardan en el navegador (`localStorage`); lo
 investigado a medias en una habitación no se guarda.
+
+## Página de presentación
+
+La página de presentación del juego (historia, cómo se juega, las seis habitaciones, personajes, galería y controles) está en su
+propio repositorio: https://github.com/DonobanR/LandingPage-SilasVane
 
 ## Ejecutarlo
 

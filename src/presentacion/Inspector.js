@@ -58,7 +58,8 @@ export default class Inspector {
         this.rapidez = Math.hypot(v.x, v.y);
 
         const p = this.escena.input.activePointer;
-        const ratonMovido = Math.hypot(p.x - this.punteroPrevio.x, p.y - this.punteroPrevio.y) > 1.5;
+        // Un toque en la pantalla táctil no apunta la linterna: en el celular apunta siempre hacia donde camina
+        const ratonMovido = !p.wasTouch && Math.hypot(p.x - this.punteroPrevio.x, p.y - this.punteroPrevio.y) > 1.5;
         this.punteroPrevio = { x: p.x, y: p.y };
         this.apuntado.actualizar({
             dt, origen: this.centro, ratonMovido, movimiento: this.entrada,
