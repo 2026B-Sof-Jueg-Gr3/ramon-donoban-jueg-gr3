@@ -1,5 +1,5 @@
 // Comprobaciones comunes a TODAS las habitaciones (se repiten por nivel): reglas y deducción válidas, cada línea de la narrativa usada una vez,
-// el oráculo (exactamente UNA respuesta por pregunta), el mapa (todo alcanzable, nada tapado, todo usable desde cerca, de frente y con luz),
+// el oráculo (cada selección de pruebas contra la tabla aprobada de respuestas), el mapa (todo alcanzable, nada tapado, todo usable desde cerca, de frente y con luz),
 // la ayuda y que las reglas no copian texto. Lo propio de cada nivel está en nivelN.test.mjs.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
@@ -20,6 +20,65 @@ const METODO = { examinar: 'examino', 'mirar-detras': 'miroDetras', recoger: 're
 const ESPERA_DE_LA_AYUDA = { 5: 15 };
 // Lo que solo es alcanzable más tarde (se comprueba en su prueba propia): { nivel: [refs] }
 const MAS_TARDE = { 2: ['cuerda'] };
+
+// LAS RESPUESTAS APROBADAS (DISENO_V2.md, sección 5, «Deducción por hechos»), escritas a mano y sin mirar "necesita" ni "aportan":
+//   minimas:     las selecciones más chicas que demuestran la conclusión (cualquier selección que contenga una, sin pruebas ajenas, vale)
+//   pertinentes: las pruebas que tienen que ver con la pregunta (las demás son ajenas: error aunque haya una mínima)
+// Una selección de pertinentes que no contiene ninguna mínima es INSUFICIENTE: «Voy bien, pero me falta una pieza».
+const RESPUESTAS_APROBADAS = {
+    1: {
+        cortinas: { minimas: [['ventana-rota']], pertinentes: ['ventana-rota'] },
+        embrujado: { minimas: [['cajas-movidas'], ['marcas-de-arrastre']], pertinentes: ['cajas-movidas', 'marcas-de-arrastre', 'n1-pista-huella', 'polvo-removido'] }
+    },
+    2: {
+        mecanismo: {
+            minimas: [['cuerda-al-techo', 'fuelle-escondido'], ['n2-pista-recibo', 'cuerda-al-techo'], ['n2-pista-recibo', 'fuelle-escondido']],
+            pertinentes: ['cuerda-al-techo', 'fuelle-escondido', 'n2-pista-recibo']
+        },
+        responsable: { minimas: [['n2-pista-taza'], ['sarten-con-aceite']], pertinentes: ['n2-pista-taza', 'sarten-con-aceite', 'n2-pista-recibo', 'copas-limpias'] },
+        companero: { minimas: [['platos-para-dos']], pertinentes: ['platos-para-dos', 'copas-limpias'] }
+    },
+    3: {
+        candado: {
+            minimas: ['camino-sin-polvo', 'huellas-recientes', 'n3-pista-llave', 'aceite-para-bisagras'].flatMap(uso => ['n3-pista-carta', 'puerta-tapiada'].map(visitas => [uso, visitas])),
+            pertinentes: ['camino-sin-polvo', 'huellas-recientes', 'n3-pista-llave', 'aceite-para-bisagras', 'n3-pista-carta', 'puerta-tapiada', 'llavero-vacio', 'herramientas-de-cerrajero']
+        }
+    },
+    4: {
+        juguetes: { minimas: [['n4-pista-hilo'], ['oso-con-hilo-cosido', 'trampilla-del-techo']], pertinentes: ['n4-pista-hilo', 'oso-con-hilo-cosido', 'trampilla-del-techo'] }
+    },
+    6: {
+        detras: {
+            // Las CARTAS DE COMPRADORES (la pista) dicen lo mismo que «Siete rechazos»: valen igual
+            minimas: [['siete-rechazos', 'n1-pista-periodico'], ['n6-pista-compradores', 'n1-pista-periodico'], ['n2-pista-recibo', 'pluma-gv', 'n1-pista-periodico'], ['n5-pista-abrigo', 'pluma-gv', 'n1-pista-periodico']],
+            pertinentes: ['siete-rechazos', 'n6-pista-compradores', 'n2-pista-recibo', 'n5-pista-abrigo', 'pluma-gv', 'n1-pista-periodico', 'cuentas-que-no-cuadran']
+        },
+        espantaba: {
+            minimas: [['n4-pista-diario', 'n3-pista-carta'], ['n4-pista-diario', 'siete-rechazos'], ['n4-pista-diario', 'n6-pista-compradores']],
+            pertinentes: ['n4-pista-diario', 'n3-pista-carta', 'siete-rechazos', 'n6-pista-compradores', 'n5-pista-planos', 'reloj-detenido', 'archivador-forzado']
+        }
+    }
+};
+
+// Todas las selecciones de 1 a `max` pruebas distintas
+function subconjuntos(ids, max) {
+    const todas = [];
+    const armar = (desde, actual) => {
+        if (actual.length) todas.push(actual);
+        if (actual.length === max) return;
+        for (let i = desde; i < ids.length; i++) armar(i + 1, [...actual, ids[i]]);
+    };
+    armar(0, []);
+    return todas;
+}
+
+// Lo que tiene que responder la deducción, según la tabla: el orden de las comprobaciones es el de src/motor/Deduccion.js
+function clasificar(aprobada, correcta, conclusion, pruebas, unica) {
+    if (conclusion !== correcta) return { estado: 'error', motivo: 'conclusion' };
+    if (!pruebas.every(p => aprobada.pertinentes.includes(p))) return { estado: 'error', motivo: 'ajena' };
+    if (!aprobada.minimas.some(m => m.every(p => pruebas.includes(p)))) return { estado: 'error', motivo: 'insuficiente' };
+    return { estado: unica ? 'resuelto' : 'correcta' };      // con una sola pregunta, acertarla resuelve el caso
+}
 
 export function datos(n) {
     return { narrativa: leerJson(`assets/narrativa/nivel${n}.json`), reglas: leerJson(`assets/investigaciones/nivel${n}.json`), mapa: cargarMapa(n) };
@@ -53,7 +112,6 @@ for (const n of NIVELES) {
         assert.deepEqual(validarReglas(reglas, narrativa), []);
         if (reglas.deduccion) {
             assert.deepEqual(validarDeduccion(reglas, narrativa), []);
-            for (const q of reglas.deduccion.preguntas) assert.equal(q.validas.length, 1, `${q.id}: una sola respuesta`);
         }
         const contenido = JSON.stringify({ ...reglas, comentario: undefined });
         const lineas = [narrativa.intro, narrativa.cierre, narrativa.error, narrativa.bateria, narrativa.informe, ...narrativa.comentarios, ...narrativa.revelaciones,
@@ -71,26 +129,24 @@ for (const n of NIVELES) {
     });
 
     if (reglas.deduccion) {
-        test(`nivel ${n}: el oráculo: con la conclusión correcta, cada pregunta tiene EXACTAMENTE 1 respuesta que acierta`, () => {
+        test(`nivel ${n}: el oráculo: cada selección posible de pruebas da lo que dice la tabla aprobada (correcta, insuficiente o ajena)`, () => {
             const inv = hacerTodo(nuevaInv(), mapa, reglas);
             // Lo del Registro de otros niveles también cuenta como encontrado (nivel 6)
             const registro = Object.fromEntries(Object.entries(reglas.deduccion.pruebas).filter(([, p]) => p.registro).map(([id]) => [id, { nivel: 0 }]));
             const libreta = new Libreta(reglas.deduccion, narrativa, inv, { nivel: n, registro: () => registro });
             const ids = libreta.idsEncontrados();
-            assert.ok(ids.length >= 2);
-            const subconjuntos = [...ids.map(i => [i]), ...ids.flatMap((a, i) => ids.slice(i + 1).map(b => [a, b]))];
+            const max = reglas.deduccion.maximoDePruebas ?? 2;
+            assert.deepEqual(Object.keys(RESPUESTAS_APROBADAS[n]).sort(), reglas.deduccion.preguntas.map(q => q.id).sort(), 'la tabla tiene todas las preguntas');
             for (const q of reglas.deduccion.preguntas) {
-                const pertinentes = new Set(q.validas.flat());
-                const aciertan = [];
+                const aprobada = RESPUESTAS_APROBADAS[n][q.id];
+                for (const p of aprobada.pertinentes) assert.ok(ids.includes(p), `${q.id}: la prueba "${p}" se puede encontrar`);
                 for (const opcion of narrativa.deduccion.preguntas.find(t => t.id === q.id).opciones) {
-                    for (const pruebas of subconjuntos) {
-                        const { estado } = new Deduccion(reglas.deduccion, libreta).responder(q.id, opcion.id, pruebas);
-                        const debe = opcion.id === q.correcta && q.validas.some(c => c.every(p => pruebas.includes(p))) && pruebas.every(p => pertinentes.has(p));
-                        assert.equal(estado === 'correcta' || estado === 'resuelto', debe, `${q.id} / ${opcion.id} / ${pruebas}`);
-                        if (debe) aciertan.push(pruebas.slice().sort().join(' + '));
+                    for (const pruebas of subconjuntos(ids, max)) {
+                        const r = new Deduccion(reglas.deduccion, libreta).responder(q.id, opcion.id, pruebas);
+                        const esperado = clasificar(aprobada, q.correcta, opcion.id, pruebas, reglas.deduccion.preguntas.length === 1);
+                        assert.deepEqual(r, esperado, `${q.id} / ${opcion.id} / ${pruebas.join(' + ')}`);
                     }
                 }
-                assert.deepEqual(aciertan, [q.validas[0].slice().sort().join(' + ')], `${q.id}: una sola respuesta`);
             }
         });
     }

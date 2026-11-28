@@ -81,7 +81,9 @@ test('cuando ya salió la revelación de la ventana, la ayuda deja de empujar ha
     descubrir(inv, ayuda, i => i.examino('pila-de-cajas'));
     assert.equal(pasar(ayuda, 50).efecto, 'corriente');
     inv.miroDetras('pila-de-cajas', 'ventana');
-    assert.equal(ayuda.actualizar(1 / 60), null, 'ya no hace falta');
+    assert.notEqual(ayuda.actualizar(1 / 60)?.efecto, 'corriente', 'ya no hace falta');
+    inv.recogio('n1-pista-periodico');                 // el recorte (obligatorio) también recogido: ya no queda nada que señalar
+    assert.equal(ayuda.actualizar(1 / 60), null);
     assert.equal(pasar(ayuda, 100), null);
 });
 
@@ -154,12 +156,12 @@ const { crearEscena } = await import('./escenaSimulada.mjs');
 const { default: Narracion } = await import('../src/presentacion/Narracion.js');
 const { LECTURA } = await import('../src/ui/tiemposDeLectura.js');
 
-test('la prioridad configurada es libreta (solo con la deducción disponible), marcas, pila y corriente', () => {
-    assert.deepEqual(reglas.ayuda.refuerzos.map(r => r.efecto), ['libreta', 'marcas', 'pila', 'corriente']);
+test('la prioridad configurada es libreta (solo con la deducción disponible), marcas, pila, corriente y el recorte (obligatorio)', () => {
+    assert.deepEqual(reglas.ayuda.refuerzos.map(r => r.efecto), ['libreta', 'marcas', 'pila', 'corriente', 'recorte']);
     assert.deepEqual(reglas.ayuda.refuerzos[0].mientras, { deduccion: 'disponible' });
 });
 
-test('sin descubrir nada, ayuda primero con las marcas; después, con la pila; al final, con la corriente', () => {
+test('sin descubrir nada, ayuda primero con las marcas; después, con la pila; luego, con la corriente; al final, con el recorte', () => {
     const inv = nuevaInvestigacion();
     const ayuda = nuevaAyuda(inv);
     assert.equal(pasar(ayuda, 46).efecto, 'marcas');
@@ -172,6 +174,8 @@ test('sin descubrir nada, ayuda primero con las marcas; después, con la pila; a
     assert.equal(pasar(ayuda, 44), null);
     assert.equal(pasar(ayuda, 2).efecto, 'corriente', 'con las dos cosas hechas y sin mirar detrás, la corriente');
     descubrir(inv, ayuda, i => i.miroDetras('pila-de-cajas', 'ventana'));
+    assert.equal(pasar(ayuda, 46).efecto, 'recorte', 'falta el recorte, que es obligatorio');
+    descubrir(inv, ayuda, i => i.recogio('n1-pista-periodico'));
     assert.equal(pasar(ayuda, 200), null, 'con todo descubierto ya no ayuda');
 });
 
@@ -212,19 +216,22 @@ test('un descubrimiento cualquiera (una nota, una marca de polvo) reinicia la cu
     assert.equal(pasar(ayuda, 2).efecto, 'marcas', 'sigue faltando lo mismo');
 });
 
-test('no ayuda con las pistas ni con las pilas: son opcionales', () => {
-    const idsOpcionales = reglas.reglas.filter(r => r.id.startsWith('pista:') || r.id === 'bateria').map(r => r.id);
-    assert.equal(idsOpcionales.length, 3);
+test('no ayuda con las pistas opcionales ni con las pilas; sí con el recorte, que es obligatorio', () => {
+    const obligatorias = (reglas.deduccion.obligatorias || []).map(id => `pista:${id}`);
+    assert.deepEqual(obligatorias, ['pista:n1-pista-periodico']);
+    const idsOpcionales = reglas.reglas.filter(r => (r.id.startsWith('pista:') || r.id === 'bateria') && !obligatorias.includes(r.id)).map(r => r.id);
+    assert.equal(idsOpcionales.length, 2);
     for (const r of reglas.ayuda.refuerzos) {
-        assert.ok(!['pista', 'pistas', 'bateria', 'pilas'].includes(r.efecto), `el refuerzo "${r.efecto}" no es de una pista`);
+        assert.ok(!['pista', 'pistas', 'bateria', 'pilas'].includes(r.efecto), `el refuerzo "${r.efecto}" no es de una pista opcional`);
         for (const id of r.mientras?.sinContar || []) assert.ok(!idsOpcionales.includes(id), `"${id}" es opcional`);
     }
-    // Con todo lo necesario descubierto, no ayuda aunque no se haya recogido nada
+    // Con todo lo necesario descubierto (y el recorte), no ayuda aunque no se haya recogido nada más
     const inv = nuevaInvestigacion(), ayuda = nuevaAyuda(inv);
     descubrir(inv, ayuda, i => i.ilumino('n1-marca-arrastre'));
     descubrir(inv, ayuda, i => i.examino('pila-de-cajas'));
     descubrir(inv, ayuda, i => i.miroDetras('pila-de-cajas', 'ventana'));
-    assert.equal(inv.yaSalio('bateria') || inv.yaSalio('pista:n1-pista-huella') || inv.yaSalio('pista:n1-pista-periodico'), false);
+    descubrir(inv, ayuda, i => i.recogio('n1-pista-periodico'));
+    assert.equal(inv.yaSalio('bateria') || inv.yaSalio('pista:n1-pista-huella'), false);
     assert.equal(pasar(ayuda, 600), null);
 });
 

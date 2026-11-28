@@ -1,5 +1,7 @@
 // Lo propio del Pasillo Oscuro (nivel 1): el fenómeno de las cortinas, el polvo que delata la corriente y las pistas
-// visuales de su ayuda (destellos sobre las marcas de arrastre, la solapa de la pila y la corriente reforzada).
+// visuales de su ayuda (destellos sobre las marcas de arrastre, la solapa de la pila, la corriente reforzada y el recorte, que es
+// obligatorio, cuando todavía no se recogió).
+import BrilloDePista from '../BrilloDePista.js';
 import { acercar } from '../../motor/Movimiento.js';
 import Cortinas from '../Cortinas.js';
 import PistasDeAyuda from '../PistasDeAyuda.js';
@@ -28,6 +30,7 @@ export default class Pasillo {
         // Las pistas visuales de la ayuda: destellos sobre las marcas de arrastre y la solapa de la pila
         const arrastre = mapa.revelables.find(r => r.props.ref === 'n1-marca-arrastre');
         this.pistas = new PistasDeAyuda(e, { zona: arrastre, pila, profundidadSobreLaOscuridad: PROFUNDIDAD.oscuridad + 0.5 });
+        this.recorte = new BrilloDePista(e, 'n1-pista-periodico');
     }
 
     aplicarAyuda(efecto) { this.efecto = efecto ?? null; }
@@ -39,6 +42,7 @@ export default class Pasillo {
         this.pistas.actualizar(dt, tiempo, this.efecto, this.cortinas.empuje);
         this.polvo.actualizar(dt, tiempo, luz.luz, luz.poligono, this.refuerzo, this.pistas.atraccion);
         this.polvo.actualizarHilo(dt, luz.luz, luz.poligono, this.pistas.hilo);
+        this.recorte.actualizar(dt, tiempo, this.efecto === 'recorte');
     }
 
     // Examinar las cortinas las agita; examinar la pila de cajas la sacude un poco

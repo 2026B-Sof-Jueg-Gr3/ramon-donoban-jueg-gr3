@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import Investigacion, { validarReglas } from '../src/motor/Investigacion.js';
 import Libreta, { nombreEnLista } from '../src/motor/Libreta.js';
-import Deduccion, { mezclar, validarDeduccion } from '../src/motor/Deduccion.js';
+import Deduccion, { mezclar, validarDeduccion, caminosDe, hechosDe, cubren, coberturaMinima, pruebasNecesarias } from '../src/motor/Deduccion.js';
 import AvisoDeDeduccion, { ESPERA_DEL_AVISO } from '../src/motor/AvisoDeDeduccion.js';
 import Ayuda from '../src/motor/Ayuda.js';
 
@@ -64,14 +64,18 @@ test('la lógica del nivel 1 es la aprobada: qué es correcto y qué pruebas val
         'n1-pista-huella': { sale: 'pista:n1-pista-huella' },
         'n1-pista-periodico': { sale: 'pista:n1-pista-periodico' }
     });
-    // Una pregunta, una sola respuesta, sin excepciones
-    assert.deepEqual(d.preguntas.map(q => [q.id, q.correcta, q.validas]), [
-        ['cortinas', 'corriente', [['ventana-rota']]],
-        ['embrujado', 'a-proposito', [['cajas-movidas']]]
+    // El recorte es obligatorio: es el único que da el nombre de Gerhard Voss (deducción del nivel 6)
+    assert.deepEqual(d.obligatorias, ['n1-pista-periodico']);
+    // Por hechos: las cortinas solo las explica la ventana; el desorden, las cajas movidas o las marcas de arrastre (dicen que hubo
+    // alguien Y que movió las cosas a propósito); la huella y el polvo solo dicen que hubo alguien
+    const AMBOS = ['hubo-alguien', 'lo-movio-a-proposito'];
+    assert.deepEqual(d.preguntas.map(q => [q.id, q.correcta, q.necesita, q.aportan]), [
+        ['cortinas', 'corriente', ['corriente'], { 'ventana-rota': ['corriente'] }],
+        ['embrujado', 'a-proposito', AMBOS, { 'cajas-movidas': AMBOS, 'marcas-de-arrastre': AMBOS, 'n1-pista-huella': ['hubo-alguien'], 'polvo-removido': ['hubo-alguien'] }]
     ]);
-    assert.ok(!d.preguntas.some(q => 'excepcion' in q));
-    // La huella, el polvo, las marcas y el recorte se muestran, pero no prueban nada aquí; las pilas no son prueba
-    for (const ajena of ['n1-pista-huella', 'polvo-removido', 'marcas-de-arrastre', 'n1-pista-periodico']) assert.ok(!d.preguntas.some(q => q.validas.flat().includes(ajena)), ajena);
+    assert.ok(!d.preguntas.some(q => 'validas' in q || 'excepcion' in q));
+    // El recorte se muestra, pero no prueba nada aquí; las pilas no son prueba
+    assert.ok(!d.preguntas.some(q => 'n1-pista-periodico' in q.aportan));
     assert.ok(!('bateria' in d.pruebas) && !Object.values(d.pruebas).some(p => p.sale === 'bateria'));
 });
 
@@ -84,9 +88,13 @@ test('la validación detecta datos rotos', () => {
     assert.ok(roto(d => { d.pruebas['ventana-rota'].sale = 'no-existe'; }).length);
     assert.ok(roto(() => { }, n => { delete n.deduccion.pruebas['ventana-rota']; }).length, 'prueba sin nombre');
     assert.ok(roto(d => { d.preguntas[0].correcta = 'otra'; }).length, 'correcta inexistente');
-    assert.ok(roto(d => { d.preguntas[1].validas = [['cajas-movidas', 'polvo-removido', 'n1-pista-huella']]; }).length, 'combinación mayor que el máximo');
-    assert.ok(roto(d => { d.preguntas[1].validas = [['no-existe']]; }).length);
-    assert.ok(roto(d => { d.preguntas[0].validas = []; }).length);
+    assert.ok(roto(d => { d.preguntas[1].necesita = ['a', 'b', 'c']; d.preguntas[1].aportan = { 'cajas-movidas': ['a'], 'polvo-removido': ['b'], 'n1-pista-huella': ['c'] }; }).length, 'pide más pruebas que el máximo');
+    assert.ok(roto(d => { d.preguntas[1].aportan['no-existe'] = ['hubo-alguien']; }).length, 'prueba inexistente');
+    assert.ok(roto(d => { d.preguntas[0].aportan = {}; }).length, 'sin pruebas que aporten');
+    assert.ok(roto(d => { d.preguntas[0].necesita = []; }).length, 'sin hechos');
+    assert.ok(roto(d => { d.preguntas[0].necesita = ['algo-que-nadie-aporta']; }).length, 'un hecho que ninguna prueba aporta');
+    assert.ok(roto(d => { d.preguntas[0].aportan['ventana-rota'] = []; }).length, 'una prueba que no aporta nada');
+    assert.ok(roto(d => { d.preguntas[0].validas = [['ventana-rota']]; }).length, 'el formato viejo ya no vale');
     assert.ok(roto(() => { }, n => { n.deduccion.preguntas[0].opciones.pop(); }).length, 'opciones != 3');
     assert.ok(roto(() => { }, n => { n.deduccion.preguntas[1].texto = ' '; }).length);
     assert.ok(roto(d => { d.pilas = 'x'; }).length);
@@ -98,7 +106,7 @@ test('la validación detecta datos rotos', () => {
 test('la libreta empieza vacía y solo muestra lo encontrado, nunca lo que falta', () => {
     const { libreta } = partida();
     assert.deepEqual(libreta.hallazgos(), []);
-    assert.deepEqual(libreta.resumen(), { extras: 0, totalDeExtras: 4, pistas: 0, totalDePistas: 2, pilas: false });
+    assert.deepEqual(libreta.resumen(), { extras: 0, totalDeExtras: 2, pistas: 0, totalDePistas: 2, pilas: false });
     // Nada de lo que no se encontró aparece en ningún dato que entregue
     assert.equal(JSON.stringify(libreta.hallazgos()), '[]');
 });
@@ -128,10 +136,11 @@ test('las pilas no son una prueba de la libreta: solo cuentan en el informe', ()
 });
 
 test('el resumen del informe cuenta los hallazgos extra (lo que no hace falta para deducir) y las pilas', () => {
-    // Extras del pasillo: las marcas de arrastre y de polvo, la huella y el recorte (4). La ventana y las cajas son la respuesta.
-    assert.deepEqual(partida('huella').libreta.resumen(), { extras: 1, totalDeExtras: 4, pistas: 1, totalDePistas: 2, pilas: false });
-    assert.deepEqual(partida('huella', 'periodico', 'pilas', 'polvo', 'arrastre').libreta.resumen(), { extras: 4, totalDeExtras: 4, pistas: 2, totalDePistas: 2, pilas: true });
-    assert.equal(partida('ventana', 'cajas', 'arrastre').libreta.resumen().extras, 1, 'solo cuenta la marca de arrastre: la ventana y las cajas no son extra');
+    // Extras del pasillo: el polvo y la huella (2): orientan, pero ninguna respuesta mínima los necesita. La ventana, las cajas y las
+    // marcas de arrastre son respuesta; el recorte es obligatorio.
+    assert.deepEqual(partida('huella').libreta.resumen(), { extras: 1, totalDeExtras: 2, pistas: 1, totalDePistas: 2, pilas: false });
+    assert.deepEqual(partida('huella', 'periodico', 'pilas', 'polvo', 'arrastre').libreta.resumen(), { extras: 2, totalDeExtras: 2, pistas: 2, totalDePistas: 2, pilas: true });
+    assert.equal(partida('ventana', 'cajas', 'arrastre', 'periodico').libreta.resumen().extras, 0, 'la ventana, las cajas, las marcas y el recorte no son extra');
 });
 
 test('la libreta no depende del orden en que se encontraron las cosas (las 5 040 órdenes)', () => {
@@ -151,9 +160,12 @@ test('hace falta una prueba de CADA pregunta', () => {
     for (const s of ['polvo', 'arrastre', 'huella']) assert.equal(partida(s).deduccion.disponible(), false, `solo ${s}: falta la ventana`);
 });
 
-test('disponible con la ventana y las cajas movidas (que piden las marcas de arrastre y examinar las cajas)', () => {
-    assert.equal(partida('ventana', 'arrastre', 'cajas').deduccion.disponible(), true);
-    for (const otra of ['polvo', 'huella', 'periodico']) assert.equal(partida('ventana', otra).deduccion.disponible(), false, `la ventana y ${otra} ya no bastan`);
+test('disponible con el recorte, la ventana y las marcas de arrastre (o las cajas movidas, que las piden)', () => {
+    assert.equal(partida('periodico', 'ventana', 'arrastre').deduccion.disponible(), true);
+    assert.equal(partida('periodico', 'ventana', 'arrastre', 'cajas').deduccion.disponible(), true);
+    assert.equal(partida('ventana', 'arrastre', 'cajas').deduccion.disponible(), false, 'sin el recorte (obligatorio) no hay deducción');
+    for (const otra of ['polvo', 'huella']) assert.equal(partida('periodico', 'ventana', otra).deduccion.disponible(), false, `la ventana y ${otra}: falta una pieza`);
+    assert.equal(partida('periodico', 'ventana', 'polvo', 'huella').deduccion.disponible(), false, 'la huella y el polvo juntos tampoco: solo dicen que hubo alguien');
 });
 
 test('lo que no prueba nada no habilita la deducción: recorte, pilas, cajas sin marcas', () => {
@@ -229,11 +241,17 @@ test('un error se repite sin castigo: la misma pregunta sigue pendiente y puede 
     assert.equal(deduccion.preguntaActual().id, 'embrujado');
 });
 
-test('la pregunta 1 solo vale con Ventana rota SOLA; la 2, solo con Cajas movidas SOLAS; todo lo demás es error', () => {
+test('la pregunta 1 solo vale con Ventana rota; la 2, con Cajas movidas o Marcas de arrastre (la huella y el polvo solos no bastan)', () => {
     assert.equal(TODO().deduccion.responder('cortinas', 'corriente', ['ventana-rota']).estado, 'correcta');
-    assert.equal(TODO().deduccion.responder('embrujado', 'a-proposito', ['cajas-movidas']).estado, 'correcta');
-    const otras = ['marcas-de-arrastre', 'polvo-removido', 'n1-pista-huella', 'n1-pista-periodico', 'ventana-rota'];
-    for (const p of otras) {
+    for (const p of ['cajas-movidas', 'marcas-de-arrastre']) {
+        assert.deepEqual(TODO().deduccion.responder('embrujado', 'a-proposito', [p]), { estado: 'correcta' }, p);
+        for (const apoyo of ['n1-pista-huella', 'polvo-removido']) assert.deepEqual(TODO().deduccion.responder('embrujado', 'a-proposito', [p, apoyo]), { estado: 'correcta' }, `${p} + ${apoyo}`);
+    }
+    assert.deepEqual(TODO().deduccion.responder('embrujado', 'a-proposito', ['marcas-de-arrastre', 'cajas-movidas']), { estado: 'correcta' });
+    for (const sel of [['n1-pista-huella'], ['polvo-removido'], ['n1-pista-huella', 'polvo-removido']]) {
+        assert.deepEqual(TODO().deduccion.responder('embrujado', 'a-proposito', sel), { estado: 'error', motivo: 'insuficiente' }, sel.join(' + '));
+    }
+    for (const p of ['n1-pista-periodico', 'ventana-rota']) {
         assert.deepEqual(TODO().deduccion.responder('embrujado', 'a-proposito', [p]), { estado: 'error', motivo: 'ajena' }, p);
         assert.deepEqual(TODO().deduccion.responder('embrujado', 'a-proposito', ['cajas-movidas', p]), { estado: 'error', motivo: 'ajena' }, `cajas + ${p}`);
     }
@@ -261,28 +279,28 @@ test('repetir la misma prueba no la cuenta dos veces', () => {
 });
 
 test('no se puede ganar marcando todo: solo aciertan las respuestas que de verdad respaldan (todas las respuestas posibles)', () => {
-    // Todas las respuestas posibles (3 conclusiones × 1 o 2 pruebas) con todo encontrado; se cuentan las que aciertan
+    // Todas las respuestas posibles (3 conclusiones × 1 o 2 pruebas) con todo encontrado, contra la tabla aprobada (escrita a mano)
+    const APROBADA = {
+        cortinas: { minimas: [['ventana-rota']], pertinentes: ['ventana-rota'] },
+        embrujado: { minimas: [['cajas-movidas'], ['marcas-de-arrastre']], pertinentes: ['cajas-movidas', 'marcas-de-arrastre', 'n1-pista-huella', 'polvo-removido'] }
+    };
     const { libreta } = TODO();
     const ids = libreta.idsEncontrados();
     const subconjuntos = [...ids.map(i => [i]), ...ids.flatMap((a, i) => ids.slice(i + 1).map(b => [a, b]))];
     const resultado = { cortinas: 0, embrujado: 0 };
     for (const q of reglas.deduccion.preguntas) {
-        const pertinentes = new Set(q.validas.flat());
+        const { minimas, pertinentes } = APROBADA[q.id];
         for (const opcion of narrativa.deduccion.preguntas.find(t => t.id === q.id).opciones) {
             for (const pruebas of subconjuntos) {
-                const { deduccion } = TODO();
-                const { estado } = deduccion.responder(q.id, opcion.id, pruebas);
-                // Oráculo independiente de la implementación: conclusión correcta, una combinación válida completa y
-                // ninguna prueba que no tenga nada que ver con la pregunta
-                const debeAcertar = opcion.id === q.correcta
-                    && q.validas.some(c => c.every(p => pruebas.includes(p)))
-                    && pruebas.every(p => pertinentes.has(p));
+                const { estado } = TODO().deduccion.responder(q.id, opcion.id, pruebas);
+                const debeAcertar = opcion.id === q.correcta && minimas.some(c => c.every(p => pruebas.includes(p))) && pruebas.every(p => pertinentes.includes(p));
                 assert.equal(estado !== 'error' && estado !== 'invalida', debeAcertar, `${q.id} / ${opcion.id} / ${pruebas}`);
                 if (debeAcertar) resultado[q.id]++;
             }
         }
     }
-    assert.deepEqual(resultado, { cortinas: 1, embrujado: 1 });      // Ventana sola; Cajas movidas sola
+    // Ventana sola · Cajas o Marcas solas, las dos juntas, o cada una con la huella o el polvo
+    assert.deepEqual(resultado, { cortinas: 1, embrujado: 7 });
     assert.ok(Math.max(...subconjuntos.map(s => s.length)) <= 2);
 });
 
@@ -326,11 +344,11 @@ test('el resultado no depende del orden en que se encontraron las cosas', () => 
 });
 
 test('los recorridos de las verificaciones: rápido, completo y con errores', () => {
-    // Rápido: solo el polvo y la ventana
-    const rapido = partida('arrastre', 'cajas', 'ventana').deduccion;
+    // Rápido: las marcas de arrastre, la ventana y el recorte (obligatorio)
+    const rapido = partida('arrastre', 'ventana', 'periodico').deduccion;
     assert.equal(rapido.disponible(), true);
     assert.equal(rapido.responder('cortinas', 'corriente', ['ventana-rota']).estado, 'correcta');
-    assert.equal(rapido.responder('embrujado', 'a-proposito', ['cajas-movidas']).estado, 'resuelto');
+    assert.equal(rapido.responder('embrujado', 'a-proposito', ['marcas-de-arrastre']).estado, 'resuelto');
     // Completo: todo encontrado
     const completo = TODO().deduccion;
     assert.equal(completo.responder('cortinas', 'corriente', ['ventana-rota']).estado, 'correcta');
@@ -449,7 +467,7 @@ test('el ícono de la libreta aparece desde que se avisó y desaparece al resolv
 });
 
 test('el aviso con las pruebas reales: sale tras la revelación de la ventana y la espera', () => {
-    const { inv, deduccion } = partida('arrastre', 'cajas');
+    const { inv, deduccion } = partida('arrastre', 'cajas', 'periodico');
     const aviso = new AvisoDeDeduccion();
     assert.equal(correr(aviso, 5, { disponible: deduccion.disponible(), bloqueado: false }), 0);
     SUCESOS.ventana(inv);                                         // la revelación 1: ahora sí hay con qué
@@ -468,7 +486,7 @@ const pasar = (ayuda, segundos, opciones, dt = 1 / 60) => {
 };
 
 test('la ayuda de la libreta es la primera en la prioridad y solo vale con la deducción disponible', () => {
-    assert.deepEqual(reglas.ayuda.refuerzos.map(r => r.efecto), ['libreta', 'marcas', 'pila', 'corriente']);
+    assert.deepEqual(reglas.ayuda.refuerzos.map(r => r.efecto), ['libreta', 'marcas', 'pila', 'corriente', 'recorte']);
     const inv = new Investigacion(reglas, narrativa);
     const estado = { valor: false };
     const ayuda = ayudaCon(inv, estado);
@@ -513,65 +531,116 @@ test('"deduccion" en la ayuda solo puede ser "disponible"', () => {
     assert.ok(validarReglas(r, narrativa).some(e => e.includes('deduccion')));
 });
 
-// ── El caso general: combinaciones de dos pruebas (las habitaciones siguientes) ──────────────────────────────
+// ── El caso general: deducción por hechos (las habitaciones siguientes) ──────────────────────────────
 
-// Una habitación inventada: "p" pide la cuerda Y el fuelle juntos; "q" vale con el hilo solo o con la cuerda y la trampilla
+// Una habitación inventada:
+//   "p" necesita los golpes Y las velas: la cuerda da los golpes y el fuelle las velas (juntas valen; solas, falta una pieza);
+//   "q" necesita los hilos y que vengan de arriba: el hilo dice las dos cosas (vale solo), la cuerda y la trampilla una cada una;
+//   "r" tiene dos caminos: [a y b] o [c]; "w" solo aporta un hecho parcial (pertinente, pero no completa nada).
 const GENERAL = {
     maximoDePruebas: 2,
-    pruebas: { cuerda: { sale: 'a' }, fuelle: { sale: 'b' }, hilo: { sale: 'c' }, trampilla: { sale: 'd' }, ajena: { sale: 'e' } },
+    pruebas: { cuerda: { sale: 'a' }, fuelle: { sale: 'b' }, hilo: { sale: 'c' }, trampilla: { sale: 'd' }, ajena: { sale: 'e' }, x: { sale: 'f' }, y: { sale: 'g' }, z: { sale: 'h' }, w: { sale: 'i' } },
     preguntas: [
-        { id: 'p', correcta: 'si', validas: [['cuerda', 'fuelle']] },
-        { id: 'q', correcta: 'si', validas: [['hilo'], ['cuerda', 'trampilla']] }
+        { id: 'p', correcta: 'si', necesita: ['golpes', 'velas'], aportan: { cuerda: ['golpes'], fuelle: ['velas'] } },
+        { id: 'q', correcta: 'si', necesita: ['hilos', 'desde-arriba'], aportan: { hilo: ['hilos', 'desde-arriba'], cuerda: ['hilos'], trampilla: ['desde-arriba'] } },
+        { id: 'r', correcta: 'si', necesita: [['a', 'b'], ['c']], aportan: { x: ['a'], y: ['b'], z: ['c'], w: ['parcial'] } }
     ]
 };
-const generalCon = (encontradas = Object.keys(GENERAL.pruebas)) => new Deduccion(GENERAL, { idsEncontrados: () => encontradas }, { azar: () => 0.5 });
+const generalCon = (encontradas = Object.keys(GENERAL.pruebas), definicion = GENERAL) => new Deduccion(definicion, { idsEncontrados: () => encontradas }, { azar: () => 0.5 });
 
-test('general: la combinación exacta → correcta; una de las dos sola → error', () => {
+test('general: los hechos de cada prueba, sueltos y juntos', () => {
+    const [p, q, r] = GENERAL.preguntas;
+    assert.deepEqual(caminosDe(p), [['golpes', 'velas']], 'una lista de hechos es un solo camino');
+    assert.deepEqual(caminosDe(r), [['a', 'b'], ['c']]);
+    assert.deepEqual(caminosDe({}), []);
+    assert.deepEqual([...hechosDe(q, ['hilo'])].sort(), ['desde-arriba', 'hilos']);
+    assert.deepEqual([...hechosDe(q, ['cuerda', 'trampilla'])].sort(), ['desde-arriba', 'hilos']);
+    assert.deepEqual([...hechosDe(q, ['ajena'])], [], 'una prueba ajena no aporta nada');
+    assert.equal(cubren(p, ['cuerda']), false);
+    assert.equal(cubren(p, ['cuerda', 'fuelle']), true);
+    assert.equal(cubren(r, ['z']), true);
+    assert.equal(cubren(r, ['x', 'w']), false);
+});
+
+test('general: dos pruebas que se completan → correcta; una sola → insuficiente', () => {
     assert.deepEqual(generalCon().responder('p', 'si', ['cuerda', 'fuelle']), { estado: 'correcta' });
     assert.deepEqual(generalCon().responder('p', 'si', ['fuelle', 'cuerda']), { estado: 'correcta' }, 'el orden da igual');
-    assert.deepEqual(generalCon().responder('p', 'si', ['cuerda']), { estado: 'error', motivo: 'pruebas' }, 'solo la cuerda no basta');
-    assert.deepEqual(generalCon().responder('p', 'si', ['fuelle']), { estado: 'error', motivo: 'pruebas' }, 'solo el fuelle no basta');
+    assert.deepEqual(generalCon().responder('p', 'si', ['cuerda']), { estado: 'error', motivo: 'insuficiente' }, 'solo la cuerda no basta');
+    assert.deepEqual(generalCon().responder('p', 'si', ['fuelle']), { estado: 'error', motivo: 'insuficiente' }, 'solo el fuelle no basta');
 });
 
-test('general: la combinación más una ajena no se puede (máximo 2); una ajena más una pertinente → error', () => {
+test('general: una sola prueba que dice todo vale sola, y otra pertinente a su lado no estorba', () => {
+    assert.deepEqual(generalCon().responder('q', 'si', ['hilo']), { estado: 'correcta' });
+    assert.deepEqual(generalCon().responder('q', 'si', ['hilo', 'cuerda']), { estado: 'correcta' });
+    assert.deepEqual(generalCon().responder('q', 'si', ['cuerda', 'trampilla']), { estado: 'correcta' }, 'otra ruta a la misma conclusión');
+    assert.deepEqual(generalCon().responder('q', 'si', ['cuerda']), { estado: 'error', motivo: 'insuficiente' });
+    assert.deepEqual(generalCon().responder('q', 'si', ['trampilla']), { estado: 'error', motivo: 'insuficiente' });
+});
+
+test('general: una prueba ajena invalida la selección, aunque las demás basten; con más del máximo no se valora', () => {
     assert.deepEqual(generalCon().responder('p', 'si', ['cuerda', 'fuelle', 'ajena']), { estado: 'invalida', motivo: 'demasiadas' });
     assert.deepEqual(generalCon().responder('p', 'si', ['ajena', 'cuerda']), { estado: 'error', motivo: 'ajena' });
-    assert.deepEqual(generalCon().responder('p', 'si', ['fuelle', 'ajena']), { estado: 'error', motivo: 'ajena' });
     assert.deepEqual(generalCon().responder('p', 'si', ['ajena']), { estado: 'error', motivo: 'ajena' });
     assert.deepEqual(generalCon().responder('p', 'si', ['hilo', 'cuerda']), { estado: 'error', motivo: 'ajena' }, 'el hilo es de otra pregunta: para esta es ajeno');
-});
-
-test('general: con varias combinaciones, cada una vale por sí sola y una prueba de otra combinación no estorba', () => {
-    assert.deepEqual(generalCon().responder('q', 'si', ['hilo']), { estado: 'correcta' });
-    assert.deepEqual(generalCon().responder('q', 'si', ['cuerda', 'trampilla']), { estado: 'correcta' });
-    assert.deepEqual(generalCon().responder('q', 'si', ['cuerda']), { estado: 'error', motivo: 'pruebas' }, 'media combinación no basta');
-    assert.deepEqual(generalCon().responder('q', 'si', ['trampilla']), { estado: 'error', motivo: 'pruebas' });
     assert.deepEqual(generalCon().responder('q', 'si', ['hilo', 'ajena']), { estado: 'error', motivo: 'ajena' });
     assert.deepEqual(generalCon().responder('q', 'si', ['hilo', 'fuelle']), { estado: 'error', motivo: 'ajena' }, 'el fuelle no tiene nada que ver con "q"');
-    assert.deepEqual(generalCon().responder('q', 'no', ['hilo']), { estado: 'error', motivo: 'conclusion' });
+    assert.deepEqual(generalCon().responder('q', 'no', ['hilo']), { estado: 'error', motivo: 'conclusion' }, 'la conclusión equivocada se dice primero');
 });
 
-test('general: se prueban todas las respuestas posibles contra un oráculo independiente', () => {
+test('general: varios caminos, y un hecho parcial orienta pero no completa', () => {
+    assert.deepEqual(generalCon().responder('r', 'si', ['x', 'y']), { estado: 'correcta' }, 'primer camino');
+    assert.deepEqual(generalCon().responder('r', 'si', ['z']), { estado: 'correcta' }, 'segundo camino');
+    assert.deepEqual(generalCon().responder('r', 'si', ['x', 'z']), { estado: 'correcta' }, 'medio camino más el otro entero');
+    assert.deepEqual(generalCon().responder('r', 'si', ['z', 'w']), { estado: 'correcta' }, 'la parcial al lado no estorba');
+    assert.deepEqual(generalCon().responder('r', 'si', ['x']), { estado: 'error', motivo: 'insuficiente' }, 'medio camino');
+    assert.deepEqual(generalCon().responder('r', 'si', ['w']), { estado: 'error', motivo: 'insuficiente' }, 'solo lo parcial');
+    assert.deepEqual(generalCon().responder('r', 'si', ['x', 'w']), { estado: 'error', motivo: 'insuficiente' });
+});
+
+test('general: se prueban todas las respuestas posibles contra una tabla escrita a mano', () => {
+    const TABLA = {
+        p: { minimas: [['cuerda', 'fuelle']], pertinentes: ['cuerda', 'fuelle'] },
+        q: { minimas: [['hilo'], ['cuerda', 'trampilla']], pertinentes: ['hilo', 'cuerda', 'trampilla'] },
+        r: { minimas: [['x', 'y'], ['z']], pertinentes: ['x', 'y', 'z', 'w'] }
+    };
     const ids = Object.keys(GENERAL.pruebas);
     const subconjuntos = [...ids.map(i => [i]), ...ids.flatMap((a, i) => ids.slice(i + 1).map(b => [a, b]))];
     for (const q of GENERAL.preguntas) {
-        const pertinentes = new Set(q.validas.flat());
+        const { minimas, pertinentes } = TABLA[q.id];
         for (const conclusion of ['si', 'no']) {
             for (const pruebas of subconjuntos) {
-                const { estado } = generalCon().responder(q.id, conclusion, pruebas);
-                const debeAcertar = conclusion === q.correcta && q.validas.some(c => c.every(p => pruebas.includes(p))) && pruebas.every(p => pertinentes.has(p));
-                assert.equal(estado === 'correcta' || estado === 'resuelto', debeAcertar, `${q.id} / ${conclusion} / ${pruebas}`);
+                const esperado = conclusion !== q.correcta ? { estado: 'error', motivo: 'conclusion' }
+                    : !pruebas.every(p => pertinentes.includes(p)) ? { estado: 'error', motivo: 'ajena' }
+                        : !minimas.some(m => m.every(p => pruebas.includes(p))) ? { estado: 'error', motivo: 'insuficiente' }
+                            : { estado: 'correcta' };
+                assert.deepEqual(generalCon().responder(q.id, conclusion, pruebas), esperado, `${q.id} / ${conclusion} / ${pruebas}`);
             }
         }
     }
 });
 
-test('general: la disponibilidad sigue pidiendo una combinación completa entre lo encontrado', () => {
-    assert.equal(generalCon(['cuerda']).disponible(), false);
-    assert.equal(generalCon(['cuerda', 'fuelle']).disponible(), false, 'p sí, q no');
-    assert.equal(generalCon(['cuerda', 'fuelle', 'hilo']).disponible(), true);
-    assert.equal(generalCon(['cuerda', 'fuelle', 'trampilla']).disponible(), true);
-    assert.equal(generalCon(['hilo', 'trampilla', 'ajena']).disponible(), false);
+test('general: la disponibilidad pide poder cubrir cada pregunta con lo encontrado, sin pasar del máximo', () => {
+    const sinR = { ...GENERAL, preguntas: GENERAL.preguntas.slice(0, 2) };
+    assert.equal(generalCon(['cuerda'], sinR).disponible(), false);
+    assert.equal(generalCon(['cuerda', 'fuelle'], sinR).disponible(), false, 'p sí, q no');
+    assert.equal(generalCon(['cuerda', 'fuelle', 'hilo'], sinR).disponible(), true);
+    assert.equal(generalCon(['cuerda', 'fuelle', 'trampilla'], sinR).disponible(), true);
+    assert.equal(generalCon(['hilo', 'trampilla', 'ajena'], sinR).disponible(), false);
+    // Una pregunta que pide tres pruebas: con máximo 2 nunca se ofrece; con máximo 3, sí
+    const tres = { pruebas: { a: { sale: 'a' }, b: { sale: 'b' }, c: { sale: 'c' } }, preguntas: [{ id: 't', correcta: 'si', necesita: ['1', '2', '3'], aportan: { a: ['1'], b: ['2'], c: ['3'] } }] };
+    assert.equal(generalCon(['a', 'b', 'c'], { ...tres, maximoDePruebas: 2 }).disponible(), false);
+    assert.equal(generalCon(['a', 'b', 'c'], { ...tres, maximoDePruebas: 3 }).disponible(), true);
+    assert.deepEqual(generalCon(['a', 'b', 'c'], { ...tres, maximoDePruebas: 3 }).responder('t', 'si', ['a', 'b', 'c']), { estado: 'resuelto' });
+});
+
+test('general: la selección mínima y las pruebas que forman parte de alguna respuesta mínima', () => {
+    const [p, q, r] = GENERAL.preguntas;
+    assert.deepEqual(coberturaMinima(q, Object.keys(GENERAL.pruebas), 2), ['hilo'], 'la más chica');
+    assert.deepEqual(coberturaMinima(q, ['cuerda', 'trampilla', 'ajena'], 2), ['cuerda', 'trampilla']);
+    assert.equal(coberturaMinima(p, ['cuerda'], 2), null);
+    assert.equal(coberturaMinima(p, ['cuerda', 'fuelle'], 1), null, 'respeta el máximo');
+    assert.deepEqual([...pruebasNecesarias(q, 2)].sort(), ['cuerda', 'hilo', 'trampilla']);
+    assert.deepEqual([...pruebasNecesarias(r, 2)].sort(), ['x', 'y', 'z'], 'la parcial no hace falta nunca');
 });
 
 // ── No perder lo resuelto ───────────────────────────────────────────────────
@@ -639,40 +708,22 @@ test('un error no deshace lo resuelto, y una pregunta con error en medio no camb
     assert.equal(deduccion.completa, false);
 });
 
-// ── Una pregunta, una sola respuesta (DISENO_V2.md, sección 5) ──────────────
+// ── Deducción por hechos en todos los niveles (DISENO_V2.md, sección 5) ──────────────
 
 import { readdirSync } from 'node:fs';
 
 const NIVELES_CON_REGLAS = readdirSync(new URL('../assets/investigaciones/', import.meta.url))
     .filter(f => /^nivel\d+\.json$/.test(f)).map(f => Number(f.match(/\d+/)[0])).sort((a, b) => a - b);
 
-test('ninguna pregunta de ningún nivel tiene más de una combinación válida (sin excepciones); si alguna la tiene, la prueba dice cuál', () => {
+test('ninguna pregunta de ningún nivel usa el formato viejo de combinaciones: todas se definen por hechos', () => {
     assert.ok(NIVELES_CON_REGLAS.length >= 2);
     const incumplen = [];
     for (const n of NIVELES_CON_REGLAS) {
         const r = JSON.parse(readFileSync(new URL(`../assets/investigaciones/nivel${n}.json`, import.meta.url), 'utf8'));
         for (const q of r.deduccion?.preguntas || []) {
-            if (q.validas.length !== 1) incumplen.push(`nivel ${n}, pregunta "${q.id}": ${q.validas.length} combinaciones (${q.validas.map(c => c.join(' + ')).join(' | ')})`);
-            if ('excepcion' in q) incumplen.push(`nivel ${n}, pregunta "${q.id}": trae una excepción`);
+            if ('validas' in q || 'excepcion' in q) incumplen.push(`nivel ${n}, pregunta "${q.id}": formato viejo`);
+            if (!caminosDe(q).length || !Object.keys(q.aportan || {}).length) incumplen.push(`nivel ${n}, pregunta "${q.id}": sin hechos`);
         }
     }
-    assert.deepEqual(incumplen, [], 'preguntas con más de una respuesta:\n  ' + incumplen.join('\n  '));
-});
-
-test('la validación dice qué pregunta tiene más de una respuesta; una "excepcion" ya no la salva', () => {
-    const r = copia(reglas);
-    r.deduccion.preguntas[0].validas = [['ventana-rota'], ['cajas-movidas']];
-    const problemas = validarDeduccion(r, narrativa);
-    assert.equal(problemas.length, 1);
-    assert.match(problemas[0], /pregunta "cortinas"/);
-    assert.match(problemas[0], /2 combinaciones válidas/);
-    assert.match(problemas[0], /ventana-rota \| cajas-movidas/);
-    r.deduccion.preguntas[0].excepcion = 'una excepción con su porqué';
-    assert.equal(validarDeduccion(r, narrativa).length, 1, 'sin excepciones');
-});
-
-test('el pasillo: la pregunta 2 tiene una sola respuesta, Cajas movidas', () => {
-    const [p1, p2] = reglas.deduccion.preguntas;
-    assert.deepEqual(p1.validas, [['ventana-rota']]);
-    assert.deepEqual(p2.validas, [['cajas-movidas']]);
+    assert.deepEqual(incumplen, [], incumplen.join('\n  '));
 });

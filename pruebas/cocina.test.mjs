@@ -3,7 +3,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import Investigacion, { validarReglas } from '../src/motor/Investigacion.js';
 import Libreta from '../src/motor/Libreta.js';
-import Deduccion, { validarDeduccion } from '../src/motor/Deduccion.js';
+import Deduccion, { validarDeduccion, pruebasNecesarias } from '../src/motor/Deduccion.js';
 import Ayuda from '../src/motor/Ayuda.js';
 import { golpeCerca, GOLPE } from '../src/motor/Fenomeno.js';
 import { desplazarMueble, caminableDeSuelo } from '../src/motor/Mapa.js';
@@ -255,95 +255,63 @@ test('la libreta muestra lo encontrado con sus nombres cortos y los títulos de 
     assert.deepEqual(libreta.hallazgos().map(h => h.nombre), [
         'Cuerda al techo', 'Fuelle escondido', 'Alacena con ruedas', 'Platos para dos', 'Copas limpias', 'Sartén con aceite', 'RECIBO DE FERRETERÍA', 'TAZA DE CAFÉ'
     ]);
-    assert.deepEqual(libreta.resumen(), { extras: 2, totalDeExtras: 2, pistas: 2, totalDePistas: 2, pilas: true });
+    // La única sobra son las copas: orientan, pero ninguna respuesta mínima las necesita (la sartén ya responde la pregunta 2)
+    assert.deepEqual(libreta.resumen(), { extras: 1, totalDeExtras: 1, pistas: 2, totalDePistas: 2, pilas: true });
 });
 
-test('el oráculo: con la conclusión correcta acierta EXACTAMENTE 1 respuesta en cada pregunta: cuerda + fuelle, platos, recibo + taza', () => {
-    const ids = TODO().libreta.idsEncontrados();
-    assert.equal(ids.length, 8);
-    const subconjuntos = [...ids.map(i => [i]), ...ids.flatMap((a, i) => ids.slice(i + 1).map(b => [a, b]))];
-    const aciertan = { mecanismo: [], companero: [], responsable: [] };
-    for (const q of reglas.deduccion.preguntas) {
-        const pertinentes = new Set(q.validas.flat());
-        for (const opcion of narrativa.deduccion.preguntas.find(t => t.id === q.id).opciones) {
-            for (const pruebas of subconjuntos) {
-                const { estado } = TODO().deduccion.responder(q.id, opcion.id, pruebas);
-                // Oráculo independiente: conclusión correcta, una combinación completa y ninguna prueba ajena
-                const debeAcertar = opcion.id === q.correcta && q.validas.some(c => c.every(p => pruebas.includes(p))) && pruebas.every(p => pertinentes.has(p));
-                assert.equal(estado === 'correcta' || estado === 'resuelto', debeAcertar, `${q.id} / ${opcion.id} / ${pruebas}`);
-                if (debeAcertar) aciertan[q.id].push([...pruebas].sort().join(' + '));
-            }
-        }
+// La tabla completa de cada selección posible está en pruebas/niveles.test.mjs (el oráculo de todas las habitaciones). Aquí, los casos
+// que se discutieron al aprobarla (DISENO_V2.md, sección 5, «Deducción por hechos»).
+const OK = { estado: 'correcta' }, FALTA = { estado: 'error', motivo: 'insuficiente' }, AJENA = { estado: 'error', motivo: 'ajena' };
+const responder = (q, c, pruebas) => TODO().deduccion.responder(q, c, pruebas);
+
+test('pregunta 1: dos piezas que se completan: cuerda + fuelle, o el recibo (que nombra las tres piezas) con una de ellas; solas, falta una', () => {
+    const q = p => responder('mecanismo', 'poleas-cuerda-fuelle', p);
+    assert.deepEqual(q(['cuerda-al-techo', 'fuelle-escondido']), OK);
+    assert.deepEqual(q(['n2-pista-recibo', 'cuerda-al-techo']), OK, 'recibo + cuerda');
+    assert.deepEqual(q(['n2-pista-recibo', 'fuelle-escondido']), OK, 'recibo + fuelle');
+    assert.deepEqual(q(['cuerda-al-techo']), FALTA, 'la cuerda sola no explica las velas');
+    assert.deepEqual(q(['fuelle-escondido']), FALTA, 'el fuelle solo no explica los golpes');
+    assert.deepEqual(q(['n2-pista-recibo']), FALTA, 'el recibo solo prueba una compra, no que esté montado');
+    for (const ajena of ['alacena-con-ruedas', 'n2-pista-taza', 'platos-para-dos', 'copas-limpias', 'sarten-con-aceite']) {
+        assert.deepEqual(q([ajena]), AJENA, ajena);
+        assert.deepEqual(q([ajena, 'cuerda-al-techo']), AJENA, `${ajena} + cuerda`);
     }
-    assert.deepEqual(aciertan.mecanismo, ['cuerda-al-techo + fuelle-escondido'], 'pregunta 1: una sola respuesta');
-    assert.deepEqual(aciertan.companero, ['platos-para-dos'], 'pregunta 3: una sola respuesta');
-    assert.deepEqual(aciertan.responsable, ['n2-pista-recibo + n2-pista-taza'], 'pregunta 2: una sola respuesta');
-});
-
-test('una pregunta, una sola respuesta: cada pregunta de la cocina tiene UNA combinación válida y ninguna excepción', () => {
-    for (const q of reglas.deduccion.preguntas) {
-        assert.equal(q.validas.length, 1, `la pregunta "${q.id}" tiene ${q.validas.length} combinaciones`);
-        assert.equal(q.excepcion, undefined, `la pregunta "${q.id}" no debería ser una excepción`);
-    }
-    assert.deepEqual(reglas.deduccion.preguntas.map(q => q.validas), [[['cuerda-al-techo', 'fuelle-escondido']], [['n2-pista-recibo', 'n2-pista-taza']], [['platos-para-dos']]]);
-});
-
-test('el recibo y la taza responden JUNTOS la pregunta 2 (¿alguien sigue manejando el fantasma?); solos o en las otras preguntas son error', () => {
-    const { deduccion } = TODO();
-    const r = 'n2-pista-recibo', t = 'n2-pista-taza';
-    assert.equal(deduccion.responder('responsable', 'sigue-viniendo', [r, t]).estado, 'correcta');
-    for (const solo of [[r], [t]]) assert.deepEqual(TODO().deduccion.responder('responsable', 'sigue-viniendo', solo), { estado: 'error', motivo: 'pruebas' }, solo.join());
-    for (const mala of ['aparato-viejo', 'casa-sola']) assert.deepEqual(TODO().deduccion.responder('responsable', mala, [r, t]), { estado: 'error', motivo: 'conclusion' }, mala);
-    // con otra prueba de por medio, error (la cuerda no responde quién lo maneja)
-    assert.deepEqual(TODO().deduccion.responder('responsable', 'sigue-viniendo', [r, 'cuerda-al-techo']), { estado: 'error', motivo: 'ajena' });
-    // en las otras dos preguntas no valen
-    for (const pista of [r, t]) {
-        assert.deepEqual(TODO().deduccion.responder('mecanismo', 'poleas-cuerda-fuelle', [pista]), { estado: 'error', motivo: 'ajena' }, pista);
-        assert.deepEqual(TODO().deduccion.responder('mecanismo', 'poleas-cuerda-fuelle', [pista, 'cuerda-al-techo']), { estado: 'error', motivo: 'ajena' }, pista);
-        assert.deepEqual(TODO().deduccion.responder('companero', 'hay-alguien-mas', [pista]), { estado: 'error', motivo: 'ajena' }, pista);
-        assert.deepEqual(TODO().deduccion.responder('companero', 'hay-alguien-mas', [pista, 'platos-para-dos']), { estado: 'error', motivo: 'ajena' }, pista);
-    }
-    // Cada pista de la cocina responde alguna pregunta: ya no sobra ninguna
-    const usadas = new Set(reglas.deduccion.preguntas.flatMap(q => q.validas.flat()));
-    for (const pista of narrativa.pistas) assert.ok(usadas.has(pista.id), pista.id);
-});
-
-test('las copas, la sartén y la alacena aparecen en la libreta pero no prueban nada: presentarlas es error', () => {
-    const { deduccion } = TODO();
-    for (const ajena of ['copas-limpias', 'sarten-con-aceite', 'alacena-con-ruedas']) {
-        assert.deepEqual(deduccion.responder('companero', 'hay-alguien-mas', [ajena]), { estado: 'error', motivo: 'ajena' }, ajena);
-        assert.deepEqual(deduccion.responder('mecanismo', 'poleas-cuerda-fuelle', [ajena, 'cuerda-al-techo']), { estado: 'error', motivo: 'ajena' }, ajena);
-        assert.deepEqual(deduccion.responder('mecanismo', 'poleas-cuerda-fuelle', [ajena]), { estado: 'error', motivo: 'ajena' }, ajena);
-    }
-    // Platos + cualquier otra cosa en la pregunta 2 también es error
-    assert.deepEqual(deduccion.responder('companero', 'hay-alguien-mas', ['platos-para-dos', 'n2-pista-taza']), { estado: 'error', motivo: 'ajena' });
-    assert.equal(deduccion.resueltas.size, 0);
-});
-
-test('la pregunta 1: solo vale cuerda + fuelle; recibo + cuerda, recibo + fuelle, cuerda sola y fuelle solo son error', () => {
-    const intento = pruebas => TODO().deduccion.responder('mecanismo', 'poleas-cuerda-fuelle', pruebas);
-    assert.deepEqual(intento(['n2-pista-recibo', 'cuerda-al-techo']), { estado: 'error', motivo: 'ajena' }, 'recibo + cuerda');
-    assert.deepEqual(intento(['n2-pista-recibo', 'fuelle-escondido']), { estado: 'error', motivo: 'ajena' }, 'recibo + fuelle');
-    assert.deepEqual(intento(['cuerda-al-techo']), { estado: 'error', motivo: 'pruebas' }, 'cuerda sola');
-    assert.deepEqual(intento(['fuelle-escondido']), { estado: 'error', motivo: 'pruebas' }, 'fuelle solo');
-    assert.deepEqual(intento(['n2-pista-recibo']), { estado: 'error', motivo: 'ajena' }, 'recibo solo');
-    assert.equal(intento(['cuerda-al-techo', 'fuelle-escondido']).estado, 'correcta', 'cuerda + fuelle');
-    // con la conclusión equivocada, error aunque las pruebas sean las buenas
     for (const equivocada of ['viento-chimenea', 'fantasma-ollas']) {
-        assert.deepEqual(TODO().deduccion.responder('mecanismo', equivocada, ['cuerda-al-techo', 'fuelle-escondido']), { estado: 'error', motivo: 'conclusion' }, equivocada);
+        assert.deepEqual(responder('mecanismo', equivocada, ['cuerda-al-techo', 'fuelle-escondido']), { estado: 'error', motivo: 'conclusion' }, equivocada);
     }
 });
 
-test('la deducción está disponible solo con las pruebas de las TRES preguntas: cuerda + fuelle, platos y recibo + taza', () => {
+test('pregunta 2: la taza tibia o la sartén bastan solas; el recibo y las copas solo orientan', () => {
+    const q = p => responder('responsable', 'sigue-viniendo', p);
+    for (const ok of [['n2-pista-taza'], ['sarten-con-aceite'], ['n2-pista-recibo', 'n2-pista-taza'], ['n2-pista-recibo', 'sarten-con-aceite'], ['n2-pista-taza', 'sarten-con-aceite'], ['copas-limpias', 'n2-pista-taza']]) {
+        assert.deepEqual(q(ok), OK, ok.join(' + '));
+    }
+    for (const falta of [['n2-pista-recibo'], ['copas-limpias'], ['n2-pista-recibo', 'copas-limpias']]) assert.deepEqual(q(falta), FALTA, falta.join(' + '));
+    for (const ajena of ['cuerda-al-techo', 'fuelle-escondido', 'platos-para-dos', 'alacena-con-ruedas']) assert.deepEqual(q([ajena, 'n2-pista-taza']), AJENA, ajena);
+    for (const mala of ['aparato-viejo', 'casa-sola']) assert.deepEqual(responder('responsable', mala, ['n2-pista-taza']), { estado: 'error', motivo: 'conclusion' }, mala);
+});
+
+test('pregunta 3: los platos para dos bastan; las copas a su lado no estorban; solas, falta una pieza', () => {
+    const q = p => responder('companero', 'hay-alguien-mas', p);
+    assert.deepEqual(q(['platos-para-dos']), OK);
+    assert.deepEqual(q(['platos-para-dos', 'copas-limpias']), OK);
+    assert.deepEqual(q(['copas-limpias']), FALTA);
+    for (const ajena of ['n2-pista-taza', 'sarten-con-aceite', 'n2-pista-recibo', 'cuerda-al-techo']) assert.deepEqual(q(['platos-para-dos', ajena]), AJENA, ajena);
+});
+
+test('cada pista de la cocina forma parte de alguna respuesta', () => {
+    const necesarias = new Set(reglas.deduccion.preguntas.flatMap(q => [...pruebasNecesarias(q, reglas.deduccion.maximoDePruebas)]));
+    for (const pista of narrativa.pistas) assert.ok(necesarias.has(pista.id), pista.id);
+});
+
+test('la deducción está disponible cuando cada una de las TRES preguntas se puede respaldar con lo encontrado', () => {
     assert.equal(partida().deduccion.disponible(), false);
-    assert.equal(partida('alacena', 'rodar', 'fuelle', 'platos').deduccion.disponible(), false, 'faltan el recibo y la taza');
-    assert.equal(partida('alacena', 'rodar', 'fuelle', 'platos', 'recibo').deduccion.disponible(), false, 'falta la taza');
-    assert.equal(partida('alacena', 'rodar', 'fuelle', 'platos', 'taza').deduccion.disponible(), false, 'falta el recibo');
-    assert.equal(partida('alacena', 'rodar', 'platos', 'recibo', 'taza').deduccion.disponible(), false, 'falta el fuelle');
-    assert.equal(partida('alacena', 'rodar', 'fuelle', 'recibo', 'taza').deduccion.disponible(), false, 'faltan los platos');
-    assert.equal(partida('alacena', 'rodar', 'fuelle', 'platos', 'recibo', 'taza').deduccion.disponible(), true);
-    assert.equal(partida('platos', 'recibo', 'taza').deduccion.disponible(), false);
-    assert.equal(partida('alacena', 'rodar', 'fuelle', 'copas', 'sarten', 'recibo', 'taza').deduccion.disponible(), false, 'las copas y la sartén no prueban la pregunta 2');
+    assert.equal(partida('alacena', 'rodar', 'fuelle', 'platos', 'taza').deduccion.disponible(), true, 'cuerda + fuelle, la taza y los platos');
+    assert.equal(partida('alacena', 'rodar', 'platos', 'recibo', 'sarten').deduccion.disponible(), true, 'recibo + cuerda, la sartén y los platos');
+    assert.equal(partida('alacena', 'rodar', 'fuelle', 'platos', 'recibo').deduccion.disponible(), false, 'nada dice que alguien estuvo hace poco');
+    assert.equal(partida('alacena', 'rodar', 'fuelle', 'taza').deduccion.disponible(), false, 'faltan los platos');
+    assert.equal(partida('platos', 'recibo', 'taza').deduccion.disponible(), false, 'el recibo solo no basta para el mecanismo');
+    assert.equal(partida('alacena', 'rodar', 'fuelle', 'copas', 'sarten', 'recibo').deduccion.disponible(), false, 'las copas no dicen que eran dos');
 });
 
 test('la disponibilidad y las respuestas no dependen del orden en que se encontraron las cosas', () => {

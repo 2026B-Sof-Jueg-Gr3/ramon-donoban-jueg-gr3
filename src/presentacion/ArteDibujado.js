@@ -490,3 +490,33 @@ export function iconoDeCandado(escena) {
         g.fillStyle(0x3a3e46, 1).fillCircle(9, 14, 2).fillRect(8.2, 14, 1.6, 4);
     });
 }
+
+// El historial (los textos que ya salieron): un globo de diálogo de papel con renglones
+export function iconoDeHistorial(escena) {
+    return textura(escena, 'icono-historial', 44, 44, g => {
+        g.fillStyle(0xeee4c8, 1).fillRoundedRect(5, 7, 34, 24, 5);
+        g.fillTriangle(12, 29, 20, 29, 10, 38);                                                         // la cola del globo
+        g.lineStyle(1.5, 0x2a140a, 1).strokeRoundedRect(5, 7, 34, 24, 5);
+        g.lineStyle(2, 0x6a3a22, 1).lineBetween(11, 14, 33, 14).lineBetween(11, 19, 33, 19).lineBetween(11, 24, 25, 24);   // renglones
+    });
+}
+
+// La música: una corchea de marfil. Silenciada: con una raya roja que la tacha
+export function iconoDeMusica(escena, silenciada = false) {
+    return textura(escena, silenciada ? 'icono-musica-silenciada' : 'icono-musica', 44, 44, g => {
+        g.fillStyle(0xeee4c8, 1).fillEllipse(15, 32, 13, 10);                                          // la cabeza de la nota
+        g.fillRect(19, 9, 3.5, 23);                                                                     // la plica
+        g.fillTriangle(22.5, 9, 33, 16, 22.5, 18);                                                      // el corchete
+        g.lineStyle(1.2, 0x2a140a, 1).strokeEllipse(15, 32, 13, 10);
+        if (silenciada) g.lineStyle(3.5, 0xa83a3a, 1).lineBetween(7, 38, 37, 6);
+    });
+}
+
+// El ratón (para el aviso de la linterna): un contorno con el botón izquierdo marcado en dorado
+export function iconoDeRaton(escena) {
+    return textura(escena, 'icono-raton', 20, 28, g => {
+        g.fillStyle(0xd9b25a, 0.9).fillRoundedRect(3, 2, 7, 10, { tl: 6, tr: 0, bl: 0, br: 0 });
+        g.lineStyle(1.6, 0xeee4c8, 1).strokeRoundedRect(3, 2, 14, 24, 7);
+        g.lineBetween(10, 2, 10, 12).lineBetween(3, 12, 17, 12);
+    });
+}

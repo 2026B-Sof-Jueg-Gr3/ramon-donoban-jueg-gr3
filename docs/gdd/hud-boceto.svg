@@ -1,0 +1,107 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 1560" width="960" height="1170" font-family="Georgia, 'Times New Roman', serif">
+  <!-- Boceto del HUD de SILAS VANE. Lienzo base del juego: 1280 x 720. Posiciones tomadas de src/presentacion/HudDeTeclas.js,
+       src/presentacion/IndicadorDeAccion.js, src/ui/PanelInvestigacion.js y la caja de novela visual. -->
+  <defs>
+    <radialGradient id="cono" cx="0" cy="0.5" r="1">
+      <stop offset="0" stop-color="#ffe2a8" stop-opacity="0.55"/>
+      <stop offset="1" stop-color="#ffe2a8" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="halo" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#ffe2a8" stop-opacity="0.35"/>
+      <stop offset="1" stop-color="#ffe2a8" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="1280" height="1560" fill="#0d1320"/>
+
+  <!-- ============ PANTALLA 1: EXPLORANDO ============ -->
+  <text x="20" y="34" font-size="26" fill="#ffd060" font-weight="bold">1 · Explorando (el juego corre)</text>
+  <g transform="translate(0,50)">
+    <rect width="1280" height="720" fill="#02040a"/>
+    <!-- habitación en penumbra -->
+    <rect x="64" y="40" width="1152" height="120" fill="#0f1726"/>
+    <rect x="64" y="160" width="1152" height="440" fill="#121a2a"/>
+    <rect x="400" y="60" width="60" height="80" fill="#0b1a33" stroke="#3c4658" stroke-width="3"/>
+    <!-- halo y cono de la linterna -->
+    <circle cx="560" cy="380" r="110" fill="url(#halo)"/>
+    <path d="M 575 375 L 980 250 Q 1030 380 980 510 Z" fill="url(#cono)"/>
+    <!-- inspector -->
+    <ellipse cx="555" cy="412" rx="20" ry="6" fill="#000" opacity="0.6"/>
+    <rect x="542" y="360" width="26" height="50" rx="5" fill="#46566e"/>
+    <circle cx="555" cy="350" r="13" fill="#e9c6a3"/>
+    <rect x="538" y="334" width="34" height="8" rx="2" fill="#2f3b52"/>
+    <path d="M 575 378 l 14 -6 l 0 12 z" fill="#ffd060"/>
+    <!-- aviso de controles de la primera vez -->
+    <g transform="translate(470,300)">
+      <rect x="-2" y="-16" width="96" height="26" rx="3" fill="#04060b" stroke="#c89012"/>
+      <text x="46" y="2" font-family="Arial, sans-serif" font-size="13" font-weight="bold" fill="#ffd060" text-anchor="middle">W  A  S  D</text>
+      <text x="102" y="2" font-family="Arial, sans-serif" font-size="15" fill="#f4efe4">Caminar</text>
+      <text x="172" y="2" font-family="Arial, sans-serif" font-size="15" fill="#f4efe4">· ratón: Linterna</text>
+    </g>
+    <!-- objeto con el aviso E + verbo -->
+    <rect x="860" y="330" width="120" height="70" fill="#6b5236" stroke="#8a6c47" stroke-width="2"/>
+    <text x="920" y="372" font-size="16" fill="#f4efe4" text-anchor="middle">pila de cajas</text>
+    <g transform="translate(866,288)">
+      <rect x="0" y="-18" width="128" height="32" rx="16" fill="#04060b" opacity="0.85"/>
+      <rect x="8" y="-13" width="24" height="22" rx="3" fill="#04060b" stroke="#c89012"/>
+      <text x="20" y="3" font-family="Arial, sans-serif" font-size="13" font-weight="bold" fill="#ffd060" text-anchor="middle">E</text>
+      <text x="42" y="4" font-family="Arial, sans-serif" font-size="16" fill="#f4efe4">Examinar</text>
+    </g>
+    <!-- tarjeta no bloqueante arriba a la derecha -->
+    <rect x="926" y="24" width="330" height="90" rx="8" fill="#070d18" stroke="#3c4658" stroke-width="2"/>
+    <rect x="936" y="34" width="310" height="70" rx="5" fill="none" stroke="#1f2a3d"/>
+    <text x="948" y="56" font-size="14" fill="#ffd060">RASTRO</text>
+    <text x="948" y="80" font-size="17" fill="#f4efe4">El polvo parece removido... alguien</text>
+    <text x="948" y="100" font-size="17" fill="#f4efe4">estuvo aquí hace poco.</text>
+    <!-- íconos con su tecla, abajo a la derecha -->
+    <g font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="#ffd060" text-anchor="middle">
+      <circle cx="1072" cy="650" r="30" fill="#ffd27a" opacity="0.25"/>
+      <circle cx="1072" cy="650" r="25" fill="#04060b" stroke="#d9b25a"/>
+      <path d="M 1062 637 h 18 v 26 h -18 z M 1066 645 h 10 M 1066 651 h 10" fill="none" stroke="#f4efe4" stroke-width="2"/>
+      <rect x="1056" y="680" width="32" height="22" rx="3" fill="#04060b" stroke="#c89012"/>
+      <text x="1072" y="695">Tab</text>
+      <circle cx="1150" cy="650" r="25" fill="#04060b" stroke="#d9b25a" opacity="0.7"/>
+      <path d="M 1137 640 h 26 v 16 h -14 l -6 6 v -6 h -6 z" fill="none" stroke="#f4efe4" stroke-width="2" opacity="0.7"/>
+      <rect x="1139" y="680" width="22" height="22" rx="3" fill="#04060b" stroke="#c89012"/>
+      <text x="1150" y="695">H</text>
+      <circle cx="1228" cy="650" r="25" fill="#04060b" stroke="#d9b25a" opacity="0.7"/>
+      <path d="M 1222 660 v -20 l 14 -4 v 20 M 1222 660 a 4 4 0 1 1 -1 0 M 1236 656 a 4 4 0 1 1 -1 0" fill="none" stroke="#f4efe4" stroke-width="2" opacity="0.7"/>
+      <rect x="1217" y="680" width="22" height="22" rx="3" fill="#04060b" stroke="#c89012"/>
+      <text x="1228" y="695">M</text>
+    </g>
+  </g>
+  <!-- anotaciones pantalla 1 -->
+  <g font-size="22" font-weight="bold" fill="#070d18" text-anchor="middle">
+    <circle cx="455" cy="330" r="17" fill="#7fd1a8"/><text x="455" y="338">A</text>
+    <circle cx="845" cy="338" r="17" fill="#7fd1a8"/><text x="845" y="346">B</text>
+    <circle cx="905" cy="94" r="17" fill="#7fd1a8"/><text x="905" y="102">C</text>
+    <circle cx="1020" cy="700" r="17" fill="#7fd1a8"/><text x="1020" y="708">D</text>
+    <circle cx="1000" cy="430" r="17" fill="#7fd1a8"/><text x="1000" y="438">E</text>
+  </g>
+
+  <!-- ============ PANTALLA 2: TEXTO IMPORTANTE ============ -->
+  <text x="20" y="814" font-size="26" fill="#ffd060" font-weight="bold">2 · Texto importante (intro, revelación o cierre: el juego se pausa)</text>
+  <g transform="translate(0,830)">
+    <rect width="1280" height="720" fill="#02040a"/>
+    <rect x="64" y="40" width="1152" height="560" fill="#0a0f1a"/>
+    <!-- retrato del inspector a la izquierda -->
+    <path d="M 40 720 L 60 560 Q 190 500 320 560 L 350 720 Z" fill="#3a4a63"/>
+    <rect x="160" y="500" width="60" height="70" fill="#e9c6a3"/>
+    <circle cx="190" cy="460" r="70" fill="#e9c6a3"/>
+    <path d="M 120 440 Q 190 380 262 440 Q 230 410 190 412 Q 150 410 120 440 Z" fill="#9a3b22"/>
+    <ellipse cx="190" cy="385" rx="130" ry="26" fill="#2f3b52"/>
+    <rect x="132" y="310" width="116" height="75" rx="10" fill="#2f3b52"/>
+    <rect x="132" y="360" width="116" height="16" fill="#c89012"/>
+    <path d="M 150 560 Q 190 590 230 560 L 230 600 Q 190 620 150 600 Z" fill="#8a2a2a"/>
+    <!-- caja grande de novela visual -->
+    <rect x="384" y="455" width="880" height="250" rx="10" fill="#070d18" stroke="#3c4658" stroke-width="2"/>
+    <text x="410" y="492" font-size="20" fill="#ffd060">SILAS VANE</text>
+    <text x="410" y="530" font-size="24" fill="#f4efe4">Primera regla del método: todo deja rastro. Segunda</text>
+    <text x="410" y="564" font-size="24" fill="#f4efe4">regla: los fantasmas no existen. Empecemos por este pasillo.</text>
+    <text x="1210" y="690" font-family="Arial, sans-serif" font-size="13" fill="#b9c3cf" text-anchor="end">E / Espacio / clic para continuar</text>
+    <path d="M 1222 682 l 12 0 l -6 9 z" fill="#ffd060"/>
+  </g>
+  <g font-size="22" font-weight="bold" fill="#070d18" text-anchor="middle">
+    <circle cx="300" cy="1180" r="17" fill="#7fd1a8"/><text x="300" y="1188">F</text>
+    <circle cx="384" cy="1285" r="17" fill="#7fd1a8"/><text x="384" y="1293">G</text>
+  </g>
+</svg>

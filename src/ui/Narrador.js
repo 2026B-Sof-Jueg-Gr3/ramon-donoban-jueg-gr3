@@ -1,4 +1,5 @@
 import { LECTURA, tiempoDeLectura } from './tiemposDeLectura.js';
+import Historial from '../motor/Historial.js';
 
 // Punto único por el que pasa todo mensaje de la historia. No hay esperas obligatorias: lo nuevo que encuentra el jugador
 // sale enseguida y, si todavía estaba leyendo la nota anterior de la libreta, esa se va (dejarPasar). Lo que sale de un mismo
@@ -27,6 +28,7 @@ export default class Narrador {
         this.presentacion = presentacion;
         this.alPausar = alPausar;
         this.alReanudar = alReanudar;
+        this.historial = new Historial();     // todo lo que salió en la habitación, para releerlo (no se borra al reintentar)
         this.reiniciarEstado();
     }
 
@@ -57,6 +59,7 @@ export default class Narrador {
             this.agrupadas++;
             return true;
         }
+        this.historial.agregar(m);
         if (m.clase === 'importante') this.agregarASecuencia([{ texto: m.texto, titulo: m.titulo, acontecimiento: m.acontecimiento }]);
         else if (m.clase === 'ambiental') {
             this.colaAmbiental.push(m);

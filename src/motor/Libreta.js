@@ -10,6 +10,8 @@
 // guardó en los niveles anteriores, agrupadas por habitación. Una prueba con "registro": true no sale de una regla de este nivel:
 // existe si el Registro tiene esa pista (la deducción final usa el recibo, la carta y los planos de otras habitaciones).
 
+import { pruebasNecesarias, MAXIMO_DE_PRUEBAS } from './Deduccion.js';
+
 // Cómo se escribe un nombre en la lista de pruebas de la deducción: igual que los demás. Los títulos de las pistas están en
 // mayúsculas ("RECIBO DE FERRETERÍA"); en esa lista eso las delataría frente a las pruebas ("Cuerda al techo"), así que se pasan a
 // minúsculas con la primera en mayúscula. Un nombre que ya viene en minúsculas no se toca.
@@ -91,10 +93,12 @@ export default class Libreta {
     }
 
     // Lo que cuenta el informe final (es el único lugar con contadores). "extras": lo que no hace falta para la deducción
-    // (muebles, pistas y marcas que no están en la única respuesta de ninguna pregunta ni son obligatorios); el total sale de los datos.
+    // (muebles, pistas y marcas que no están en ninguna respuesta mínima de ninguna pregunta ni son obligatorios); el total sale de los datos.
     resumen() {
         const usadas = new Set();
-        for (const q of this.definicion.preguntas || []) for (const c of q.validas) for (const p of c) usadas.add(this.definicion.pruebas[p]?.sale);
+        const max = this.definicion.maximoDePruebas ?? MAXIMO_DE_PRUEBAS;
+        for (const q of this.definicion.preguntas || []) for (const p of pruebasNecesarias(q, max)) usadas.add(this.definicion.pruebas[p]?.sale);
+        for (const p of this.definicion.obligatorias || []) usadas.add(this.definicion.pruebas[p]?.sale);       // lo obligatorio no es extra
         const extras = (this.investigacion.reglas || []).filter(r => ES_EXTRA.test(r.texto) && !r.paraElFinal && !usadas.has(r.id));
         const encontradas = new Set(this.idsEncontrados());
         return {

@@ -21,6 +21,7 @@ import { pistasQueReponer } from '../motor/Reposicion.js';
 import EsperaDeLectura, { quedaPorLeer } from '../motor/EsperaDeLectura.js';
 import AvisoDeContinuar from '../presentacion/AvisoDeContinuar.js';
 import { claveDeLinea, expresionDe, ilustracionDe } from '../motor/Expresiones.js';
+import { verboDeAccion } from '../motor/Acciones.js';
 import { LuzDeCierre, Relampagos, encuadre, formaDeLaLinterna } from '../motor/Luz.js';
 import Progreso from '../ui/Progreso.js';
 import AparicionDeMarca from '../presentacion/AparicionDeMarca.js';
@@ -33,7 +34,8 @@ import { crearHabitacion } from '../presentacion/habitaciones/index.js';
 import { PROFUNDIDAD } from '../presentacion/profundidad.js';
 import Narracion from '../presentacion/Narracion.js';
 import Cuaderno from '../presentacion/Cuaderno.js';
-import IconoDeLibreta from '../presentacion/IconoDeLibreta.js';
+import HudDeTeclas from '../presentacion/HudDeTeclas.js';
+import { estadoDeLaMusica } from '../presentacion/MusicaDeFondo.js';
 import { iconoDeRastro } from '../presentacion/ArteDibujado.js';
 import { cargaExtrema, aplicarALaHabitacion, lanzarTarjetas, lanzarCaja } from '../presentacion/CargaExtrema.js';
 
@@ -126,14 +128,19 @@ export default class Habitacion extends Phaser.Scene {
         this.cuaderno = new Cuaderno(this, {
             profundidad: PROFUNDIDAD.interfaz + 14, libreta: this.libreta, deduccion: this.deduccion, narrativa: this.narrativa,
             alCerrar: () => this.reanudarDeLaLibreta(),
-            alError: () => this.alEquivocarse(),
+            alError: r => this.alEquivocarse(r),
             alResolver: () => this.alResolver(),
             alAcertar: id => this.alAcertar(id),
             alContinuar: () => this.reanudarDeLaLibreta(false),
-            alSalir: () => this.salir()
+            alSalir: () => this.salir(),
+            historial: () => this.narracion.narrador.historial.entradas
         });
-        this.icono = new IconoDeLibreta(this, {
-            profundidad: PROFUNDIDAD.interfaz + 5, x: this.scale.width - 70, y: this.scale.height - 72, alPulsar: () => this.abrirLibreta(false)
+        // Abajo a la derecha: la libreta, el historial y la música, cada uno con su tecla debajo (en la computadora)
+        this.hud = new HudDeTeclas(this, {
+            profundidad: PROFUNDIDAD.interfaz + 5, nivel: this.numeroDeNivel,
+            alLibreta: () => this.abrirLibreta(false),
+            alHistorial: () => this.abrirLibreta(false, { historial: true }),
+            alMusica: () => window.dispatchEvent(new KeyboardEvent('keydown', { key: 'm', bubbles: true }))      // lo mismo que la tecla M
         });
         this.acciones = 0;
         this.avisoDeContinuar = new AvisoDeContinuar(this, { profundidad: PROFUNDIDAD.interfaz + 16 });
@@ -356,6 +363,7 @@ export default class Habitacion extends Phaser.Scene {
         });
         kb.on('keydown-TAB', ev => this.alPulsarLibreta(ev));
         kb.on('keydown-I', ev => this.alPulsarLibreta(ev));
+        kb.on('keydown-H', ev => { if (!this.delCuaderno(ev) && !ev.repeat) this.abrirLibreta(false, { historial: true }); });
         kb.on('keydown-ESC', ev => { if (!this.delCuaderno(ev)) this.recibirEntrada('menu', ev); });
         kb.on('keydown-SPACE', ev => { if (!this.delCuaderno(ev)) this.recibirEntrada('avanzar', ev); });
         kb.on('keydown-ENTER', ev => { if (!this.delCuaderno(ev)) this.recibirEntrada('avanzar', ev); });
@@ -465,7 +473,12 @@ export default class Habitacion extends Phaser.Scene {
             const bloqueado = this.narracion.bloqueando;
             if (this.aviso.actualizar(dt, { disponible: this.deduccion.disponible(), bloqueado })) this.abrirLibreta(true);
         }
-        this.icono.actualizar(dt, tiempo, { visible: this.aviso.iconoVisible && this.fase === 'investigando' && !pausado, fuerte: efecto === 'libreta' });
+        const jugando = (this.fase === 'investigando' || this.fase === 'final') && !pausado && !this.saliendo;
+        this.hud.actualizar(dt, tiempo, {
+            visible: jugando, libretaLista: this.aviso.iconoVisible && this.fase === 'investigando', fuerte: efecto === 'libreta',
+            silenciada: estadoDeLaMusica().silenciada, inspector: this.inspector.pies,
+            puedeAvisar: this.fase === 'investigando' && !pausado, caminando: (this.inspector.rapidez || 0) > 20
+        });
         this.depuracion.actualizar(this.game.loop.rawDelta, {
             luz: this.linterna.estadisticas, apuntado: this.inspector.modoDeApuntado,
             extra: [
@@ -534,7 +547,7 @@ export default class Habitacion extends Phaser.Scene {
         if (this.candidato) {
             const o = this.candidato.objeto, p = this.inspector.pies;
             // El ícono flota sobre el punto de lo usable más cercano al inspector
-            this.indicador.mostrarEn(Math.max(o.x, Math.min(p.x, o.x + o.ancho)), Math.max(o.y, Math.min(p.y, o.y + o.alto)) - 38);
+            this.indicador.mostrarEn(Math.max(o.x, Math.min(p.x, o.x + o.ancho)), Math.max(o.y, Math.min(p.y, o.y + o.alto)) - 38, verboDeAccion(o.props.accion));
         } else {
             this.indicador.ocultar();
         }
@@ -592,12 +605,14 @@ export default class Habitacion extends Phaser.Scene {
 
     // La libreta pausa el juego: el inspector se detiene, la ayuda no cuenta y los textos de las notas y las apariciones
     // de las marcas se quedan como estaban. aviso: se abre sola porque ya se puede resolver el caso.
-    abrirLibreta(aviso = false) {
+    // historial: abrir directamente el historial de la habitación (tecla H) en vez de la libreta
+    abrirLibreta(aviso = false, { historial = false } = {}) {
         if (this.cuaderno.abierta || this.narracion.bloqueando || !this.puedeActuar() || this.saliendo || this.animando) return;
-        this.aviso.alAbrirLaLibreta(this.deduccion.disponible());
+        if (!historial) this.aviso.alAbrirLaLibreta(this.deduccion.disponible());
         this.ayuda.alDescubrir();                      // abrirla es hacer algo: la ayuda empieza de nuevo al cerrarla
         this.pausarPorLaLibreta();
-        this.cuaderno.abrirLibreta({ aviso });
+        if (historial) this.cuaderno.abrirHistorial();
+        else this.cuaderno.abrirLibreta({ aviso });
     }
 
     pausarPorLaLibreta() {
@@ -615,13 +630,15 @@ export default class Habitacion extends Phaser.Scene {
     }
 
     // Una respuesta equivocada: sale la línea de error de la narrativa como importante y, al terminarla, se vuelve a esa
-    // misma pregunta (sin castigo). Cada error es un acontecimiento distinto, así que siempre sale.
-    alEquivocarse() {
+    // misma pregunta (sin castigo). Cada error es un acontecimiento distinto, así que siempre sale. Si las pruebas iban bien pero
+    // les faltaba una pieza (motivo 'insuficiente', src/motor/Deduccion.js), Silas lo dice con su propia línea ("insuficiente").
+    alEquivocarse(resultado = {}) {
+        const insuficiente = resultado.motivo === 'insuficiente' && this.narrativa.insuficiente;
         this.reanudarDeLaLibreta();
         this.despuesDelTexto = () => { this.pausarPorLaLibreta(); this.cuaderno.abrirPregunta(); };
         this.narracion.contar({
-            acontecimiento: `error#${++this.numeroDeErrores}`, ref: 'error', clase: 'importante', categoria: 'error',
-            texto: this.narrativa.error, alCompletar: 'descartar'
+            acontecimiento: `error#${++this.numeroDeErrores}`, ref: insuficiente ? 'insuficiente' : 'error', clase: 'importante', categoria: 'error',
+            texto: insuficiente ? this.narrativa.insuficiente : this.narrativa.error, alCompletar: 'descartar'
         });
     }
 

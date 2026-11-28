@@ -22,7 +22,7 @@ const S = {
     cartas: inv => inv.recogio('n6-pista-compradores'), pilas: inv => inv.recogio('bateria')
 };
 // Lo que el Registro guardó en los niveles anteriores (id de pista → nivel)
-const TODO_EL_REGISTRO = { 'n1-pista-huella': { nivel: 1 }, 'n2-pista-recibo': { nivel: 2 }, 'n2-pista-taza': { nivel: 2 }, 'n3-pista-carta': { nivel: 3 }, 'n3-pista-llave': { nivel: 3 }, 'n5-pista-planos': { nivel: 5 }, 'n5-pista-abrigo': { nivel: 5 } };
+const TODO_EL_REGISTRO = { 'n1-pista-huella': { nivel: 1 }, 'n1-pista-periodico': { nivel: 1 }, 'n4-pista-diario': { nivel: 4 }, 'n2-pista-recibo': { nivel: 2 }, 'n2-pista-taza': { nivel: 2 }, 'n3-pista-carta': { nivel: 3 }, 'n3-pista-llave': { nivel: 3 }, 'n5-pista-planos': { nivel: 5 }, 'n5-pista-abrigo': { nivel: 5 } };
 const partida = (registro, ...pasos) => {
     const inv = nueva();
     for (const p of pasos) S[p](inv);
@@ -77,15 +77,15 @@ test('EXPEDIENTE: lo encontrado en el despacho y las pistas del Registro, agrupa
     const { libreta } = partida(TODO_EL_REGISTRO, 'marcas', 'archivos', 'ordenar', 'pluma', 'cartas');
     const hallazgos = libreta.hallazgos();
     const porNivel = n => hallazgos.filter(h => h.nivel === n).map(h => h.id);
-    assert.deepEqual(porNivel(1), ['n1-pista-huella']);
+    assert.deepEqual(porNivel(1), ['n1-pista-periodico', 'n1-pista-huella']);
     assert.deepEqual(porNivel(2), ['n2-pista-recibo', 'n2-pista-taza']);
     assert.deepEqual(porNivel(3), ['n3-pista-carta', 'n3-pista-llave']);
+    assert.deepEqual(porNivel(4), ['n4-pista-diario']);
     assert.deepEqual(porNivel(5).sort(), ['n5-pista-abrigo', 'n5-pista-planos']);
     assert.deepEqual(porNivel(6).sort(), ['cuentas-que-no-cuadran', 'n6-pista-compradores', 'pluma-gv', 'siete-rechazos']);
     assert.equal(new Set(hallazgos.map(h => h.id)).size, hallazgos.length, 'ninguno repetido');
     for (const h of hallazgos.filter(x => x.tipo === 'pista')) assert.ok(h.nombre && h.texto, `${h.id} con título y texto`);
-    // los niveles 1 y 2 y los niveles que no tienen pistas no meten nada raro
-    assert.ok(hallazgos.every(h => [1, 2, 3, 5, 6].includes(h.nivel)));
+    assert.ok(hallazgos.every(h => [1, 2, 3, 4, 5, 6].includes(h.nivel)));
 });
 
 test('las pruebas del Registro aparecen en el expediente con los nombres que ya conocen (el recibo, la carta, los planos)', () => {
@@ -96,38 +96,58 @@ test('las pruebas del Registro aparecen en el expediente con los nombres que ya 
     assert.deepEqual(partida({}).libreta.hallazgos(), []);
 });
 
-test('DEDUCCIÓN: ¿Quién está detrás? → Voss, con la pluma «G. V.» y el recibo de ferretería; nada más vale', () => {
-    const t = () => partida(TODO_EL_REGISTRO, 'marcas', 'archivos', 'ordenar', 'pluma', 'archivador', 'reloj', 'libros', 'cartas').deduccion;
-    assert.equal(t().disponible(), true);
-    assert.deepEqual(t().responder('detras', 'voss', ['pluma-gv', 'n2-pista-recibo']), { estado: 'correcta' });
-    for (const sola of ['pluma-gv', 'n2-pista-recibo']) assert.deepEqual(t().responder('detras', 'voss', [sola]), { estado: 'error', motivo: 'pruebas' }, sola);
-    for (const ajena of ['cuentas-que-no-cuadran', 'siete-rechazos', 'archivador-forzado', 'reloj-detenido', 'n3-pista-carta', 'n5-pista-planos', 'n2-pista-taza', 'n1-pista-huella']) {
-        assert.deepEqual(t().responder('detras', 'voss', ['pluma-gv', ajena]).estado, 'error', `pluma + ${ajena}`);
+// La tabla completa de cada selección posible está en pruebas/niveles.test.mjs (el oráculo). Aquí, los casos que se discutieron.
+const OK = { estado: 'correcta' }, FALTA = { estado: 'error', motivo: 'insuficiente' };
+const TODO6 = () => partida(TODO_EL_REGISTRO, 'marcas', 'archivos', 'ordenar', 'pluma', 'archivador', 'reloj', 'libros', 'cartas').deduccion;
+
+test('DEDUCCIÓN: ¿Quién está detrás? → Voss: hay que probar que el albacea (o «V») está detrás Y que ese es Gerhard Voss', () => {
+    const q = p => TODO6().responder('detras', 'voss', p);
+    assert.equal(TODO6().disponible(), true);
+    assert.deepEqual(q(['siete-rechazos', 'n1-pista-periodico']), OK, 'el albacea rechazó las ofertas «por los fantasmas», y el recorte dice que es Gerhard Voss');
+    assert.deepEqual(q(['n2-pista-recibo', 'pluma-gv', 'n1-pista-periodico']), OK, 'la «V» del recibo, la pluma «G. V.» y el nombre del recorte');
+    assert.deepEqual(q(['n5-pista-abrigo', 'pluma-gv', 'n1-pista-periodico']), OK, 'la «V» de la nota del cómplice, la pluma y el recorte');
+    assert.deepEqual(q(['siete-rechazos', 'pluma-gv', 'n1-pista-periodico']), OK);
+    assert.deepEqual(q(['n6-pista-compradores', 'n1-pista-periodico']), OK, 'la pista de las cartas dice lo mismo que «Siete rechazos»');
+    for (const falta of [['pluma-gv', 'n1-pista-periodico'], ['pluma-gv', 'n2-pista-recibo'], ['siete-rechazos'], ['pluma-gv'], ['n5-pista-abrigo', 'n1-pista-periodico'], ['siete-rechazos', 'pluma-gv'], ['cuentas-que-no-cuadran', 'n1-pista-periodico']]) {
+        assert.deepEqual(q(falta), FALTA, falta.join(' + '));
     }
-    for (const mala of ['complice', 'maldicion']) assert.deepEqual(t().responder('detras', mala, ['pluma-gv', 'n2-pista-recibo']), { estado: 'error', motivo: 'conclusion' }, mala);
+    for (const ajena of ['archivador-forzado', 'reloj-detenido', 'n3-pista-carta', 'n5-pista-planos', 'n4-pista-diario', 'n2-pista-taza', 'n1-pista-huella']) {
+        assert.deepEqual(q(['siete-rechazos', 'n1-pista-periodico', ajena]).motivo, 'ajena', ajena);
+    }
+    for (const mala of ['complice', 'maldicion']) assert.deepEqual(TODO6().responder('detras', mala, ['siete-rechazos', 'n1-pista-periodico']), { estado: 'error', motivo: 'conclusion' }, mala);
+    assert.deepEqual(q(['siete-rechazos', 'n1-pista-periodico', 'pluma-gv', 'n2-pista-recibo']), { estado: 'invalida', motivo: 'demasiadas' }, 'como máximo 3 pruebas');
     // los libros no son prueba: ni siquiera están entre las pruebas de la libreta
-    assert.ok(!t().libreta.idsEncontrados().includes('n6-mueble-libros'));
+    assert.ok(!TODO6().libreta.idsEncontrados().includes('n6-mueble-libros'));
 });
 
-test('DEDUCCIÓN: ¿Por qué espantaba a los compradores? → buscar el tesoro, con la carta sin enviar y los planos; nada más vale', () => {
-    const t = () => partida(TODO_EL_REGISTRO, 'marcas', 'archivos', 'ordenar', 'pluma', 'archivador', 'reloj', 'cartas').deduccion;
-    const d = t();
-    assert.deepEqual(d.responder('detras', 'voss', ['pluma-gv', 'n2-pista-recibo']), { estado: 'correcta' });
-    assert.deepEqual(d.responder('espantaba', 'buscar-tesoro', ['n3-pista-carta', 'n5-pista-planos']), { estado: 'resuelto' });
-    for (const sola of ['n3-pista-carta', 'n5-pista-planos']) assert.deepEqual(t().responder('espantaba', 'buscar-tesoro', [sola]), { estado: 'error', motivo: 'pruebas' }, sola);
-    for (const ajena of ['siete-rechazos', 'cuentas-que-no-cuadran', 'pluma-gv', 'n2-pista-recibo']) assert.equal(t().responder('espantaba', 'buscar-tesoro', ['n3-pista-carta', ajena]).estado, 'error', ajena);
-    for (const mala of ['memoria', 'creia']) assert.deepEqual(t().responder('espantaba', mala, ['n3-pista-carta', 'n5-pista-planos']), { estado: 'error', motivo: 'conclusion' }, mala);
+test('DEDUCCIÓN: ¿Por qué espantaba a los compradores? → el diario (hay un tesoro) con la carta o los siete rechazos (espantaba compradores)', () => {
+    const d = TODO6();
+    assert.deepEqual(d.responder('detras', 'voss', ['siete-rechazos', 'n1-pista-periodico']), OK);
+    assert.deepEqual(d.responder('espantaba', 'buscar-tesoro', ['n4-pista-diario', 'n3-pista-carta']), { estado: 'resuelto' });
+    const q = p => TODO6().responder('espantaba', 'buscar-tesoro', p);
+    assert.deepEqual(q(['n4-pista-diario', 'siete-rechazos']), OK);
+    assert.deepEqual(q(['n4-pista-diario', 'n6-pista-compradores']), OK);
+    assert.deepEqual(q(['n4-pista-diario', 'n5-pista-planos', 'n3-pista-carta']), OK, 'los planos al lado no estorban');
+    for (const falta of [['n3-pista-carta', 'n5-pista-planos'], ['n5-pista-planos', 'reloj-detenido'], ['n4-pista-diario'], ['n3-pista-carta'], ['siete-rechazos', 'archivador-forzado'], ['n4-pista-diario', 'n5-pista-planos']]) {
+        assert.deepEqual(q(falta), FALTA, `${falta.join(' + ')}: los planos y el reloj dicen dónde buscar, no que haya un tesoro`);
+    }
+    for (const ajena of ['cuentas-que-no-cuadran', 'pluma-gv', 'n2-pista-recibo', 'n1-pista-periodico']) assert.equal(q(['n4-pista-diario', 'n3-pista-carta', ajena]).motivo, 'ajena', ajena);
+    for (const mala of ['memoria', 'creia']) assert.deepEqual(TODO6().responder('espantaba', mala, ['n4-pista-diario', 'n3-pista-carta']), { estado: 'error', motivo: 'conclusion' }, mala);
 });
 
-test('si falta una pista de un nivel anterior, la pregunta que la necesita no se puede resolver (y la deducción no se ofrece)', () => {
-    const sin = id => { const r = { ...TODO_EL_REGISTRO }; delete r[id]; return partida(r, 'marcas', 'archivos', 'ordenar', 'pluma', 'archivador', 'reloj', 'cartas'); };
-    for (const [falta, pregunta] of [['n2-pista-recibo', 'detras'], ['n3-pista-carta', 'espantaba'], ['n5-pista-planos', 'espantaba']]) {
+test('si falta una pista de un nivel anterior: sin el recorte o sin el diario no hay salida (por eso son obligatorios); sin el recibo, el abrigo o la carta, sí', () => {
+    const sin = (...ids) => { const r = { ...TODO_EL_REGISTRO }; for (const id of ids) delete r[id]; return partida(r, 'marcas', 'archivos', 'ordenar', 'pluma', 'archivador', 'reloj', 'cartas'); };
+    for (const [falta, pregunta] of [['n1-pista-periodico', 'detras'], ['n4-pista-diario', 'espantaba']]) {
         const { deduccion } = sin(falta);
         assert.equal(deduccion.disponible(), false, `sin ${falta} no se puede resolver «${pregunta}»`);
-        assert.equal(deduccion.responder(pregunta, deduccion.pregunta(pregunta).correcta, deduccion.pregunta(pregunta).validas[0]).estado, 'invalida', 'ni forzándolo');
+        assert.equal(deduccion.responder(pregunta, deduccion.pregunta(pregunta).correcta, [falta]).motivo, 'no-encontradas', 'ni forzándolo');
     }
-    // y sin la pluma tampoco, aunque el Registro esté completo
-    assert.equal(partida(TODO_EL_REGISTRO, 'marcas', 'archivos', 'ordenar', 'archivador', 'cartas').deduccion.disponible(), false);
+    for (const falta of [['n2-pista-recibo'], ['n5-pista-abrigo'], ['n2-pista-recibo', 'n5-pista-abrigo'], ['n3-pista-carta'], ['n5-pista-planos']]) {
+        assert.equal(sin(...falta).deduccion.disponible(), true, `sin ${falta.join(' ni ')} sigue habiendo un camino`);
+    }
+    // Sin las cartas de compradores (los siete rechazos) hace falta la pluma con el recibo o el abrigo
+    assert.equal(partida(TODO_EL_REGISTRO, 'marcas', 'archivos', 'ordenar', 'pluma').deduccion.disponible(), true);
+    assert.equal(partida(TODO_EL_REGISTRO, 'marcas', 'archivos', 'ordenar', 'archivador').deduccion.disponible(), false, 'ni los rechazos ni la pluma');
 });
 
 test('el cierre: al resolver sale la pista del compartimento, retenida para DESPUÉS del texto del cierre, y no entra en la deducción', () => {
@@ -138,7 +158,7 @@ test('el cierre: al resolver sale la pista del compartimento, retenida para DESP
     assert.equal(eventos[0].titulo, 'COMPARTIMENTO BAJO EL RELOJ');
     assert.equal(eventos[0].referencia, 'pistas:n6-pista-compartimento', 'y por eso queda en el Registro');
     assert.ok(!(('n6-pista-compartimento') in reglas.deduccion.pruebas));
-    for (const q of reglas.deduccion.preguntas) assert.ok(!q.validas.flat().includes('n6-pista-compartimento'));
+    for (const q of reglas.deduccion.preguntas) assert.ok(!('n6-pista-compartimento' in q.aportan));
     assert.match(narrativa.cierre, /bajo el reloj detenido/);
 });
 
@@ -166,10 +186,10 @@ test('la ayuda del nivel 6, en orden: libreta, marcas de los archivos, onda del 
     assert.equal(pasar(100), null);
 });
 
-test('los hallazgos extra del nivel 6 salen de los datos: reloj, libros, archivador, cartas (la pluma está en la respuesta; el compartimento es del final)', () => {
+test('los hallazgos extra del nivel 6 salen de los datos: reloj, libros y archivador (la pluma y las cartas están en respuestas; el compartimento es del final)', () => {
     const { libreta } = partida(TODO_EL_REGISTRO, 'reloj', 'pluma');
     const r = libreta.resumen();
-    assert.equal(r.totalDeExtras, 4);
+    assert.equal(r.totalDeExtras, 3);
     assert.equal(r.extras, 1);
     assert.equal(r.pilas, false);
     S.pilas(libreta.investigacion);
@@ -186,14 +206,15 @@ globalThis.Phaser ??= {
 const { default: Habitacion } = await import('../src/escenas/Habitacion.js');
 const { default: Cuaderno } = await import('../src/presentacion/Cuaderno.js');
 
-const conAbrigo = () => { const inv = nueva(); inv.enRegistro('n5-pista-abrigo'); return inv; };
+const conAbrigo = () => { const inv = nueva(); inv.enRegistro('n5-pista-abrigo'); S.pluma(inv); return inv; };       // con la pluma ya examinada
 
-test('la conexión de la «V» sale al acertar "detras" con el abrigo en el Registro, como importante y con su texto exacto', () => {
+test('la conexión de la «V» sale al acertar "detras" con el abrigo en el Registro y la pluma examinada, como importante, pensativo y con su texto exacto', () => {
     const inv = conAbrigo();
     const eventos = inv.acerto('detras');
     assert.deepEqual(clases(eventos), ['momento:conexion-v:importante']);
     assert.equal(eventos[0].texto, 'El cómplice no habló. No hizo falta: la «V» de su nota es la misma que firma esta pluma.');
     assert.equal(eventos[0].texto, narrativa.momentos['conexion-v']);
+    assert.equal(leerJson('assets/presentacion/expresiones.json').niveles['6']['momento:conexion-v'], 'pensativo', 'la expresión aprobada');
 });
 
 test('no sale sin el abrigo, ni al acertar "espantaba", ni dos veces, ni solo por tener el abrigo', () => {
@@ -202,6 +223,7 @@ test('no sale sin el abrigo, ni al acertar "espantaba", ni dos veces, ni solo po
     for (const id of Object.keys(TODO_EL_REGISTRO)) if (id !== 'n5-pista-abrigo') sinAbrigo.enRegistro(id);
     assert.deepEqual(sinAbrigo.acerto('detras'), []);
     const inv = nueva();
+    S.pluma(inv);
     assert.deepEqual(inv.enRegistro('n5-pista-abrigo'), [], 'tenerlo no cuenta nada al entrar');
     assert.deepEqual(inv.acerto('espantaba'), []);
     assert.equal(inv.acerto('detras').length, 1);
@@ -209,19 +231,20 @@ test('no sale sin el abrigo, ni al acertar "espantaba", ni dos veces, ni solo po
     assert.deepEqual(inv.enRegistro('n5-pista-abrigo'), []);
 });
 
-test('el oráculo de la deducción no cambia: mismas preguntas, conclusiones y pruebas', () => {
-    assert.deepEqual(reglas.deduccion.preguntas, [
-        { id: 'detras', correcta: 'voss', validas: [['pluma-gv', 'n2-pista-recibo']] },
-        { id: 'espantaba', correcta: 'buscar-tesoro', validas: [['n3-pista-carta', 'n5-pista-planos']] }
-    ]);
-    assert.ok(!('n5-pista-abrigo' in reglas.deduccion.pruebas), 'el abrigo no es prueba');
+test('la deducción del despacho: hasta 3 pruebas, las mismas preguntas y conclusiones; el abrigo, el recorte y el diario del Registro también son pruebas', () => {
+    assert.equal(reglas.deduccion.maximoDePruebas, 3);
+    assert.deepEqual(reglas.deduccion.preguntas.map(q => [q.id, q.correcta]), [['detras', 'voss'], ['espantaba', 'buscar-tesoro']]);
+    for (const id of ['n1-pista-periodico', 'n4-pista-diario', 'n5-pista-abrigo']) assert.equal(reglas.deduccion.pruebas[id]?.registro, true, id);
 });
+
+// Una respuesta correcta de cada pregunta (las demás, en pruebas/niveles.test.mjs)
+const RESPUESTA = { detras: ['siete-rechazos', 'n1-pista-periodico'], espantaba: ['n4-pista-diario', 'n3-pista-carta'] };
 
 // La libreta y la escena, con su código: qué pasa al presentar las pruebas
 function presentando({ abrigo, pregunta = 'detras', conclusion, pruebas }) {
     const { inv, deduccion } = partida(TODO_EL_REGISTRO, 'marcas', 'archivos', 'ordenar', 'pluma', 'cartas');
     if (abrigo) inv.enRegistro('n5-pista-abrigo');
-    if (pregunta === 'espantaba') deduccion.responder('detras', 'voss', ['pluma-gv', 'n2-pista-recibo']);
+    if (pregunta === 'espantaba') deduccion.responder('detras', 'voss', RESPUESTA.detras);
     const q = deduccion.pregunta(pregunta);
     const pasos = [];
     const escena = Object.create(Habitacion.prototype);
@@ -232,7 +255,7 @@ function presentando({ abrigo, pregunta = 'detras', conclusion, pruebas }) {
         contar: eventos => pasos.push(`cuenta:${eventos.map(e => e.regla)}`)
     });
     Object.assign(cuaderno, {
-        deduccion, seleccion: { conclusion: conclusion ?? q.correcta, pruebas: pruebas ?? [...q.validas[0]] }, modo: 'pruebas',
+        deduccion, seleccion: { conclusion: conclusion ?? q.correcta, pruebas: pruebas ?? [...RESPUESTA[pregunta]] }, modo: 'pruebas',
         cerrar: () => pasos.push('cierra'), abrirPregunta: () => pasos.push('pregunta'), alError: () => pasos.push('error'),
         alResolver: () => pasos.push('resuelto'), alAcertar: id => escena.alAcertar(id)
     });
@@ -264,8 +287,8 @@ test('un error en la primera pregunta no la dispara (y funciona como antes); la 
     assert.equal(segunda.escena.investigacion.yaSalio('momento:conexion-v'), false);
 });
 
-test('los hallazgos extra de los seis niveles son los de antes: las líneas "momentos" no cuentan', () => {
-    const totales = [4, 2, 5, 4, 4, 4];
+test('los hallazgos extra de los seis niveles: lo que ninguna respuesta mínima necesita; las líneas "momentos" no cuentan', () => {
+    const totales = [2, 1, 2, 2, 4, 3];
     for (const n of [1, 2, 3, 4, 5, 6]) {
         const r = leerJson(`assets/investigaciones/nivel${n}.json`);
         const inv = new Investigacion(r, narrativas[n]);
@@ -275,4 +298,57 @@ test('los hallazgos extra de los seis niveles son los de antes: las líneas "mom
         inv.enRegistro('n5-pista-abrigo'); inv.acerto('detras'); inv.ilumino('sombra');
         assert.deepEqual([libreta.resumen().extras, libreta.resumen().totalDeExtras], [0, totales[n - 1]], `nivel ${n}`);
     }
+});
+
+// ── La línea de "insuficiente": las pruebas iban bien, pero les faltaba una pieza ──
+
+test('al equivocarse, Silas dice "insuficiente" si solo faltaba una pieza, y la línea de error en los demás casos', () => {
+    const contado = [];
+    const escena = Object.create(Habitacion.prototype);
+    Object.assign(escena, {
+        narrativa, numeroDeErrores: 0, reanudarDeLaLibreta: () => { }, narracion: { contar: m => contado.push(m) }
+    });
+    escena.alEquivocarse({ estado: 'error', motivo: 'insuficiente' });
+    escena.alEquivocarse({ estado: 'error', motivo: 'ajena' });
+    escena.alEquivocarse({ estado: 'error', motivo: 'conclusion' });
+    escena.alEquivocarse();
+    assert.deepEqual(contado.map(m => [m.ref, m.texto]), [
+        ['insuficiente', 'Voy bien, pero me falta una pieza.'], ['error', narrativa.error], ['error', narrativa.error], ['error', narrativa.error]
+    ]);
+    assert.equal(new Set(contado.map(m => m.acontecimiento)).size, 4, 'cada intento es un acontecimiento distinto: siempre sale');
+    for (const n of [1, 2, 3, 4, 6]) assert.equal(narrativas[n].insuficiente, 'Voy bien, pero me falta una pieza.', `nivel ${n}`);
+});
+
+// ── La pluma «G. V.»: examinarla es obligatorio para responder (no hace falta presentarla como prueba) ──
+
+test('sin examinar la pluma no se puede responder: la deducción no se ofrece, aunque todo lo demás esté', () => {
+    assert.deepEqual(reglas.deduccion.obligatorias, ['pluma-gv']);
+    const sinPluma = partida(TODO_EL_REGISTRO, 'marcas', 'archivos', 'ordenar', 'archivador', 'reloj', 'cartas');
+    assert.equal(sinPluma.libreta.obligatoriasListas(), false);
+    assert.equal(sinPluma.deduccion.disponible(), false, 'sin la pluma no aparece «Resolver el caso»');
+    S.pluma(sinPluma.inv);
+    assert.equal(sinPluma.libreta.obligatoriasListas(), true);
+    assert.equal(sinPluma.deduccion.disponible(), true, 'examinada la pluma, ya se puede responder');
+});
+
+test('examinada la pluma, la pregunta 1 se resuelve con cualquier respuesta aprobada, presentando la pluma o no', () => {
+    const respuestas = [['siete-rechazos', 'n1-pista-periodico'], ['n6-pista-compradores', 'n1-pista-periodico'], ['n5-pista-abrigo', 'pluma-gv', 'n1-pista-periodico'], ['n2-pista-recibo', 'pluma-gv', 'n1-pista-periodico']];
+    for (const pruebas of respuestas) {
+        const { deduccion } = partida(TODO_EL_REGISTRO, 'pluma', 'cartas');
+        assert.equal(deduccion.disponible(), true);
+        assert.deepEqual(deduccion.responder('detras', 'voss', pruebas), { estado: 'correcta' }, pruebas.join(' + '));
+    }
+});
+
+test('la frase de la «V» pide las tres cosas: acertar "detras", el abrigo en el Registro y la pluma examinada; sale una sola vez', () => {
+    const conTodo = nueva(); conTodo.enRegistro('n5-pista-abrigo'); S.pluma(conTodo);
+    assert.deepEqual(clases(conTodo.acerto('detras')), ['momento:conexion-v:importante']);
+    assert.deepEqual(conTodo.acerto('detras'), [], 'ni reabriendo la libreta ni volviendo a acertar');
+    const sinAbrigo = nueva(); S.pluma(sinAbrigo);
+    assert.deepEqual(sinAbrigo.acerto('detras'), [], 'sin el abrigo no sale');
+    const sinPluma = nueva(); sinPluma.enRegistro('n5-pista-abrigo');
+    assert.deepEqual(sinPluma.acerto('detras'), [], 'sin la pluma examinada no sale');
+    const sinAcertar = nueva(); sinAcertar.enRegistro('n5-pista-abrigo');
+    assert.deepEqual(S.pluma(sinAcertar).map(e => e.regla), ['mueble:n6-mueble-pluma'], 'examinar la pluma sin haber acertado no la dispara');
+    assert.deepEqual(sinAcertar.acerto('espantaba'), [], 'acertar la otra pregunta tampoco');
 });

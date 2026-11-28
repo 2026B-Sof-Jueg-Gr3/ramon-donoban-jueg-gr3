@@ -25,16 +25,19 @@ Autor: **DonobanR**.
 | Usar algo / continuar un texto | **E** |
 | Continuar un texto | **E**, **Espacio**, **Enter** o **clic** |
 | Libreta | **Tab** o **I** |
+| Historial (releer los textos que ya salieron) | **H** |
 | Pausa (continuar o salir al menú) | **Esc** |
 | Silenciar o volver a encender la música | **M** |
 | Menús y deducción | flechas o WASD para moverse, **E** o Enter para elegir, Esc para volver; también con el ratón |
 
-Se juega con teclado y ratón, en una pantalla apaisada.
+Se juega con teclado y ratón, en una pantalla apaisada. Las teclas se muestran dentro del juego, donde hacen falta: junto a lo que
+se puede usar aparece la **E** con lo que hace («Examinar», «Recoger»…); abajo a la derecha están la libreta, el historial y la música,
+cada uno con su tecla debajo (y se pueden pulsar con el ratón); y la primera vez, junto al inspector, cómo caminar y apuntar la linterna.
 
 ### En el celular
 
 En una pantalla táctil aparecen controles al estilo de un emulador: un **joystick** a la izquierda para caminar (la linterna apunta
-hacia donde caminas), el botón **E** y el de la **libreta** a la derecha, y **Música** y **Pausa** en las esquinas de arriba. Cada
+hacia donde caminas), el botón **E**, el de la **libreta** y el del **historial** a la derecha, y **Música** y **Pausa** en las esquinas de arriba. Cada
 control aprieta la misma tecla que el teclado (`src/presentacion/ControlesTactiles.js`). Mientras sale un texto solo queda **E**
 (o tocar la pantalla). Se juega con el teléfono en horizontal; en vertical se pide girarlo.
 

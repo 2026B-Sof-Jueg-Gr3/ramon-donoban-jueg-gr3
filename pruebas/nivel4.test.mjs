@@ -63,18 +63,22 @@ test('los muebles, las pistas y las pilas salen tal cual, secundarios', () => {
     assert.equal(S.pilas(inv)[0].texto, narrativa.bateria);
 });
 
-test('la deducción: oso con hilo cosido + trampilla del techo; el caballito engrasado es la trampa y las pistas no valen', () => {
+test('la deducción: la bobina sola (dice el hilo y la trampilla), o el oso con la trampilla; el caballito engrasado es la trampa', () => {
     const t = () => partida('tirar', 'cortar', 'trampilla', 'oso', 'caballito', 'munecas', 'bobina', 'diario').deduccion;
-    assert.equal(partida('tirar', 'cortar', 'oso').deduccion.disponible(), false, 'falta la trampilla');
-    assert.equal(partida('tirar', 'cortar', 'trampilla').deduccion.disponible(), false, 'falta el oso');
-    assert.equal(partida('tirar', 'cortar', 'trampilla', 'oso').deduccion.disponible(), true);
-    assert.equal(t().responder('juguetes', 'con-hilos', ['oso-con-hilo-cosido', 'trampilla-del-techo']).estado, 'resuelto');
-    for (const ajena of ['caballito-engrasado', 'munecas-alineadas', 'n4-pista-hilo', 'n4-pista-diario']) {
-        assert.deepEqual(t().responder('juguetes', 'con-hilos', ['trampilla-del-techo', ajena]), { estado: 'error', motivo: 'ajena' }, `trampilla + ${ajena}`);
+    assert.equal(partida('tirar', 'cortar', 'trampilla', 'oso').deduccion.disponible(), false, 'falta el diario (obligatorio)');
+    assert.equal(partida('tirar', 'cortar', 'oso', 'diario').deduccion.disponible(), false, 'falta la trampilla');
+    assert.equal(partida('tirar', 'cortar', 'trampilla', 'diario').deduccion.disponible(), false, 'falta el oso');
+    assert.equal(partida('tirar', 'cortar', 'trampilla', 'oso', 'diario').deduccion.disponible(), true);
+    assert.equal(partida('bobina', 'diario').deduccion.disponible(), true, 'la bobina sola ya lo explica todo');
+    for (const ok of [['n4-pista-hilo'], ['n4-pista-hilo', 'oso-con-hilo-cosido'], ['n4-pista-hilo', 'trampilla-del-techo'], ['oso-con-hilo-cosido', 'trampilla-del-techo']]) {
+        assert.deepEqual(t().responder('juguetes', 'con-hilos', ok), { estado: 'resuelto' }, ok.join(' + '));
+    }
+    for (const falta of ['oso-con-hilo-cosido', 'trampilla-del-techo']) assert.deepEqual(t().responder('juguetes', 'con-hilos', [falta]), { estado: 'error', motivo: 'insuficiente' }, falta);
+    for (const ajena of ['caballito-engrasado', 'munecas-alineadas', 'n4-pista-diario']) {
+        assert.deepEqual(t().responder('juguetes', 'con-hilos', ['n4-pista-hilo', ajena]), { estado: 'error', motivo: 'ajena' }, `bobina + ${ajena}`);
         assert.deepEqual(t().responder('juguetes', 'con-hilos', [ajena]), { estado: 'error', motivo: 'ajena' }, ajena);
     }
     assert.deepEqual(t().responder('juguetes', 'engranajes', ['oso-con-hilo-cosido', 'trampilla-del-techo']), { estado: 'error', motivo: 'conclusion' }, 'la trampa de los engranajes');
-    assert.deepEqual(t().responder('juguetes', 'con-hilos', ['oso-con-hilo-cosido']), { estado: 'error', motivo: 'pruebas' });
 });
 
 test('la acción final: cortar el último hilo solo después de resolver la deducción', () => {
@@ -114,14 +118,14 @@ test('el mapa: tres hilos que salen de los juguetes, la trampilla en el muro y e
     }
 });
 
-test('los hallazgos extra del nivel 4: el caballito, las muñecas, la bobina y el diario', () => {
+test('los hallazgos extra del nivel 4: el caballito y las muñecas (la bobina es respuesta; el diario, obligatorio)', () => {
     const { libreta } = partida('caballito');
-    assert.equal(libreta.resumen().totalDeExtras, 4);
+    assert.equal(libreta.resumen().totalDeExtras, 2);
     assert.equal(libreta.resumen().extras, 1);
 });
 
-test('la ayuda del nivel 4: libreta, hilos, polvo, oso y, tras deducir, el último hilo', () => {
-    assert.deepEqual(reglas.ayuda.refuerzos.map(r => r.efecto), ['libreta', 'hilos', 'polvo', 'oso', 'final']);
+test('la ayuda del nivel 4: libreta, hilos, polvo, oso, el diario (obligatorio) y, tras deducir, el último hilo', () => {
+    assert.deepEqual(reglas.ayuda.refuerzos.map(r => r.efecto), ['libreta', 'hilos', 'polvo', 'oso', 'diario', 'final']);
     const inv = nueva();
     const estado = { disponible: false, resuelta: false };
     const ayuda = new Ayuda(reglas.ayuda, inv, { deduccionDisponible: () => estado.disponible, deduccionResuelta: () => estado.resuelta });
@@ -132,6 +136,8 @@ test('la ayuda del nivel 4: libreta, hilos, polvo, oso y, tras deducir, el últi
     S.cortar(inv); S.trampilla(inv); ayuda.alDescubrir();
     assert.equal(pasar(46)?.efecto, 'oso', '3. hasta examinar el oso, su hilo cosido brilla');
     S.oso(inv); ayuda.alDescubrir();
+    assert.equal(pasar(46)?.efecto, 'diario', '4. hasta recoger la página del diario, brilla');
+    S.diario(inv); ayuda.alDescubrir();
     assert.equal(pasar(100), null);
     estado.disponible = true;
     assert.equal(pasar(46)?.efecto, 'libreta');

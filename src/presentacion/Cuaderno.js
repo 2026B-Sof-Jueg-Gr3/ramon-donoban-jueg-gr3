@@ -1,6 +1,6 @@
 // Las pantallas del cuaderno del inspector, provisionales y dentro de los 1280×720: la libreta con los hallazgos, el
 // aviso de que ya se puede resolver el caso, la deducción pregunta por pregunta (1. la conclusión, 2. las pruebas) y el
-// menú de pausa. Solo dibuja y recoge lo que el jugador elige; las reglas están en src/motor (Libreta y Deduccion) y lo
+// menú de pausa, y el historial de la habitación (los textos que ya salieron, para releerlos). Solo dibuja y recoge lo que el jugador elige; las reglas están en src/motor (Libreta y Deduccion) y lo
 // que ocurre después (la línea de error, el cierre, pausar el juego) lo decide la escena por los avisos alError /
 // alResolver / alCerrar.
 //
@@ -22,7 +22,7 @@ const MAXIMO_POR_DEFECTO = 2;
 // Teclas (keyCode del navegador) que entiende el cuaderno
 const TECLAS = {
     arriba: [38, 87], abajo: [40, 83], izquierda: [37, 65], derecha: [39, 68],
-    elegir: [69, 13, 32], volver: [27], libreta: [9, 73], paginaArriba: [33], paginaAbajo: [34], inicio: [36], fin: [35]
+    elegir: [69, 13, 32], volver: [27], libreta: [9, 73], historial: [72], paginaArriba: [33], paginaAbajo: [34], inicio: [36], fin: [35]
 };
 const es = (grupo, codigo) => TECLAS[grupo].includes(codigo);
 
@@ -32,7 +32,8 @@ export default class Cuaderno {
     // alResolver(): las dos preguntas están resueltas
     // alAcertar(idDePregunta): se acertó una y quedan más; si devuelve true (hay una línea que mostrar) la libreta se cierra
     // alContinuar(): se eligió seguir desde el menú de pausa · alSalir(): se confirmó salir de la habitación
-    constructor(escena, { profundidad, libreta, deduccion, narrativa, alCerrar, alError, alResolver, alAcertar, alContinuar, alSalir }) {
+    // historial(): las entradas del historial de la habitación ({ etiqueta, texto, clase }, src/motor/Historial.js)
+    constructor(escena, { profundidad, libreta, deduccion, narrativa, alCerrar, alError, alResolver, alAcertar, alContinuar, alSalir, historial = () => [] }) {
         this.escena = escena;
         this.profundidad = profundidad;
         this.libreta = libreta;
@@ -44,8 +45,9 @@ export default class Cuaderno {
         this.alAcertar = alAcertar;
         this.alContinuar = alContinuar;
         this.alSalir = alSalir;
+        this.historial = historial;
         this.pantalla = null;
-        this.modo = null;                   // 'libreta' | 'aviso' | 'conclusion' | 'pruebas' | 'pausa' | 'salir'
+        this.modo = null;                   // 'libreta' | 'aviso' | 'conclusion' | 'pruebas' | 'pausa' | 'salir' | 'historial'
         this.seleccion = { conclusion: null, pruebas: [] };
     }
 
@@ -73,7 +75,7 @@ export default class Cuaderno {
         if (!this.abierta) return false;
         const p = this.pantalla;
         // En la libreta (sin lista de elementos enfocables), ↑ ↓ desplazan el contenido si no cabe
-        const desplazaLaLibreta = (this.modo === 'libreta' || this.modo === 'aviso') && p.desplazable;
+        const desplazaLaLibreta = (this.modo === 'libreta' || this.modo === 'aviso' || this.modo === 'historial') && p.desplazable;
         if (es('paginaArriba', codigo)) p.desplazar(-2);
         else if (es('paginaAbajo', codigo)) p.desplazar(2);
         else if (es('inicio', codigo)) p.desplazar('inicio');
@@ -82,6 +84,7 @@ export default class Cuaderno {
         else if (repetida) return true;
         else if (es('arriba', codigo) || es('izquierda', codigo)) this.moverFoco(-1);
         else if (es('abajo', codigo) || es('derecha', codigo)) this.moverFoco(1);
+        else if (es('historial', codigo)) this.alternarHistorial();
         else if (es('libreta', codigo)) this.volverAtras(true);
         else if (es('volver', codigo)) this.volverAtras(false);
         else if (es('elegir', codigo)) this.items[this.foco]?.activar();
@@ -211,6 +214,49 @@ export default class Cuaderno {
             }
         });
         return p.propio('grupos', y, colocados.map(c => c.obj), (x, yy) => { for (const c of colocados) c.obj.setPosition(x + c.x, yy + c.y); });
+    }
+
+    // H con el historial abierto lo cierra (con otra pantalla abierta no hace nada: el historial va aparte de la libreta)
+    alternarHistorial() {
+        if (this.modo === 'historial') return this.volverAtras(false);
+        return undefined;
+    }
+
+    // El historial de la habitación, como en una novela visual: todo lo que salió, en orden y lo último abajo (se abre ahí).
+    // Va aparte de la libreta: se abre desde el juego (tecla H o su botón en pantalla) y al cerrarlo se vuelve al juego.
+    abrirHistorial() {
+        const p = this.nueva('historial');
+        p.enCabecera(p.texto('titulo', 'HISTORIAL', { size: 26, color: TEXTO.ambar }), p.linea());
+        const entradas = this.historial();
+        if (!entradas.length) {
+            p.enCuerpo(p.texto('vacio', 'Todavía no ha salido ningún texto en esta habitación.', { size: 20, color: TEXTO.tenue, centrado: true, ancho: p.anchoCuerpo, antes: 60 }));
+        } else {
+            p.enCuerpo(this.entradasDelHistorial(p, entradas));
+        }
+        p.enPie(
+            p.botones('botones', [{ texto: 'Volver al juego', primario: true, alActivar: () => this.volverAtras(false), ancho: 320 }], { alto: 52 }),
+            p.texto('ayuda', '↑ ↓  /  rueda: desplazar     ·     E / Enter / clic: volver     ·     Esc / H: volver al juego', { size: 12, color: TEXTO.tenue, centrado: true })
+        );
+        p.componer();
+        p.desplazar('fin');
+        p.enfocar(0);
+        return p;
+    }
+
+    // Las entradas del historial como UN bloque del cuerpo: el nombre (quién habla o qué tarjeta era) y debajo el texto
+    entradasDelHistorial(p, entradas) {
+        const ancho = p.anchoCuerpo;
+        const crear = (contenido, opciones) => etiquetar(p.crearTexto(contenido, opciones), { tipo: 'contenido', dentroDe: p.caja });
+        const colocados = [];
+        let y = 0;
+        entradas.forEach((e, i) => {
+            if (i) y += 16;
+            const nombre = crear(e.etiqueta, { size: 14, color: e.clase === 'importante' ? TEXTO.ambar : TEXTO.tenue, ancho });
+            const cuerpo = crear(e.texto, { size: 18, espacio: 4, ancho: ancho - 20 });
+            colocados.push({ obj: nombre, x: 0, y }, { obj: cuerpo, x: 20, y: y + nombre.height + 3 });
+            y += nombre.height + 3 + cuerpo.height;
+        });
+        return p.propio('historial', y, colocados.map(c => c.obj), (x, yy) => { for (const c of colocados) c.obj.setPosition(x + c.x, yy + c.y); });
     }
 
     // Una pregunta ya resuelta: ✔, la pregunta y la conclusión elegida

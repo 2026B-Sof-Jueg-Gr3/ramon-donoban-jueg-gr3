@@ -31,7 +31,7 @@
     { "id": "pista:n6-pista-compartimento", "cuando": ["resolvio"], "clase": "secundaria", "texto": "pistas:n6-pista-compartimento", "paraElFinal": true, "despuesDelCierre": true },
     { "id": "bateria", "cuando": ["recogio:bateria"], "clase": "secundaria", "texto": "bateria" },
 
-    { "id": "momento:conexion-v", "cuando": ["acerto:detras", "en-registro:n5-pista-abrigo"], "clase": "importante", "texto": "momentos:conexion-v" }
+    { "id": "momento:conexion-v", "cuando": ["acerto:detras", "en-registro:n5-pista-abrigo", "examino:n6-mueble-pluma"], "clase": "importante", "texto": "momentos:conexion-v" }
   ],
   "ayuda": {
     "espera": 45,
@@ -43,22 +43,49 @@
     ]
   },
   "deduccion": {
-    "maximoDePruebas": 2,
+    "maximoDePruebas": 3,
     "expediente": true,
     "pilas": "bateria",
+    "obligatorias": ["pluma-gv"],
     "pruebas": {
       "cuentas-que-no-cuadran": { "sale": "revelacion:0" },
       "siete-rechazos": { "sale": "revelacion:1" },
+      "n6-pista-compradores": { "sale": "pista:n6-pista-compradores" },
       "pluma-gv": { "sale": "mueble:n6-mueble-pluma" },
       "archivador-forzado": { "sale": "mueble:n6-mueble-archivador" },
       "reloj-detenido": { "sale": "mueble:n6-mueble-reloj" },
+      "n1-pista-periodico": { "registro": true, "reponer": true },
       "n2-pista-recibo": { "registro": true },
-      "n3-pista-carta": { "registro": true },
-      "n5-pista-planos": { "registro": true }
+      "n3-pista-carta": { "registro": true, "reponer": true },
+      "n4-pista-diario": { "registro": true, "reponer": true },
+      "n5-pista-planos": { "registro": true, "reponer": true },
+      "n5-pista-abrigo": { "registro": true }
     },
     "preguntas": [
-      { "id": "detras", "correcta": "voss", "validas": [["pluma-gv", "n2-pista-recibo"]] },
-      { "id": "espantaba", "correcta": "buscar-tesoro", "validas": [["n3-pista-carta", "n5-pista-planos"]] }
+      { "id": "detras", "correcta": "voss",
+        "necesita": [["el-albacea-esta-detras", "el-albacea-es-gerhard-voss"], ["v-esta-detras", "v-es-gv", "gv-es-gerhard-voss"]],
+        "aportan": {
+          "siete-rechazos": ["el-albacea-esta-detras"],
+          "n6-pista-compradores": ["el-albacea-esta-detras"],
+          "n2-pista-recibo": ["v-esta-detras"],
+          "n5-pista-abrigo": ["v-esta-detras"],
+          "pluma-gv": ["v-es-gv"],
+          "n1-pista-periodico": ["el-albacea-es-gerhard-voss", "gv-es-gerhard-voss"],
+          "cuentas-que-no-cuadran": ["el-albacea-maneja-la-herencia"]
+        }
+      },
+      { "id": "espantaba", "correcta": "buscar-tesoro",
+        "necesita": ["hay-un-tesoro", "espantaba-compradores"],
+        "aportan": {
+          "n4-pista-diario": ["hay-un-tesoro"],
+          "n3-pista-carta": ["espantaba-compradores"],
+          "siete-rechazos": ["espantaba-compradores"],
+          "n6-pista-compradores": ["espantaba-compradores"],
+          "n5-pista-planos": ["buscaba-bajo-el-reloj"],
+          "reloj-detenido": ["buscaba-bajo-el-reloj"],
+          "archivador-forzado": ["faltan-las-escrituras"]
+        }
+      }
     ]
   }
 }

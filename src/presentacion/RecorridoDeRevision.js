@@ -125,6 +125,18 @@ export default class RecorridoDeRevision {
                 e.cuaderno.seleccion.conclusion = e.cuaderno.opcionesVistas[0];
                 e.cuaderno.mostrarPruebas();
             }])),
+            // El historial con todos los textos de la habitación 4 (los más largos), anotados como si hubieran salido
+            'historial-nivel4': async () => {
+                const e = await this.habitacion(4, { todo: false });
+                const n = this.juego.cache.json.get('narrativa4'), h = e.narracion.narrador.historial;
+                h.agregar({ clase: 'importante', texto: n.intro });
+                for (const m of n.marcas || []) h.agregar({ clase: 'ambiental', texto: m.texto });
+                for (const t of n.comentarios || []) h.agregar({ clase: 'secundaria', texto: t });
+                for (const p of n.pistas || []) h.agregar({ clase: 'secundaria', titulo: p.titulo, texto: p.texto });
+                for (const t of n.revelaciones || []) h.agregar({ clase: 'importante', texto: t });
+                h.agregar({ clase: 'importante', texto: n.cierre });
+                e.abrirLibreta(false, { historial: true });
+            },
             'pausa': async () => (await this.habitacion(2, { todo: false })).cuaderno.abrirPausa(),
             'confirmar-salida': async () => (await this.habitacion(2, { todo: false })).cuaderno.confirmarSalida(),
             'informe-pasillo': () => this.ir('Informe', { numeroDeNivel: 1, resumen: { pistas: 2, totalDePistas: 2, pilas: true } }),

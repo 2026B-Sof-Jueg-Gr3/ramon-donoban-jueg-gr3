@@ -1,6 +1,6 @@
 {
   "nivel": 2,
-  "comentario": "Reglas de la Cocina. No lleva texto: cada regla apunta a una línea de assets/narrativa/nivel2.json. 'cuando' es la lista de hechos que tienen que haber ocurrido (en cualquier orden); la regla sale una sola vez, al ocurrir el último. Una pregunta, una sola respuesta (DISENO_V2.md, sección 5): 'validas' tiene UNA combinación, con solo las pruebas que responden DIRECTAMENTE la pregunta. Cada pista de la cocina responde una pregunta: el recibo (quién compró las piezas) y la taza (quién estuvo aquí hace poco) responden juntos la pregunta 2 (¿alguien sigue manejando el fantasma?); no valen en las otras dos. Hechos: entro · ilumino:X · examino:X · recogio:X · rodo:X · tiro:X · oyo-cerca:X (un golpe del fenómeno mientras el inspector está cerca de X). 'requiere' son las dependencias físicas de una acción. 'deduccion' dice qué prueba sale de qué regla y qué combinaciones respaldan cada conclusión; los nombres y las preguntas están en la narrativa.",
+  "comentario": "Reglas de la Cocina. No lleva texto: cada regla apunta a una línea de assets/narrativa/nivel2.json. 'cuando' es la lista de hechos que tienen que haber ocurrido (en cualquier orden); la regla sale una sola vez, al ocurrir el último. Cada pregunta se valora por hechos (src/motor/Deduccion.js): 'necesita' son los hechos de la conclusión y 'aportan', lo que dice cada prueba pertinente; una prueba que no está en 'aportan' es ajena (error). Hechos: entro · ilumino:X · examino:X · recogio:X · rodo:X · tiro:X · oyo-cerca:X (un golpe del fenómeno mientras el inspector está cerca de X). 'requiere' son las dependencias físicas de una acción. 'deduccion' dice qué prueba sale de qué regla y qué combinaciones respaldan cada conclusión; los nombres y las preguntas están en la narrativa.",
   "objetos": {
     "alacena": {
       "acciones": {
@@ -69,9 +69,30 @@
       "n2-pista-taza": { "sale": "pista:n2-pista-taza" }
     },
     "preguntas": [
-      { "id": "mecanismo", "correcta": "poleas-cuerda-fuelle", "validas": [["cuerda-al-techo", "fuelle-escondido"]] },
-      { "id": "responsable", "correcta": "sigue-viniendo", "validas": [["n2-pista-recibo", "n2-pista-taza"]] },
-      { "id": "companero", "correcta": "hay-alguien-mas", "validas": [["platos-para-dos"]] }
+      { "id": "mecanismo", "correcta": "poleas-cuerda-fuelle",
+        "necesita": ["poleas-y-cuerda", "fuelle", "montado-en-la-cocina"],
+        "aportan": {
+          "cuerda-al-techo": ["poleas-y-cuerda", "montado-en-la-cocina"],
+          "fuelle-escondido": ["fuelle", "montado-en-la-cocina"],
+          "n2-pista-recibo": ["poleas-y-cuerda", "fuelle"]
+        }
+      },
+      { "id": "responsable", "correcta": "sigue-viniendo",
+        "necesita": ["estuvo-hace-poco"],
+        "aportan": {
+          "n2-pista-taza": ["estuvo-hace-poco"],
+          "sarten-con-aceite": ["estuvo-hace-poco"],
+          "n2-pista-recibo": ["lo-preparo-a-proposito"],
+          "copas-limpias": ["usan-la-casa"]
+        }
+      },
+      { "id": "companero", "correcta": "hay-alguien-mas",
+        "necesita": ["eran-dos"],
+        "aportan": {
+          "platos-para-dos": ["eran-dos"],
+          "copas-limpias": ["usan-la-casa"]
+        }
+      }
     ]
   }
 }

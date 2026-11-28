@@ -1,6 +1,6 @@
 {
   "nivel": 1,
-  "comentario": "Reglas del Pasillo Oscuro. No lleva texto: cada regla apunta a una línea de assets/narrativa/nivel1.json. 'cuando' es la lista de hechos que tienen que haber ocurrido (en cualquier orden); la regla sale una sola vez, al ocurrir el último. 'deduccion' dice qué prueba sale de qué regla y qué combinaciones respaldan cada conclusión; los nombres y las preguntas están en la narrativa.",
+  "comentario": "Reglas del Pasillo Oscuro. No lleva texto: cada regla apunta a una línea de assets/narrativa/nivel1.json. 'cuando' es la lista de hechos que tienen que haber ocurrido (en cualquier orden); la regla sale una sola vez, al ocurrir el último. 'deduccion' dice qué prueba sale de qué regla y qué combinaciones respaldan cada conclusión; los nombres y las preguntas están en la narrativa. Cada pregunta se valora por hechos (src/motor/Deduccion.js): 'necesita' son los hechos de la conclusión y 'aportan', lo que dice cada prueba pertinente. El RECORTE es obligatorio: hay que recogerlo antes de poder deducir (es el único que da el nombre de Gerhard Voss, en la deducción del nivel 6).",
   "objetos": {
     "pila-de-cajas": {
       "acciones": {
@@ -43,12 +43,14 @@
       { "efecto": "libreta", "mientras": { "deduccion": "disponible" } },
       { "efecto": "marcas", "mientras": { "sinContar": ["marca:n1-marca-arrastre"] } },
       { "efecto": "pila", "mientras": { "sinContar": ["comentario:0"] } },
-      { "efecto": "corriente", "mientras": { "sinContar": ["revelacion:1"] } }
+      { "efecto": "corriente", "mientras": { "sinContar": ["revelacion:1"] } },
+      { "efecto": "recorte", "mientras": { "sinContar": ["pista:n1-pista-periodico"] } }
     ]
   },
   "deduccion": {
     "maximoDePruebas": 2,
     "pilas": "bateria",
+    "obligatorias": ["n1-pista-periodico"],
     "pruebas": {
       "ventana-rota": { "sale": "revelacion:1" },
       "cajas-movidas": { "sale": "revelacion:0" },
@@ -58,8 +60,21 @@
       "n1-pista-periodico": { "sale": "pista:n1-pista-periodico" }
     },
     "preguntas": [
-      { "id": "cortinas", "correcta": "corriente", "validas": [["ventana-rota"]] },
-      { "id": "embrujado", "correcta": "a-proposito", "validas": [["cajas-movidas"]] }
+      { "id": "cortinas", "correcta": "corriente",
+        "necesita": ["corriente"],
+        "aportan": {
+          "ventana-rota": ["corriente"]
+        }
+      },
+      { "id": "embrujado", "correcta": "a-proposito",
+        "necesita": ["hubo-alguien", "lo-movio-a-proposito"],
+        "aportan": {
+          "cajas-movidas": ["hubo-alguien", "lo-movio-a-proposito"],
+          "marcas-de-arrastre": ["hubo-alguien", "lo-movio-a-proposito"],
+          "n1-pista-huella": ["hubo-alguien"],
+          "polvo-removido": ["hubo-alguien"]
+        }
+      }
     ]
   }
 }

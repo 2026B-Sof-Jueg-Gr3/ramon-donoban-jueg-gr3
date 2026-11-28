@@ -41,6 +41,7 @@
       { "efecto": "hilos", "mientras": { "sinContar": ["comentario:1"] } },
       { "efecto": "polvo", "mientras": { "sinContar": ["revelacion:1"] } },
       { "efecto": "oso", "mientras": { "sinContar": ["mueble:n4-mueble-oso"] } },
+      { "efecto": "diario", "mientras": { "sinContar": ["pista:n4-pista-diario"] } },
       { "efecto": "final", "mientras": { "deduccion": "resuelta" } }
     ]
   },
@@ -48,6 +49,7 @@
   "deduccion": {
     "maximoDePruebas": 2,
     "pilas": "bateria",
+    "obligatorias": ["n4-pista-diario"],
     "pruebas": {
       "trampilla-del-techo": { "sale": "revelacion:1" },
       "oso-con-hilo-cosido": { "sale": "mueble:n4-mueble-oso" },
@@ -57,7 +59,14 @@
       "n4-pista-diario": { "sale": "pista:n4-pista-diario" }
     },
     "preguntas": [
-      { "id": "juguetes", "correcta": "con-hilos", "validas": [["oso-con-hilo-cosido", "trampilla-del-techo"]] }
+      { "id": "juguetes", "correcta": "con-hilos",
+        "necesita": ["hilos", "desde-la-trampilla"],
+        "aportan": {
+          "n4-pista-hilo": ["hilos", "desde-la-trampilla"],
+          "oso-con-hilo-cosido": ["hilos"],
+          "trampilla-del-techo": ["desde-la-trampilla"]
+        }
+      }
     ]
   }
 }

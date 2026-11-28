@@ -75,8 +75,9 @@ El peligro es reemplazar los objetivos del Sokoban por una lista de tareas de in
 3. **Las revelaciones son consecuencias, no objetivos.** Nunca se anuncia "busca dos revelaciones": aparecen cuando el
    jugador hace la acción que naturalmente descubre algo (mover la alacena, seguir la corriente, mirar debajo de la
    caja).
-4. **No todo es obligatorio.** Pistas, muebles, marcas y pilas son opcionales. Para la deducción hay más de una
-   combinación de pruebas válida (sección 5), así que el jugador puede resolver sin haberlo encontrado todo.
+4. **No todo es obligatorio.** Muebles, marcas, pilas y casi todas las pistas son opcionales: la deducción se evalúa por los
+   hechos que aportan las pruebas (sección 5) y casi siempre hay más de un camino, así que el jugador puede resolver sin haberlo
+   encontrado todo. Solo son obligatorias las pistas que una deducción posterior necesita (el recorte, la carta y el diario).
 5. **Ayuda sin texto nuevo.** Si el jugador lleva mucho tiempo sin descubrir nada, el propio fenómeno lo orienta:
    - las cortinas se agitan más fuerte;
    - la onda de cada golpe sale del lado donde está la alacena;
@@ -180,161 +181,196 @@ Es la única habitación en tiempo real y **no tiene deducción en la libreta**:
 
 ## 5. Deducciones con profundidad
 
-> ### La regla: una pregunta, una sola respuesta *(Arreglo 5a.2)*
->
-> **Cada pregunta tiene UNA sola respuesta válida**, formada solo por las pruebas que responden **directamente** esa
-> pregunta. No hay respuestas alternativas con pruebas que hablan de otra cosa (quién lo hizo, cuándo, para qué): esas
-> pertenecen a **otra** pregunta. Una prueba que no responde directamente ninguna pregunta del nivel aparece en la libreta y
-> queda en el Registro, pero presentarla es **error**.
->
-> Ejemplos: en el pasillo, "¿Qué mueve las cortinas?" → solo *Ventana rota*. En la cocina, "¿Qué produce los golpes y apaga
-> las velas?" → solo *Cuerda al techo* + *Fuelle escondido* (el RECIBO DE FERRETERÍA dice quién compró las piezas, no qué
-> produce los golpes).
->
-> **Comprobación automática** (`pruebas/deduccion.test.mjs`, y `validarDeduccion` al cargar la habitación): ninguna pregunta de
-> ningún nivel puede tener más de una combinación válida; si alguna la tiene, falla y dice cuál. La única forma de admitir
-> más de una es una **excepción explícita** (`"excepcion"` con su comentario en `assets/investigaciones/nivelN.json`),
-> que queda pendiente de decisión. Hoy hay una: la pregunta 2 del pasillo (abajo).
+La deducción tiene que comprobar que el jugador **entendió** el fenómeno, no que juntó objetos ni que adivinó la combinación
+que pensó quien hizo el juego. Si el jugador presenta una deducción razonable, respaldada por lo que encontró, se reconoce
+aunque no sea la ruta de Silas.
 
-La deducción tiene que comprobar que el jugador **entendió** el fenómeno, no que juntó objetos. Tiene que llegar al
-momento de *"ahora entiendo cómo lo hicieron"*.
+> ### La regla: deducción por hechos *(aprobada el 2026-11-27; reemplaza a «una pregunta, una sola respuesta»)*
+>
+> - **Cada prueba aporta uno o más hechos.** La bobina de hilo dice dos cosas (hay un hilo y sube a la trampilla); el oso con
+>   el hilo cosido, solo una (hay un hilo).
+> - **Cada conclusión necesita ciertos hechos.** «¿Cómo se mueven los juguetes?» necesita *los hilos* y *que vienen de la
+>   trampilla*. Una conclusión puede tener **varios caminos** (en el despacho, dos formas de llegar a Gerhard Voss).
+> - **Un hecho parcial** orienta pero no completa nada: el llavero vacío o el reloj detenido tienen que ver con la pregunta,
+>   pero no la demuestran.
+> - Se evalúa **qué información aportan las pruebas en conjunto**, no cuántas se eligieron ni si coinciden con una lista.
+>
+> Una respuesta es:
+>
+> | Resultado | Cuándo | Qué pasa |
+> |---|---|---|
+> | **Correcta** | la conclusión es la correcta, todas las pruebas son pertinentes y entre todas cubren los hechos de algún camino | se resuelve la pregunta |
+> | **Insuficiente** | conclusión correcta y pruebas pertinentes, pero falta un hecho | Silas dice *«Voy bien, pero me falta una pieza.»* (`insuficiente` en la narrativa) y se repite la pregunta |
+> | **Error** | la conclusión es otra, o alguna prueba no tiene nada que ver con la pregunta (una **ajena** invalida la selección aunque las demás basten) | la línea de `error` de siempre, y se repite la pregunta |
+>
+> Una sola prueba que ya contiene toda la información vale sola (la bobina, los platos para dos, la taza tibia). Pruebas
+> pertinentes de más al lado de una respuesta completa no estorban.
+>
+> **Datos** (`assets/investigaciones/nivelN.json`, sin texto): cada pregunta lleva `"necesita": [hechos]` (o `[[hechos], [hechos]]`
+> con varios caminos) y `"aportan": { prueba: [hechos] }`. Lo que no está en `aportan` es ajeno.
+>
+> **Comprobación automática:** `validarDeduccion` (al cargar la habitación) avisa de un hecho que ninguna prueba aporta, de una
+> prueba que no existe y de una pregunta que no se puede cubrir con el máximo de pruebas. `pruebas/niveles.test.mjs` prueba
+> **cada selección posible** de cada pregunta contra la tabla de abajo, escrita a mano (correcta, insuficiente o ajena), y
+> `pruebas/deduccion.test.mjs` prueba las reglas generales con una habitación inventada.
 
 ### Cómo funciona
 
-Cada deducción tiene **una o dos preguntas**. Cada pregunta se resuelve en dos pasos:
+Cada deducción tiene **una a tres preguntas**. Cada pregunta se resuelve en dos pasos:
 
 1. **Conclusión:** elegir la explicación entre tres opciones.
    - una es la verdadera;
    - otra es una explicación física razonable pero equivocada;
    - la tercera es la versión "sobrenatural" que cuenta la leyenda.
-2. **Demostración:** respaldarla con las pruebas del expediente que la responden directamente (la regla de arriba: **una sola
-   respuesta**; el jugador puede tener además otras cosas en la libreta). Se eligen **1 o 2 pruebas como máximo** por pregunta,
-   para que no se pueda marcar todo; la respuesta vale si las pruebas elegidas forman la combinación válida **y todas son
-   pertinentes** a la pregunta (ver "Prueba que no tiene nada que ver → error", más abajo).
+2. **Demostración:** respaldarla con pruebas de la libreta. Se eligen **como máximo 2** (3 en el despacho, el caso final),
+   para que no se pueda marcar todo. La pantalla no dice cuántas hacen falta: "Elige las pruebas que la respalden (máximo N)".
 
 Las opciones de la conclusión salen en **orden mezclado** (la correcta no siempre está primera). Una pregunta ya resuelta no
-vuelve a preguntarse. *(Fase 3, aprobado.)*
+vuelve a preguntarse. Un error o una respuesta insuficiente no tienen castigo: *corregir un error también es parte del
+método* (decisión 7).
 
-- **Acierto:** con la última pregunta resuelta sale el `cierre`.
-- **Error:** el inspector dice su línea de `error` como texto importante y el jugador vuelve a **esa misma pregunta** sin
-  castigo, porque *corregir un error también es parte del método*. **Decidido: sin castigo** (decisión 7).
-- **Prueba equivocada:** si la conclusión es correcta pero la prueba no la respalda, también sale la línea de `error`.
-  Así no se puede adivinar probando opciones.
-- **Prueba que no tiene nada que ver → error.** *(Arreglo 3.2.)* Una respuesta es correcta solo si: 1) la conclusión es la
-  correcta, 2) las pruebas elegidas forman al menos una combinación válida y 3) **todas** las pruebas elegidas son pertinentes
-  a esa pregunta, es decir, aparecen en alguna de sus combinaciones válidas. Si una prueba no tiene nada que ver, sale la
-  misma línea de `error`, sin castigo. En el nivel 1: la pregunta 1 solo vale con *Ventana rota* sola (con cualquier otra
-  prueba es error); la 2 vale con 1 o 2 de {Cajas movidas, Marcas de arrastre, Polvo removido, HUELLA DE BOTA} (con el
-  RECORTE o la Ventana rota es error): **es la excepción a la regla de arriba**, pendiente de decisión. Vale igual para las
-  combinaciones de dos pruebas de las habitaciones siguientes (la cuerda y el fuelle): con una sola no basta, y con una ajena
-  tampoco (el RECIBO con la cuerda, por ejemplo, es error). La pantalla no dice cuántas pruebas hacen falta:
-  "Elige las pruebas que la respalden (máximo 2)".
+**Pistas obligatorias:** la deducción no se ofrece hasta recogerlas, porque una deducción posterior las necesita:
+el **RECORTE DE PERIÓDICO** (nivel 1: el único que da el nombre de Gerhard Voss), la **CARTA SIN ENVIAR** (nivel 3) y la
+**PÁGINA DE UN DIARIO INFANTIL** (nivel 4: la única que dice que hay un tesoro). En el despacho, además, hay que haber
+examinado la **Pluma «G. V.»** para poder responder (no hace falta presentarla como prueba). Mientras falten, la ayuda sin texto las
+señala con un resplandor. El recibo y el abrigo siguen siendo opcionales: siempre queda otro camino.
 
-### Contenido **[Niveles 1 y 2: APROBADOS (fases 3 y 5a) · niveles 3 a 6: propuesto]**
+### Contenido **[APROBADO el 2026-11-27]**
 
-*(Las tablas de los niveles 3, 4 y 6 todavía enumeran varias combinaciones por pregunta: no cumplen la regla de arriba. Quedan
-sin cambiar hasta que apruebes la única respuesta de cada una; la propuesta está en el informe del arreglo 5a.2,
-`docs/fase5/INFORME_FASE_5A_COCINA.md`.)*
-
-Esto sí es **texto nuevo**: las preguntas, las opciones y los nombres cortos de las pruebas en la libreta. Todo sale de
-hechos que ya están en la historia; no agrega nada a la trama. Las pistas usan su título actual.
+Las preguntas, las opciones y los nombres cortos de las pruebas son texto de la libreta; las pistas usan su título actual.
+En cada tabla: los **hechos** que necesita la conclusión, qué aporta cada prueba pertinente, las **respuestas mínimas**
+(cualquier selección que contenga una, sin pruebas ajenas, es correcta) y lo que queda **insuficiente**.
 
 #### Nivel 1 — El Pasillo Oscuro
 
-| Pregunta | Opciones (✔ = correcta) | Pruebas válidas (basta una combinación) |
-|---|---|---|
-| ¿Qué mueve las cortinas? | ✔ La corriente que entra por la ventana rota · Alguien las mueve desde detrás · Las sombras malditas de la mansión | **Ventana rota** |
-| ¿Por qué parecía embrujado? | ✔ Alguien desordenó el pasillo a propósito · Las cajas se cayeron con el tiempo · La casa rechaza a los visitantes | **Cajas movidas**, o **Marcas de arrastre**, o **Polvo removido**, o **HUELLA DE BOTA** |
+**¿Qué mueve las cortinas?** **La corriente que entra por la ventana rota** (correcta) · Alguien las mueve desde detrás · Las sombras
+malditas de la mansión.
 
-**Excepción a la regla «una pregunta, una sola respuesta» (pendiente de tu decisión):** la pregunta 2 del pasillo acepta hoy
-cuatro respuestas. Está marcada en los datos con `"excepcion"`; no se cambió. Con la regla, su única respuesta sería
-*Cajas movidas*.
-
-Nombres cortos nuevos: Ventana rota, Marcas de arrastre, Polvo removido, Cajas movidas.
-
-**Cómo salen las pruebas del nivel 1** (los textos están en `assets/narrativa/nivel1.json` → `deduccion`; la lógica, sin texto,
-en `assets/investigaciones/nivel1.json` → `deduccion`):
-
-| Prueba | Sale de la regla |
+| Hecho | Lo aportan |
 |---|---|
-| Ventana rota | `revelacion:1` |
-| Cajas movidas | `revelacion:0` |
-| Marcas de arrastre | `marca:n1-marca-arrastre` |
-| Polvo removido | `marca:n1-marca-polvo` |
-| HUELLA DE BOTA · RECORTE DE PERIÓDICO | `pista:…` (con su título y su texto) |
+| la corriente | Ventana rota |
 
-El **RECORTE DE PERIÓDICO** aparece en la libreta pero no prueba nada en este nivel (se usará en la deducción final). Las
-**pilas** no son prueba. El mínimo para que la deducción esté disponible: *Ventana rota* y al menos una de las pruebas de la
-segunda pregunta.
+Respuesta mínima: *Ventana rota*. Todo lo demás es ajeno.
 
-#### Nivel 2 — El Fantasma de la Cocina *(aprobado en la fase 5a; una sola respuesta por pregunta desde el arreglo 5a.2)*
+**¿Por qué parecía embrujado?** **Alguien desordenó el pasillo a propósito** (correcta) · Las cajas se cayeron con el tiempo · La casa
+rechaza a los visitantes.
 
-| Pregunta | Opciones (✔ = correcta) | Única respuesta válida |
-|---|---|---|
-| ¿Qué produce los golpes y apaga las velas? | ✔ Un mecanismo de poleas, cuerda y fuelle · El viento que baja por la chimenea · Un fantasma que golpea las ollas | **Cuerda al techo** y **Fuelle escondido** (las dos) |
-| ¿Quién lo construyó trabaja solo? | ✔ No: hay alguien más con él · Sí: vive aquí escondido · Nadie lo construyó | **Platos para dos** (solo esa prueba) |
-| ¿Quién maneja el fantasma de la cocina? *(pregunta 3, propuesta: pendiente de tu aprobación)* | ✔ Una persona real: compró las piezas y estuvo aquí hace poco · Nadie: el mecanismo funciona solo · Un fantasma, como cuenta la leyenda | **RECIBO DE FERRETERÍA** y **TAZA DE CAFÉ** (las dos) |
-
-Nombres cortos nuevos: Cuerda al techo, Fuelle escondido, Alacena con ruedas, Platos para dos, Copas limpias, Sartén con aceite.
-
-**Cómo salen las pruebas del nivel 2** (textos en `assets/narrativa/nivel2.json` → `deduccion`; lógica en
-`assets/investigaciones/nivel2.json` → `deduccion`):
-
-| Prueba | Sale de |
+| Hecho | Lo aportan |
 |---|---|
-| Cuerda al techo | `revelacion:0` (la alacena rueda y deja ver la cuerda) |
-| Fuelle escondido | `revelacion:1` (se examina el fuelle) |
-| Alacena con ruedas | `comentario:0` (examinar la alacena) |
-| Platos para dos · Copas limpias · Sartén con aceite | `mueble:` correspondiente (examinar ese mueble) |
-| RECIBO DE FERRETERÍA · TAZA DE CAFÉ | `pista:…` (con su título y su texto) |
+| hubo alguien | Cajas movidas, Marcas de arrastre, HUELLA DE BOTA, Polvo removido |
+| lo movió a propósito | Cajas movidas, Marcas de arrastre |
 
-Cada pista de la cocina responde una pregunta: el **RECIBO DE FERRETERÍA** (quién compró las piezas, firmado «V») y la **TAZA DE
-CAFÉ** (alguien estuvo aquí hace menos de una hora) responden **juntos** la pregunta 3; en las otras dos preguntas son error. Las
-*Copas limpias*, la *Sartén con aceite* y la *Alacena con ruedas* aparecen en la libreta pero no responden ninguna pregunta (el error
-del nivel 2 sale si se presentan). Las **pilas** no son prueba. Mínimo para que la deducción esté disponible: *Cuerda al techo*,
-*Fuelle escondido*, *Platos para dos*, el recibo y la taza (hay que recoger las dos pistas).
+Respuestas mínimas: *Cajas movidas* · *Marcas de arrastre*. Insuficientes: la huella sola, el polvo solo, o los dos juntos
+(dicen que hubo alguien, no que organizó el pasillo). Ajenas: Ventana rota, RECORTE.
+
+#### Nivel 2 — El Fantasma de la Cocina
+
+**¿Qué produce los golpes y apaga las velas?** **Un mecanismo de poleas, cuerda y fuelle** (correcta) · El viento que baja por la
+chimenea · Un fantasma que golpea las ollas.
+
+| Hecho | Lo aportan |
+|---|---|
+| las poleas y la cuerda | Cuerda al techo, RECIBO DE FERRETERÍA |
+| el fuelle | Fuelle escondido, RECIBO DE FERRETERÍA |
+| está montado en la cocina | Cuerda al techo, Fuelle escondido |
+
+Respuestas mínimas: *Cuerda + Fuelle* · *Recibo + Cuerda* · *Recibo + Fuelle*. Insuficientes: cualquiera de las tres sola
+(el recibo solo prueba una compra, no que el mecanismo esté instalado).
+
+**¿Alguien sigue manejando el fantasma?** **Sí: lo preparó a propósito y sigue viniendo** (correcta) · No: es un aparato viejo que quedó
+funcionando · No: la casa lo hace sonar sola.
+
+| Hecho | Lo aportan |
+|---|---|
+| alguien estuvo hace poco | TAZA DE CAFÉ (hace menos de una hora), Sartén con aceite (esta misma semana) |
+| *(parcial)* lo preparó a propósito | RECIBO DE FERRETERÍA |
+| *(parcial)* usan la casa | Copas limpias |
+
+Respuestas mínimas: *Taza* · *Sartén*. Insuficientes: el recibo o las copas, solos o juntos.
+
+**¿Quien lo construyó trabaja solo?** **No: hay alguien más con él** (correcta) · Sí: vive aquí escondido · Nadie lo construyó.
+
+| Hecho | Lo aportan |
+|---|---|
+| eran dos | Platos para dos |
+| *(parcial)* usan la casa | Copas limpias |
+
+Respuesta mínima: *Platos para dos* (con las copas al lado, también). Insuficiente: las copas solas.
 
 #### Nivel 3 — La Puerta con Candado
 
-| Pregunta | Opciones | Pruebas válidas |
-|---|---|---|
-| ¿Por qué hay un candado nuevo en una puerta vieja? | ✔ Alguien entra y sale a diario y no quiere visitas · Nadie ha cruzado esta puerta en años · La sellaron para encerrar algo | **Camino sin polvo** y **Huellas recientes**, o **LLAVE DE LATÓN**, o **Aceite para bisagras** |
+**¿Por qué hay un candado nuevo en una puerta vieja?** **Alguien entra y sale a diario y no quiere visitas** (correcta) · Nadie ha
+cruzado esta puerta en años · La sellaron para encerrar algo.
 
-El "para qué" (la `CARTA SIN ENVIAR`: *"mientras crean que la casa está maldita, ningún comprador se acercará"*) queda
-como pista opcional aquí y se usa en la deducción final.
+| Hecho | Lo aportan |
+|---|---|
+| entra seguido | Camino sin polvo, Huellas recientes, LLAVE DE LATÓN, Aceite para bisagras |
+| no quiere visitas | CARTA SIN ENVIAR, Puerta tapiada |
+| *(parcial)* falta la llave | Llavero vacío |
+| *(parcial)* abren cerraduras | Herramientas de cerrajero |
 
-Nombres cortos nuevos: Camino sin polvo, Huellas recientes, Llavero vacío, Puerta tapiada, Herramientas de cerrajero, Aceite para bisagras.
+Respuestas mínimas: una prueba de cada grupo (*Camino + Carta*, *Huellas + Puerta tapiada*, *Llave + Carta*…). Insuficientes:
+una parte sola, aunque sean dos pruebas del mismo grupo (*Camino + Huellas* dice que alguien entra, no por qué no quiere
+visitas), y el llavero o las herramientas.
 
 #### Nivel 4 — El Cuarto de los Juguetes
 
-| Pregunta | Opciones | Pruebas válidas |
-|---|---|---|
-| ¿Cómo se mueven los juguetes? | ✔ Con hilos manejados desde una trampilla del techo · Con engranajes de cuerda que alguien engrasó · Cobran vida solos | **Trampilla del techo** y **BOBINA DE HILO DE PESCAR**, o **Oso con hilo cosido** y **Trampilla del techo** |
+**¿Cómo se mueven los juguetes?** **Con hilos manejados desde una trampilla del techo** (correcta) · Con engranajes de cuerda que alguien
+engrasó · Cobran vida solos.
 
-La opción de los engranajes es la trampa: el caballito sí tiene engranajes engrasados, pero no explica el movimiento.
+| Hecho | Lo aportan |
+|---|---|
+| hay hilos | BOBINA DE HILO DE PESCAR, Oso con hilo cosido |
+| vienen de la trampilla | BOBINA DE HILO DE PESCAR, Trampilla del techo |
 
-Nombres cortos nuevos: Trampilla del techo, Oso con hilo cosido, Caballito engrasado, Muñecas alineadas.
+Respuestas mínimas: *Bobina* (sola: dice las dos cosas) · *Oso + Trampilla*. Insuficientes: el oso solo, la trampilla sola.
+Ajenas: Caballito engrasado (apoya la opción falsa de los engranajes), Muñecas alineadas, el diario.
 
 #### Nivel 5 — La Sombra en la Ventana
 
 Sin deducción: la captura es la prueba.
 
-#### Nivel 6 — La Verdad Revelada (deducción final)
+#### Nivel 6 — La Verdad Revelada (deducción final, hasta 3 pruebas)
 
-| Pregunta | Opciones | Pruebas válidas (de toda la mansión) |
+El expediente reúne lo del despacho y las pistas que el Registro guardó: el recorte, el recibo, la carta, el diario, los
+planos y el abrigo también son pruebas.
+
+**¿Quién está detrás de la "maldición"?** **Gerhard Voss, el albacea** (correcta) · El cómplice de la ventana · La propia maldición de
+los Flieder. Hay que demostrar dos cosas: que el albacea (o «V») está detrás del engaño, **y** que esa persona es Gerhard Voss.
+
+| Camino | Hechos | Lo aportan |
 |---|---|---|
-| ¿Quién está detrás de la "maldición"? | ✔ Gerhard Voss, el albacea · El cómplice de la ventana · La propia maldición de los Flieder | **Pluma "G. V."** y una de: **CARTAS DE COMPRADORES** (rechazadas por el albacea), **RECIBO DE FERRETERÍA** (firmado "V"), **ABRIGO NEGRO** (la nota firmada "—V."), **RECORTE DE PERIÓDICO** (Voss administra la mansión) |
-| ¿Por qué espantaba a los compradores? | ✔ Para buscar el tesoro sin que nadie se quedara con la casa · Para proteger la memoria del señor Flieder · Porque creía en la maldición | **Siete rechazos** o **CARTAS DE COMPRADORES** o **CARTA SIN ENVIAR**, y una de: **Cuentas que no cuadran**, **PLANOS DE LA MANSIÓN**, **PÁGINA DE UN DIARIO INFANTIL** |
+| por el albacea | el albacea está detrás · el albacea es Gerhard Voss | Siete rechazos o CARTAS DE COMPRADORES (rechazó las ofertas «por los fantasmas») · RECORTE DE PERIÓDICO |
+| por la «V» | «V» está detrás · «V» es «G. V.» · «G. V.» es Gerhard Voss | RECIBO DE FERRETERÍA o ABRIGO NEGRO (la nota «—V.») · Pluma «G. V.» · RECORTE DE PERIÓDICO |
+| *(parcial)* | el albacea maneja la herencia | Cuentas que no cuadran |
+
+Para responder hay que haber examinado la pluma (obligatoria), aunque no se presente. La línea de la «V» («El cómplice no habló…»)
+sale al acertar esta pregunta solo con el ABRIGO NEGRO en el Registro y la pluma examinada.
+
+Respuestas mínimas: *Siete rechazos* (o la pista de las cartas) *+ Recorte* · *Recibo + Pluma + Recorte* · *Abrigo + Pluma + Recorte*. Insuficientes:
+*Pluma + Recorte* (el albacea administra la mansión: que su pluma esté en el despacho es normal), *Pluma + Recibo* (falta el
+nombre), *Siete rechazos* sola, y las cuentas. Ajenas: Archivador, Reloj, Planos, Carta (no está firmada), Diario.
+
+**¿Por qué espantaba a los compradores?** **Para buscar el tesoro sin que nadie se quedara con la casa** (correcta) · Para proteger la
+memoria del señor Flieder · Porque creía en la maldición.
+
+| Hecho | Lo aportan |
+|---|---|
+| hay un tesoro | PÁGINA DE UN DIARIO INFANTIL («el abuelo escondió su tesoro…») |
+| espantaba a los compradores | CARTA SIN ENVIAR, Siete rechazos, CARTAS DE COMPRADORES |
+| *(parcial)* buscaba bajo el reloj | PLANOS DE LA MANSIÓN, Reloj detenido (dicen dónde buscar, no que haya un tesoro) |
+| *(parcial)* faltan las escrituras | Archivador forzado |
+
+Respuestas mínimas: *Diario + Carta* · *Diario + Siete rechazos* (o la pista de las cartas). Insuficientes: los planos o el reloj sin el diario.
 
 La pista `COMPARTIMENTO BAJO EL RELOJ` no entra en la deducción porque el compartimento se abre en el `cierre`, después
 de deducir.
 
-Nombres cortos nuevos: Cuentas que no cuadran, Siete rechazos, Pluma "G. V.", Archivador forzado, Reloj detenido.
+Nombres cortos: Cuentas que no cuadran, Siete rechazos, Pluma "G. V.", Archivador forzado, Reloj detenido.
 
 Ojo: la historia nunca dice con todas las letras "fue Voss", pero todas las pistas apuntan a él (la "V", "G. V." en la
 pluma y en las herramientas, la administración de la mansión). La deducción lo hace explícito, y el informe final
-mantiene su frase *"no todas las preguntas tienen respuesta"* sobre el tesoro. **[DECIDIR]** si te parece bien que el
-jugador lo concluya.
+mantiene su frase *"no todas las preguntas tienen respuesta"* sobre el tesoro.
 
 ---
 
@@ -515,8 +551,8 @@ una y otra, volumen bajo (`src/motor/ListaDeMusica.js`) y **M** para silenciar.
 5. **Validación automática:** el validador comprueba que:
    - cada texto tenga su disparador;
    - cada revelación se pueda alcanzar respetando las dependencias físicas;
-   - cada deducción tenga al menos una combinación de pruebas válida que se pueda conseguir **en la misma
-     habitación**, para que una pista opcional de una habitación anterior nunca sea obligatoria.
+   - cada pregunta se pueda cubrir con el máximo de pruebas, y cada hecho que necesita lo aporte alguna prueba; lo que una
+     deducción posterior necesita de esta habitación es obligatorio aquí (nunca depende de una pista opcional).
 
 ### Datos de una habitación
 
@@ -539,7 +575,7 @@ una y otra, volumen bajo (`src/motor/ListaDeMusica.js`) y **M** para silenciar.
   - las dependencias físicas;
   - qué detiene el fenómeno;
   - la ayuda sin texto;
-  - las preguntas y las combinaciones de pruebas válidas de la deducción;
+  - las preguntas de la deducción: los hechos que necesita cada conclusión y los que aporta cada prueba;
   - en el nivel 5, la ruta de la sombra y los tiempos.
 
 ### Carpetas propuestas
@@ -551,7 +587,7 @@ src/
     Investigacion.js       hallazgos, dependencias, revelaciones, fenómeno, habitación resuelta
     Interacciones.js       qué pasa al usar cada objeto
     Visibilidad.js         cono de luz, polígono de visibilidad, qué toca la luz
-    Deduccion.js           conclusiones y combinaciones de pruebas válidas
+    Deduccion.js           conclusiones evaluadas por hechos (correcta, insuficiente, error)
     Persecucion.js         la sombra del nivel 5
     Ayuda.js               cuándo y cómo orientar sin texto
     Progreso.js
@@ -688,20 +724,20 @@ en una posición fija (`PANEL.y + 184`, `PANEL.y + 392`…). Arreglar un caso su
 
 ## 15. Niveles 3 a 6 como quedaron en la fase 6 (esta sección manda sobre las tablas de las secciones 4 y 5 para esos niveles)
 
-**Regla de oro (sección 5): una pregunta, una sola respuesta.** Todas las preguntas de los niveles 3, 4 y 6 tienen UNA combinación válida; las tablas con
-varias combinaciones de las secciones 4 y 5 quedan reemplazadas por esta.
+**Regla de la deducción (sección 5): por hechos.** Desde el 2026-11-27 las respuestas de todos los niveles son las de las tablas de la sección 5; la columna
+«Deducción» de abajo da un ejemplo de respuesta correcta.
 
-| Nivel | Mecánica propia (todas, UNA pulsación de E; nada de Sokoban) | Deducción (única respuesta) | Acción final |
+| Nivel | Mecánica propia (todas, UNA pulsación de E; nada de Sokoban) | Deducción (un ejemplo; todas en la sección 5) | Acción final |
 |---|---|---|---|
-| 3 · La Puerta con Candado | polvo intacto / camino limpio (luz), tablas que crujen, **mirar debajo** de la caja | «¿Por qué hay un candado nuevo…?» → *Alguien entra y sale a diario…* con **Camino sin polvo + Huellas recientes**; la carta es obligatoria | **abrir** la puerta con la llave o las ganzúas → informe |
-| 4 · El Cuarto de los Juguetes | juguetes que se mueven solos (`Fenomeno`), **tirar** de un hilo, **cortar** otro, trampilla | → **Oso con hilo cosido + Trampilla del techo** | **cortar** el último hilo (el del oso); silueta en la ventana |
+| 3 · La Puerta con Candado | polvo intacto / camino limpio (luz), tablas que crujen, **mirar debajo** de la caja | «¿Por qué hay un candado nuevo…?» → *Alguien entra y sale a diario…* con **Camino sin polvo + Carta sin enviar**; la carta es obligatoria | **abrir** la puerta con la llave o las ganzúas → informe |
+| 4 · El Cuarto de los Juguetes | juguetes que se mueven solos (`Fenomeno`), **tirar** de un hilo, **cortar** otro, trampilla | → **Bobina de hilo** sola, u **Oso con hilo cosido + Trampilla del techo**; el diario es obligatorio | **cortar** el último hilo (el del oso); silueta en la ventana |
 | 5 · La Sombra en la Ventana | **persecución en tiempo real** (`src/motor/Persecucion.js`): cerrar la salida, apagar la chimenea, captura a ≤ 150 px durante 1,5 s, papeles a los 60 s | **sin deducción**: la captura es la prueba | tras la captura, **abrir** la puerta al despacho (con la chimenea apagada) |
-| 6 · La Verdad Revelada | **ordenar** los archivos, suelo hueco con onda, cartas de compradores; la libreta es el **expediente** (pistas del Registro por habitación) | ¿Quién? → **Pluma «G. V.» + Recibo de ferretería** · ¿Por qué? → **Carta sin enviar + Planos de la mansión** | al resolver: cierre, compartimento bajo el reloj, informe con «Ver créditos» |
+| 6 · La Verdad Revelada | **ordenar** los archivos, suelo hueco con onda, cartas de compradores; la libreta es el **expediente** (pistas del Registro por habitación) | ¿Quién? → **Siete rechazos + Recorte de periódico** · ¿Por qué? → **Diario infantil + Carta sin enviar** (hasta 3 pruebas) | al resolver: cierre, compartimento bajo el reloj, informe con «Ver créditos» |
 
 - Acciones nuevas del motor (`Investigacion`): `mirar-debajo`, `cortar`, `ordenar`, `cerrar`, `apagar`, `abrir` (con `alguno`: la llave **o** las ganzúas) y los
   hechos `piso:X`, `vio-cerca:X`, `capturo`; `despuesDelCierre` retiene una línea hasta que termina el texto del cierre.
-- El nivel 6 no puede quedar sin salida: al entrar, si falta en el Registro una pista que la deducción final necesita y su habitación está completada, se repone
-  (`src/motor/Reposicion.js`). El nivel 5 cuenta como completado al salir por la puerta del despacho.
+- El nivel 6 no puede quedar sin salida: al entrar, si falta en el Registro una pista imprescindible (`"reponer": true`: el recorte, la carta, el diario, los planos) y su
+  habitación está completada, se repone (`src/motor/Reposicion.js`). El recibo y el abrigo no: son opcionales. El nivel 5 cuenta como completado al salir por la puerta del despacho.
 - Los planos del nivel 5 salen **después** de la revelación 1 y no se pueden perder.
 - Verificación: `?papeles=N` cambia los segundos de los papeles (solo para probar); `docs/fase6/herramientas/jugador_de_verificacion.js` camina y deduce con teclas.
 - **Arreglo 6.1:** el informe nunca llega encima de algo sin leer: la última tarjeta se escribe, cumple su tiempo de lectura, aparece «E / Espacio / clic para

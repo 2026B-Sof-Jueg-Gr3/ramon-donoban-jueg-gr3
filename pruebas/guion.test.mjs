@@ -10,8 +10,9 @@ const narrativa = n => JSON.parse(leer(`assets/narrativa/nivel${n}.json`));
 const niveles = Array.from({ length: TOTAL_NIVELES }, (_, i) => i + 1);
 
 const CATEGORIAS = ['bateria', 'cierre', 'comentarios', 'error', 'informe', 'intro', 'marcas', 'muebles', 'pistas', 'revelaciones'];
-// Todas las habitaciones tienen su deducción aprobada, salvo la 5 (la persecución): la captura es la prueba
-const CATEGORIAS_DE = n => n === 5 ? CATEGORIAS : [...CATEGORIAS, 'deduccion'].sort();
+// Todas las habitaciones tienen su deducción aprobada, salvo la 5 (la persecución): la captura es la prueba. Con deducción, además, la
+// línea "insuficiente" (las pruebas iban bien, pero les faltaba una pieza)
+const CATEGORIAS_DE = n => n === 5 ? CATEGORIAS : [...CATEGORIAS, 'deduccion', 'insuficiente'].sort();
 const CATEGORIAS_DEL_SOKOBAN = ['empujar', 'cajas', 'retirar'];
 
 test('hay seis habitaciones y cada una tiene su narrativa', () => {

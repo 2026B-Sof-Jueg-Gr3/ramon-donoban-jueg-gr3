@@ -34,7 +34,7 @@ const reglas = () => ({
     deduccion: {
         obligatorias: ['p-carta'],
         pruebas: { huellas: { sale: 'r0' }, 'p-carta': { sale: 'pista:p-carta' }, 'p-llave': { sale: 'pista:p-llave' }, 'caja-herramientas': { sale: 'mueble:m-caja' } },
-        preguntas: [{ id: 'q', correcta: 'a', validas: [['huellas']] }]
+        preguntas: [{ id: 'q', correcta: 'a', necesita: ['alguien-paso'], aportan: { huellas: ['alguien-paso'] } }]
     },
     ayuda: { espera: 45, refuerzos: [{ efecto: 'final', mientras: { deduccion: 'resuelta' } }, { efecto: 'carta', mientras: { sinContar: ['pista:p-carta'] } }] }
 });
@@ -135,7 +135,7 @@ test('el expediente: las pruebas del nivel y todas las pistas que el Registro gu
     const anterior = { pistas: [{ id: 'n2-pista-recibo', titulo: 'RECIBO', texto: 'poleas' }, { id: 'n3-pista-carta', titulo: 'CARTA', texto: 'carta' }, { id: 'n3-pista-llave', titulo: 'LLAVE', texto: 'llave' }] };
     const registro = { 'n2-pista-recibo': { nivel: 2 }, 'n3-pista-carta': { nivel: 3 }, 'n3-pista-llave': { nivel: 3 }, 'n6-pista-propia': { nivel: 6 } };
     const nar6 = { ...narrativa, pistas: [{ id: 'n6-pista-propia', titulo: 'CARTAS', texto: 'compradores' }], deduccion: { pruebas: { huellas: 'Huellas' }, preguntas: [] } };
-    const def = { expediente: true, pruebas: { huellas: { sale: 'r0' }, 'n2-pista-recibo': { registro: true }, 'n3-pista-carta': { registro: true }, 'n5-pista-planos': { registro: true } }, preguntas: [{ id: 'q', correcta: 'a', validas: [['n2-pista-recibo', 'n3-pista-carta']] }] };
+    const def = { expediente: true, pruebas: { huellas: { sale: 'r0' }, 'n2-pista-recibo': { registro: true }, 'n3-pista-carta': { registro: true }, 'n5-pista-planos': { registro: true } }, preguntas: [{ id: 'q', correcta: 'a', necesita: ['x', 'y'], aportan: { 'n2-pista-recibo': ['x'], 'n3-pista-carta': ['y'] } }] };
     const inv = new Investigacion({ objetos: { cajas: { acciones: { examinar: {}, 'mirar-debajo': {} } } }, reglas: [{ id: 'r0', cuando: ['miro-debajo:cajas'], clase: 'importante', texto: 'revelaciones:0' }] }, nar6);
     const libreta = new Libreta(def, nar6, inv, { nivel: 6, registro: () => registro, narrativas: { 2: anterior, 3: anterior, 6: nar6 } });
     assert.deepEqual(libreta.hallazgos().map(h => [h.id, h.nivel]), [['n2-pista-recibo', 2], ['n3-pista-carta', 3], ['n3-pista-llave', 3]], 'las del Registro, agrupadas por nivel');
@@ -143,7 +143,7 @@ test('el expediente: las pruebas del nivel y todas las pistas que el Registro gu
     assert.deepEqual(libreta.hallazgos().map(h => h.id), ['huellas', 'n2-pista-recibo', 'n3-pista-carta', 'n3-pista-llave']);
     assert.equal(libreta.hallazgos()[1].nombre, 'RECIBO');
     // Si falta una pista de un nivel anterior (los planos), la pregunta que la necesita no se puede resolver
-    def.preguntas[0].validas = [['n3-pista-carta', 'n5-pista-planos']];
+    def.preguntas[0].aportan = { 'n3-pista-carta': ['x'], 'n5-pista-planos': ['y'] };
     const deduccion = new Deduccion(def, libreta);
     assert.equal(deduccion.disponible(), false, 'faltan los planos del nivel 5');
     assert.equal(deduccion.responder('q', 'a', ['n3-pista-carta', 'n5-pista-planos']).motivo, 'no-encontradas');

@@ -72,26 +72,29 @@ test('los muebles, las pistas y las pilas: cada uno con su texto, secundarios', 
     assert.ok(narrativa.muebles.filter(m => m.borrador).length === 2);
 });
 
-test('la deducción: camino sin polvo + huellas recientes, y no se ofrece hasta recoger la CARTA SIN ENVIAR', () => {
+test('la deducción: hace falta saber que alguien entra seguido Y que no quiere visitas, y no se ofrece hasta recoger la CARTA SIN ENVIAR', () => {
     const { deduccion, libreta } = partida('intactoYCamino', 'cajas', 'debajo');
     assert.equal(libreta.obligatoriasListas(), false);
     assert.equal(deduccion.disponible(), false, 'sin la carta no hay deducción');
     S.carta(deduccion.libreta.investigacion);
-    assert.equal(deduccion.disponible(), true);
-    assert.deepEqual(deduccion.responder('candado', 'entra-a-diario', ['camino-sin-polvo', 'huellas-recientes']), { estado: 'resuelto' });
-    assert.equal(partida('intactoYCamino', 'carta').deduccion.disponible(), false, 'la carta sola no basta: faltan las huellas');
-    assert.equal(partida('cajas', 'debajo', 'carta').deduccion.disponible(), false, 'faltan el camino');
+    assert.equal(deduccion.disponible(), true, 'el camino (o las huellas) con la carta');
+    assert.deepEqual(deduccion.responder('candado', 'entra-a-diario', ['camino-sin-polvo', 'n3-pista-carta']), { estado: 'resuelto' });
+    assert.equal(partida('carta').deduccion.disponible(), false, 'la carta sola no basta: nada dice que alguien entra seguido');
+    assert.equal(partida('llave', 'carta').deduccion.disponible(), true, 'la llave de copia con la carta');
 });
 
-test('una pregunta, una sola respuesta: solo camino + huellas; la llave, el llavero, el aceite y la carta son error', () => {
+test('las dos partes: una prueba de que alguien entra seguido y otra de que no quiere visitas; una parte sola es insuficiente', () => {
     const t = () => partida('intactoYCamino', 'cajas', 'debajo', 'carta', 'llave', 'llavero', 'tapiada', 'herramientas', 'barril').deduccion;
-    assert.equal(t().responder('candado', 'entra-a-diario', ['camino-sin-polvo', 'huellas-recientes']).estado, 'resuelto');
-    for (const sola of ['camino-sin-polvo', 'huellas-recientes']) assert.deepEqual(t().responder('candado', 'entra-a-diario', [sola]), { estado: 'error', motivo: 'pruebas' }, sola);
-    for (const ajena of ['n3-pista-llave', 'llavero-vacio', 'aceite-para-bisagras', 'n3-pista-carta', 'puerta-tapiada', 'herramientas-de-cerrajero']) {
-        assert.deepEqual(t().responder('candado', 'entra-a-diario', [ajena]), { estado: 'error', motivo: 'ajena' }, ajena);
-        assert.deepEqual(t().responder('candado', 'entra-a-diario', ['camino-sin-polvo', ajena]), { estado: 'error', motivo: 'ajena' }, `camino + ${ajena}`);
+    const USO = ['camino-sin-polvo', 'huellas-recientes', 'n3-pista-llave', 'aceite-para-bisagras'], VISITAS = ['n3-pista-carta', 'puerta-tapiada'];
+    for (const uso of USO) for (const visitas of VISITAS) assert.deepEqual(t().responder('candado', 'entra-a-diario', [uso, visitas]), { estado: 'resuelto' }, `${uso} + ${visitas}`);
+    for (const uso of USO) assert.deepEqual(t().responder('candado', 'entra-a-diario', [uso]), { estado: 'error', motivo: 'insuficiente' }, uso);
+    assert.deepEqual(t().responder('candado', 'entra-a-diario', ['camino-sin-polvo', 'huellas-recientes']), { estado: 'error', motivo: 'insuficiente' }, 'dos de uso: falta por qué no quiere visitas');
+    assert.deepEqual(t().responder('candado', 'entra-a-diario', ['n3-pista-carta', 'puerta-tapiada']), { estado: 'error', motivo: 'insuficiente' }, 'dos de visitas: falta que alguien entra');
+    for (const parcial of ['llavero-vacio', 'herramientas-de-cerrajero']) {
+        assert.deepEqual(t().responder('candado', 'entra-a-diario', [parcial]), { estado: 'error', motivo: 'insuficiente' }, parcial);
+        assert.deepEqual(t().responder('candado', 'entra-a-diario', [parcial, 'n3-pista-carta']), { estado: 'error', motivo: 'insuficiente' }, `${parcial} + carta`);
     }
-    for (const mala of ['nadie-en-anos', 'sellaron-algo']) assert.deepEqual(t().responder('candado', mala, ['camino-sin-polvo', 'huellas-recientes']), { estado: 'error', motivo: 'conclusion' }, mala);
+    for (const mala of ['nadie-en-anos', 'sellaron-algo']) assert.deepEqual(t().responder('candado', mala, ['camino-sin-polvo', 'n3-pista-carta']), { estado: 'error', motivo: 'conclusion' }, mala);
 });
 
 test('la acción final: la puerta se abre con la llave O con las ganzúas, solo tras resolver; sin ellas no', () => {
@@ -113,9 +116,9 @@ test('el orden libre: dos recorridos distintos dan las mismas líneas, cada una 
     for (const inv of [a, b]) for (const h of inv.historial) if (h.regla.startsWith('revelacion')) assert.ok(h.orden > 0);
 });
 
-test('los hallazgos extra del nivel 3: los 4 muebles y la llave; la carta (para el final) no cuenta', () => {
+test('los hallazgos extra del nivel 3: el llavero y las herramientas; la carta (para el final) no cuenta', () => {
     const { libreta } = partida('llavero', 'carta');
-    assert.equal(libreta.resumen().totalDeExtras, 5, 'llavero, puerta tapiada, herramientas, barril y llave');
+    assert.equal(libreta.resumen().totalDeExtras, 2, 'el llavero y las herramientas: orientan, pero ninguna respuesta mínima los necesita');
     assert.equal(libreta.resumen().extras, 1);
 });
 

@@ -11,6 +11,7 @@ import { acercar } from '../../motor/Movimiento.js';
 import { zonaDeAccion } from '../../motor/Alcance.js';
 import { respirar } from '../../motor/Respiracion.js';
 import { PROFUNDIDAD } from '../profundidad.js';
+import BrilloDePista from '../BrilloDePista.js';
 
 const DESPLAZAMIENTO_DEL_CABALLITO = 240;       // px hacia el este: "se mueve al otro lado del cuarto"
 const DURACION_DE_TIRAR = 900;
@@ -45,6 +46,8 @@ export default class Juguetes {
         // El hilo cosido del oso y el último hilo: un brillo sobre la oscuridad
         const brillo = (escala) => e.add.image(0, 0, 'polvo').setBlendMode(Phaser.BlendModes.ADD).setTint(0xfff0c0).setDepth(PROFUNDIDAD.oscuridad + 0.6).setAlpha(0).setScale(escala);
         this.brilloDelOso = [brillo(3), brillo(3), brillo(3)];
+        // La página del diario (obligatoria: la usa la deducción del nivel 6) mientras no se recoge
+        this.diario = new BrilloDePista(e, 'n4-pista-diario');
         // La ventana exterior y la silueta que la cruza al cerrar el nivel
         const v = mapa.objetos.find(o => o.tipo === 'ventana');
         this.ventana = { x: v.x, y: v.y, ancho: v.ancho, alto: v.alto };
@@ -67,6 +70,7 @@ export default class Juguetes {
         this.mecer = Math.max(0, this.mecer - dt * 0.55);
         this.girar = Math.max(0, this.girar - dt * 0.55);
         for (const k of Object.keys(this.niveles)) this.niveles[k] = acercar(this.niveles[k], this.efecto === k ? 1 : 0, dt, 1.2);
+        this.diario.actualizar(dt, tiempo, this.efecto === 'diario');
 
         const e = this.escena;
         // Los juguetes se mueven solos un rato tras cada movimiento

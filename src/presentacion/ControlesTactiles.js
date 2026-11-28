@@ -1,14 +1,14 @@
-// Los controles táctiles, al estilo de un emulador (PPSSPP): un joystick a la izquierda y botones de contorno fino a la derecha,
-// dibujados en HTML encima del juego. No cambian el juego: cada control "aprieta" la misma tecla que usaría el teclado (el joystick,
-// las flechas; E; Tab para la libreta; Esc para la pausa; M para la música), así que todo lo demás funciona igual que en la
-// computadora. La linterna sigue apuntando hacia donde camina el inspector (src/motor/Apuntado.js): los toques no la mueven.
+// Los controles en pantalla, dibujados en HTML encima del juego. No cambian el juego: cada control "aprieta" la misma tecla que
+// usaría el teclado (las flechas, E, Tab para la libreta, H para el historial, Esc para la pausa, M para la música), así que todo lo
+// demás funciona igual. La linterna sigue apuntando hacia donde camina el inspector (src/motor/Apuntado.js): los toques no la mueven.
 //
-// Solo aparecen en pantallas táctiles (o tras el primer toque), y el joystick y los botones de juego solo dentro de una habitación.
-// En vertical se pide girar el teléfono.
+// Solo en pantallas táctiles (o tras el primer toque), al estilo de un emulador (PPSSPP): un joystick a la izquierda y botones de
+// contorno fino a la derecha. En vertical se pide girar el teléfono. Solo dentro de una habitación, y se apartan mientras se lee
+// un texto o está abierta la libreta.
 import { flechasDelJoystick, limitarAlAro, cambiosDeFlechas } from '../motor/Joystick.js';
 
-const CODIGO = { izquierda: 37, arriba: 38, derecha: 39, abajo: 40, E: 69, TAB: 9, ESC: 27, M: 77 };
-const NOMBRE = { izquierda: 'ArrowLeft', arriba: 'ArrowUp', derecha: 'ArrowRight', abajo: 'ArrowDown', E: 'e', TAB: 'Tab', ESC: 'Escape', M: 'm' };
+const CODIGO = { izquierda: 37, arriba: 38, derecha: 39, abajo: 40, E: 69, TAB: 9, H: 72, ESC: 27, M: 77 };
+const NOMBRE = { izquierda: 'ArrowLeft', arriba: 'ArrowUp', derecha: 'ArrowRight', abajo: 'ArrowDown', E: 'e', TAB: 'Tab', H: 'h', ESC: 'Escape', M: 'm' };
 
 // Una pulsación de teclado como la del teclado de verdad (Phaser mira keyCode; la música, key)
 function tecla(tipo, cual) {
@@ -29,7 +29,7 @@ const ESTILO = `
 .tactil.activo { display: block; }
 .tactil.fuera-de-habitacion .solo-habitacion { display: none; }
 /* Mientras se lee un texto no se camina ni se abre la libreta: solo queda E (o tocar la pantalla) para seguir, y no tapa la caja */
-.tactil.leyendo .tt-aro, .tactil.leyendo .tt-libreta, .tactil.con-cuaderno .tt-aro { display: none; }
+.tactil.leyendo .tt-aro, .tactil.leyendo .tt-libreta, .tactil.leyendo .tt-historial, .tactil.con-cuaderno .tt-aro { display: none; }
 .tactil.leyendo .tt-e { opacity: 0.55; }
 .tt-aro, .tt-boton { position: absolute; pointer-events: auto; touch-action: none; -webkit-tap-highlight-color: transparent; }
 .tt-aro { left: calc(5vmin + env(safe-area-inset-left)); bottom: 6vmin; width: 34vmin; height: 34vmin; border-radius: 50%;
@@ -40,11 +40,14 @@ const ESTILO = `
     box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.35); }
 .tt-boton { display: flex; align-items: center; justify-content: center; color: rgba(235, 235, 235, 0.88);
     border: 2px solid rgba(225, 225, 225, 0.6); background: rgba(0, 0, 0, 0.16); }
+.tactil.libreta-lista .tt-libreta { border-color: rgba(255, 208, 96, 0.95); color: #ffd060; animation: tt-latido 1.4s ease-in-out infinite; }
+@keyframes tt-latido { 0%, 100% { box-shadow: 0 0 0 0 rgba(255, 208, 96, 0); } 50% { box-shadow: 0 0 0 1.6vmin rgba(255, 208, 96, 0.22); } }
 .tt-boton.apretado { background: rgba(255, 255, 255, 0.24); border-color: rgba(255, 255, 255, 0.9); }
 .tt-redondo { border-radius: 50%; }
 .tt-e { right: calc(6vmin + env(safe-area-inset-right)); bottom: 9vmin; width: 19vmin; height: 19vmin; font-size: 8vmin; }
 .tt-libreta { right: calc(28vmin + env(safe-area-inset-right)); bottom: 21vmin; width: 14vmin; height: 14vmin; }
-.tt-libreta svg { width: 7vmin; height: 7vmin; }
+.tt-historial { right: calc(8.5vmin + env(safe-area-inset-right)); bottom: 32vmin; width: 14vmin; height: 14vmin; }
+.tt-libreta svg, .tt-historial svg { width: 7vmin; height: 7vmin; }
 .tt-rect { top: 3vmin; height: 7.5vmin; min-width: 17vmin; padding: 0 2.4vmin; font-size: 3.2vmin; letter-spacing: 0.08em; }
 /* En las esquinas de arriba, como los gatillos L y R: así no tapan los títulos de la libreta ni de la pausa, que van al centro */
 .tt-musica { left: calc(3vmin + env(safe-area-inset-left)); border-radius: 3px 14px 3px 3px; }
@@ -57,6 +60,7 @@ const ESTILO = `
 `;
 
 const ICONO_LIBRETA = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M5 3.5h11.5a2 2 0 0 1 2 2V20.5H7a2 2 0 0 1-2-2z"/><path d="M5 18.5a2 2 0 0 1 2-2h11.5"/><path d="M9 7.5h6M9 10.5h6"/></svg>';
+const ICONO_HISTORIAL = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M4 5h16v11H10l-4 3.5V16H4z"/><path d="M8 9h8M8 12h5"/></svg>';
 const ICONO_TELEFONO = '<svg viewBox="0 0 24 24" fill="none" stroke="#ffd060" stroke-width="1.5"><rect x="7" y="2.5" width="10" height="19" rx="2"/><path d="M11 18.5h2"/></svg>';
 
 export default class ControlesTactiles {
@@ -77,11 +81,13 @@ export default class ControlesTactiles {
             <div class="tt-aro solo-habitacion" aria-label="Joystick"><div class="tt-pomo"></div></div>
             <div class="tt-boton tt-redondo tt-e solo-habitacion" data-tecla="E" aria-label="Usar o continuar">E</div>
             <div class="tt-boton tt-redondo tt-libreta solo-habitacion" data-tecla="TAB" aria-label="Libreta">${ICONO_LIBRETA}</div>
+            <div class="tt-boton tt-redondo tt-historial solo-habitacion" data-tecla="H" aria-label="Historial">${ICONO_HISTORIAL}</div>
             <div class="tt-boton tt-rect tt-musica" data-tecla="M" aria-label="Música">MÚSICA</div>
             <div class="tt-boton tt-rect tt-pausa solo-habitacion" data-tecla="ESC" aria-label="Pausa">PAUSA</div>`;
         const girar = document.createElement('div');
         girar.className = 'tt-girar';
         girar.innerHTML = `${ICONO_TELEFONO}<div>Gira el teléfono para jugar</div>`;
+
         document.body.append(raiz, girar);
         this.raiz = raiz;
         this.aro = raiz.querySelector('.tt-aro');
@@ -90,12 +96,12 @@ export default class ControlesTactiles {
         this.instalarJoystick();
         for (const boton of raiz.querySelectorAll('[data-tecla]')) this.instalarBoton(boton);
 
-        // Aparecen en pantallas táctiles desde el principio, o en cuanto alguien toca la pantalla
+        // Los táctiles aparecen en pantallas táctiles desde el principio, o en cuanto alguien toca la pantalla
         if (matchMedia('(pointer: coarse)').matches) this.activar();
         window.addEventListener('pointerdown', ev => { if (ev.pointerType === 'touch') this.activar(); }, { passive: true });
         window.addEventListener('touchstart', () => this.activar(), { passive: true, once: true });
 
-        // El joystick y los botones de juego solo dentro de una habitación, y no mientras se lee un texto o está abierta la libreta
+        // Solo dentro de una habitación, y no mientras se lee un texto o está abierta la libreta
         const vigilar = () => {
             const enHabitacion = this.juego.scene.isActive('Habitacion');
             const habitacion = enHabitacion ? this.juego.scene.getScene('Habitacion') : null;
@@ -103,6 +109,7 @@ export default class ControlesTactiles {
             raiz.classList.toggle('fuera-de-habitacion', !enHabitacion);
             raiz.classList.toggle('leyendo', leyendo);
             raiz.classList.toggle('con-cuaderno', conCuaderno);
+            raiz.classList.toggle('libreta-lista', !!habitacion?.aviso?.iconoVisible && habitacion?.fase === 'investigando');
             if ((!enHabitacion || leyendo || conCuaderno) && this.dedo !== null) this.soltarJoystick();
             requestAnimationFrame(vigilar);
         };
@@ -113,6 +120,7 @@ export default class ControlesTactiles {
         if (this.activo) return;
         this.activo = true;
         this.raiz.classList.add('activo');
+        this.juego.registry?.set('tactil', true);        // los íconos de teclas de la computadora se apartan (src/presentacion/HudDeTeclas.js)
         // Pantalla completa y apaisado, si el navegador lo permite (en iPhone no: ahí se queda la barra del navegador)
         const pantallaCompleta = () => {
             window.removeEventListener('pointerup', pantallaCompleta);
@@ -159,7 +167,7 @@ export default class ControlesTactiles {
         this.flechas = ahora;
     }
 
-    // Un botón aprieta su tecla al tocarlo y la suelta al levantar el dedo
+    // Un botón aprieta su tecla al tocarlo (o hacer clic) y la suelta al levantar el dedo
     instalarBoton(boton) {
         const cual = boton.dataset.tecla;
         let dedo = null;

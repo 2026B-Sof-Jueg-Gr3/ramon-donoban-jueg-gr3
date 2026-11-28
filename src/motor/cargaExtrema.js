@@ -13,7 +13,7 @@ export function contenidoExtremo(narrativas) {
     for (const n of narrativas) {
         informes.push(n.informe);
         // El cierre puede traer cortes de página (\f, src/ui/DialogoPrincipal.js): aquí van como espacios
-        todos.push(n.intro, n.cierre?.replaceAll('\f', ' '), n.informe, n.error, ...(n.comentarios || []), ...(n.revelaciones || []));
+        todos.push(n.intro, n.cierre?.replaceAll('\f', ' '), n.informe, n.error, n.insuficiente, ...(n.comentarios || []), ...(n.revelaciones || []));
         for (const q of n.deduccion?.preguntas || []) { preguntas.push(q.texto); for (const o of q.opciones) opciones.push(o.texto); }
         nombres.push(...Object.values(n.deduccion?.pruebas || {}));
         for (const p of n.pistas || []) { titulos.push(p.titulo); textosDePista.push(p.texto); todos.push(p.texto); }

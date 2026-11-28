@@ -1,6 +1,6 @@
 {
   "nivel": 3,
-  "comentario": "Reglas de la Puerta con Candado (rastreo y acceso). No lleva texto: cada regla apunta a una línea de assets/narrativa/nivel3.json. Hechos: entro · ilumino:X · examino:X · miro-debajo:X · recogio:X · abrio:X · piso:X (el inspector camina sobre una zona) · resolvio (la deducción quedó resuelta). 'requiere' son dependencias físicas (todas); 'alguno' pide al menos una. La CARTA SIN ENVIAR es 'paraElFinal': hay que recogerla antes de poder deducir (la usa la deducción del nivel 6). Una pregunta, una sola respuesta.",
+  "comentario": "Reglas de la Puerta con Candado (rastreo y acceso). No lleva texto: cada regla apunta a una línea de assets/narrativa/nivel3.json. Hechos: entro · ilumino:X · examino:X · miro-debajo:X · recogio:X · abrio:X · piso:X (el inspector camina sobre una zona) · resolvio (la deducción quedó resuelta). 'requiere' son dependencias físicas (todas); 'alguno' pide al menos una. La CARTA SIN ENVIAR es 'paraElFinal': hay que recogerla antes de poder deducir (la usa la deducción del nivel 6). Cada pregunta se valora por hechos (src/motor/Deduccion.js): 'necesita' y 'aportan'.",
   "objetos": {
     "cajas": { "acciones": { "examinar": {} } },
     "n3-camino": { "descubre": "luz", "acciones": { "examinar": { "requiere": ["ilumino:n3-camino"] } } },
@@ -61,7 +61,19 @@
       "n3-pista-llave": { "sale": "pista:n3-pista-llave" }
     },
     "preguntas": [
-      { "id": "candado", "correcta": "entra-a-diario", "validas": [["camino-sin-polvo", "huellas-recientes"]] }
+      { "id": "candado", "correcta": "entra-a-diario",
+        "necesita": ["entra-seguido", "no-quiere-visitas"],
+        "aportan": {
+          "camino-sin-polvo": ["entra-seguido"],
+          "huellas-recientes": ["entra-seguido"],
+          "n3-pista-llave": ["entra-seguido"],
+          "aceite-para-bisagras": ["entra-seguido"],
+          "n3-pista-carta": ["no-quiere-visitas"],
+          "puerta-tapiada": ["no-quiere-visitas"],
+          "llavero-vacio": ["falta-la-llave"],
+          "herramientas-de-cerrajero": ["abren-cerraduras"]
+        }
+      }
     ]
   }
 }
